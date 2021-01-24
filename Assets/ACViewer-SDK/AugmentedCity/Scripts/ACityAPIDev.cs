@@ -72,6 +72,7 @@ public class ACityAPIDev : MonoBehaviour
     public float tempScale3d;
     public float globalTimer;
     float serverTimer;
+    public bool useOSCP;
 
     ScreenOrientation ori;
 
@@ -114,6 +115,12 @@ public class ACityAPIDev : MonoBehaviour
         uim = this.GetComponent<UIManager>();
 
     }
+
+    public void SetOSCPusage(bool os)
+    {
+        useOSCP = os;
+    }
+
 
     void SetCameraConfiguration()
     {
@@ -214,104 +221,297 @@ public class ACityAPIDev : MonoBehaviour
         return null;
     }
 
-    public void camLocalize(string jsonanswer)
+    public void camLocalize(string jsonanswer, bool geopose)
     {
         var jsonParse = JSON.Parse(jsonanswer);
         float px, py, pz, ox, oy, oz, ow;
         int objectsAmount = -1; string js, sessionId;
-        if (jsonParse["camera"] != null)
+        if (!geopose)
         {
-            sessionId = jsonParse["reconstruction_id"];
-
-            Debug.Log("sessioID: " + sessionId);
-
-            do
+            if (jsonParse["camera"] != null)
             {
-                objectsAmount++;
-                js = jsonParse["placeholders"][objectsAmount]["placeholder_id"];
-                Debug.Log("js node [" + objectsAmount + "]  - " + js);
-            } while (js != null);
+                sessionId = jsonParse["reconstruction_id"];
 
-            Debug.Log("nodeAmount =   " + objectsAmount + ", RecoArray Length = " + recoList.Count);
-            px = jsonParse["camera"]["pose"]["position"]["x"].AsFloat;
-            py = jsonParse["camera"]["pose"]["position"]["y"].AsFloat;
-            pz = jsonParse["camera"]["pose"]["position"]["z"].AsFloat;
-            ox = jsonParse["camera"]["pose"]["orientation"]["x"].AsFloat;
-            oy = jsonParse["camera"]["pose"]["orientation"]["y"].AsFloat;
-            oz = jsonParse["camera"]["pose"]["orientation"]["z"].AsFloat;
-            ow = jsonParse["camera"]["pose"]["orientation"]["w"].AsFloat;
-            uim.setDebugPose(px,py,pz,ox,oy,oz,ow, sessionId);
-            GameObject newCam = new GameObject("tempCam"); 
-            newCam.transform.localPosition = new Vector3(px, py, pz);
-            newCam.transform.localRotation = new Quaternion(ox, oy, oz, ow);
-            newCam.transform.localPosition = new Vector3(px, -newCam.transform.localPosition.y, pz);
-            Debug.Log("Camera new: " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
-            newCam.transform.localRotation = Quaternion.Euler(-newCam.transform.localRotation.eulerAngles.x, newCam.transform.localRotation.eulerAngles.y, -newCam.transform.localRotation.eulerAngles.z);
-            GameObject zeroCoord = new GameObject("Zero");
-            zeroCoord.transform.SetParent(newCam.transform);
-            RecoInfo currentRi = checkRecoID(sessionId);
-            StickerInfo[] stickers;
-            stickers = null;
-            if ((objectsAmount > 0)&&(currentRi == null))
-            {
-                currentRi = new RecoInfo();
-                currentRi.id = sessionId;
-                currentRi.scale3dcloud = tempScale3d;
-                stickers = new StickerInfo[objectsAmount];
-                currentRi.stickerArray = new StickerInfo[objectsAmount];
-                GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
-
-                for (int j = 0; j < objectsAmount; j++)
+                do
                 {
-                    currentRi.stickerArray[j] = new StickerInfo();
-                    stickers[j] = new StickerInfo();
-                    currentRi.stickerArray[j].positions = new Vector3[4];
-                    float positionObjX = jsonParse["placeholders"][j]["pose"]["position"]["x"].AsFloat;
-                    float positionObjY = jsonParse["placeholders"][j]["pose"]["position"]["y"].AsFloat;
-                    float positionObjZ = jsonParse["placeholders"][j]["pose"]["position"]["z"].AsFloat;
-                    currentRi.stickerArray[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
-                    Debug.Log("currentRi.stickerArray[j].mainPositions = " + currentRi.stickerArray[j].mainPositions);
-                    stickers[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
-                    currentRi.stickerArray[j].orientations = new Vector4(jsonParse["placeholders"][j]["pose"]["orientation"]["x"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["y"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["z"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["w"].AsFloat);
-                    stickers[j].orientations = currentRi.stickerArray[j].orientations;
-                    Debug.Log("!!!!! currentRi.stickerArray["+j+"].orientations" + currentRi.stickerArray[j].orientations);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        px = jsonParse["placeholders"][j]["frame"][i]["x"].AsFloat + positionObjX;
-                        py = jsonParse["placeholders"][j]["frame"][i]["y"].AsFloat + positionObjY;
-                        pz = jsonParse["placeholders"][j]["frame"][i]["z"].AsFloat + positionObjZ;
+                    objectsAmount++;
+                    js = jsonParse["placeholders"][objectsAmount]["placeholder_id"];
+                } while (js != null);
 
-                        placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
-                        placeHolders[j, i].transform.SetParent(newCam.transform);
-                        py = -py;
-                        placeHolders[j, i].transform.position = new Vector3(px, py, pz);
-                        currentRi.stickerArray[j].positions[i] = new Vector3(px, py, pz);
+                Debug.Log("nodeAmount =   " + objectsAmount + ", RecoArray Length = " + recoList.Count);
+
+                px = jsonParse["camera"]["pose"]["position"]["x"].AsFloat;
+                py = jsonParse["camera"]["pose"]["position"]["y"].AsFloat;
+                pz = jsonParse["camera"]["pose"]["position"]["z"].AsFloat;
+                ox = jsonParse["camera"]["pose"]["orientation"]["x"].AsFloat;
+                oy = jsonParse["camera"]["pose"]["orientation"]["y"].AsFloat;
+                oz = jsonParse["camera"]["pose"]["orientation"]["z"].AsFloat;
+                ow = jsonParse["camera"]["pose"]["orientation"]["w"].AsFloat;
+                uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                GameObject newCam = new GameObject("tempCam");
+                newCam.transform.localPosition = new Vector3(px, py, pz);
+                newCam.transform.localRotation = new Quaternion(ox, oy, oz, ow);
+                newCam.transform.localPosition = new Vector3(px, -newCam.transform.localPosition.y, pz);
+                //   Debug.Log("Camera new: " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
+                newCam.transform.localRotation = Quaternion.Euler(-newCam.transform.localRotation.eulerAngles.x, newCam.transform.localRotation.eulerAngles.y, -newCam.transform.localRotation.eulerAngles.z);
+                GameObject zeroCoord = new GameObject("Zero");
+                zeroCoord.transform.SetParent(newCam.transform);
+                RecoInfo currentRi = checkRecoID(sessionId);
+                StickerInfo[] stickers;
+                stickers = null;
+                if (currentRi == null)
+                {
+                    currentRi = new RecoInfo();
+                    currentRi.id = sessionId;
+                    if (objectsAmount > 0)
+                    {
+                        currentRi.scale3dcloud = tempScale3d;
+                        stickers = new StickerInfo[objectsAmount];
+                        currentRi.stickerArray = new StickerInfo[objectsAmount];
+                        GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
+                        for (int j = 0; j < objectsAmount; j++)
+                        {
+                            currentRi.stickerArray[j] = new StickerInfo();
+                            stickers[j] = new StickerInfo();
+                            currentRi.stickerArray[j].positions = new Vector3[4];
+                            float positionObjX = jsonParse["placeholders"][j]["pose"]["position"]["x"].AsFloat;
+                            float positionObjY = jsonParse["placeholders"][j]["pose"]["position"]["y"].AsFloat;
+                            float positionObjZ = jsonParse["placeholders"][j]["pose"]["position"]["z"].AsFloat;
+                            currentRi.stickerArray[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
+                            //    Debug.Log("currentRi.stickerArray[j].mainPositions = " + currentRi.stickerArray[j].mainPositions);
+                            stickers[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
+                            currentRi.stickerArray[j].orientations = new Vector4(jsonParse["placeholders"][j]["pose"]["orientation"]["x"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["y"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["z"].AsFloat, jsonParse["placeholders"][j]["pose"]["orientation"]["w"].AsFloat);
+                            stickers[j].orientations = currentRi.stickerArray[j].orientations;
+                            //   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations" + currentRi.stickerArray[j].orientations);
+                            for (int i = 0; i < 4; i++)
+                            {
+                                px = jsonParse["placeholders"][j]["frame"][i]["x"].AsFloat + positionObjX;
+                                py = jsonParse["placeholders"][j]["frame"][i]["y"].AsFloat + positionObjY;
+                                pz = jsonParse["placeholders"][j]["frame"][i]["z"].AsFloat + positionObjZ;
+                                placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                                placeHolders[j, i].transform.SetParent(newCam.transform);
+                                py = -py;
+                                placeHolders[j, i].transform.position = new Vector3(px, py, pz);
+                                currentRi.stickerArray[j].positions[i] = new Vector3(px, py, pz);
+                            }
+
+                            string idnode = "" + jsonParse["placeholders"][j]["placeholder_id"];
+
+                            for (int x = 0; x < objectsAmount; x++)
+                            {
+                                string idobj = "" + jsonParse["objects"][x]["sticker"]["sticker_id"];
+
+                                if (idobj.Contains(idnode))
+                                {
+                                    stickers[j].sPath = "" + jsonParse["objects"][x]["sticker"]["path"];
+                                    stickers[j].sText = "" + jsonParse["objects"][x]["sticker"]["sticker_text"];
+                                    stickers[j].sType = "" + jsonParse["objects"][x]["sticker"]["sticker_type"];
+                                    stickers[j].sSubType = "" + jsonParse["objects"][x]["sticker"]["sticker_subtype"];
+                                    stickers[j].sDescription = "" + jsonParse["objects"][x]["sticker"]["description"];
+                                    stickers[j].SModel_scale = "" + jsonParse["objects"][x]["sticker"]["model_scale"];
+                                    stickers[j].sId = "" + jsonParse["objects"][x]["sticker"]["sticker_id"];
+                                    stickers[j].objectId = "" + jsonParse["objects"][x]["placeholder"]["placeholder_id"];
+                                    stickers[j].sImage = "" + jsonParse["objects"][x]["sticker"]["Image"];
+                                    stickers[j].sAddress = "" + jsonParse["objects"][x]["sticker"]["Address"];
+                                    stickers[j].sFeedbackAmount = "" + jsonParse["objects"][x]["sticker"]["Feedback amount"];
+                                    stickers[j].sRating = "" + jsonParse["objects"][x]["sticker"]["Rating"];
+                                    stickers[j].sUrl_ta = "" + jsonParse["objects"][x]["sticker"]["url_ta"];
+                                    stickers[j].sTrajectoryPath = "" + jsonParse["objects"][x]["sticker"]["trajectory_path"];
+                                    stickers[j].sTrajectoryOffset = "" + jsonParse["objects"][x]["sticker"]["trajectory_time_offset"];
+                                    stickers[j].sTrajectoryPeriod = "" + jsonParse["objects"][x]["sticker"]["trajectory_time_period"];
+
+                                    currentRi.stickerArray[j].sPath = stickers[j].sPath;
+                                    currentRi.stickerArray[j].sText = stickers[j].sText;
+                                    currentRi.stickerArray[j].sType = stickers[j].sType;
+                                    currentRi.stickerArray[j].sSubType = stickers[j].sSubType;
+                                    currentRi.stickerArray[j].sDescription = stickers[j].sDescription;
+                                    currentRi.stickerArray[j].SModel_scale = stickers[j].SModel_scale;
+                                    currentRi.stickerArray[j].sId = stickers[j].sId;
+                                    currentRi.stickerArray[j].sImage = stickers[j].sImage;
+                                    currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
+                                    currentRi.stickerArray[j].sRating = stickers[j].sRating;
+                                    currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
+                                    currentRi.stickerArray[j].sTrajectoryPath = stickers[j].sTrajectoryPath;
+                                    currentRi.stickerArray[j].sTrajectoryOffset = stickers[j].sTrajectoryOffset;
+                                    currentRi.stickerArray[j].sTrajectoryPeriod = stickers[j].sTrajectoryPeriod;
+                                }
+                            }
+                        }
+                        recoList.Add(currentRi);
+                        newCam.transform.position = cameraPositionInLocalization;
+                        newCam.transform.eulerAngles = cameraRotationInLocalization;
+                        newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+                        for (int j = 0; j < objectsAmount; j++)
+                        {
+                            stickers[j].positions = new Vector3[4];
+                            for (int i = 0; i < 4; i++)
+                            {
+                                stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                            }
+                        }
+                    }
+                }
+                else if (currentRi != null)
+                {
+                    cameraDistance = Vector3.Magnitude(currentRi.lastCamCoordinate - new Vector3(px, py, pz));
+                    tempScale3d = currentRi.scale3dcloud;
+                    int savedNodeLentgh = currentRi.stickerArray.Length;
+                    stickers = new StickerInfo[savedNodeLentgh];
+                    GameObject[,] placeHolders = new GameObject[savedNodeLentgh, 4];
+
+                    for (int j = 0; j < savedNodeLentgh; j++)
+                    {
+                        stickers[j] = new StickerInfo();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                            placeHolders[j, i].transform.SetParent(newCam.transform);
+                            placeHolders[j, i].transform.position = currentRi.stickerArray[j].positions[i];
+                        }
+                        stickers[j].sPath = currentRi.stickerArray[j].sPath;
+                        stickers[j].sText = currentRi.stickerArray[j].sText;
+                        stickers[j].sType = currentRi.stickerArray[j].sType;
+                        stickers[j].sSubType = currentRi.stickerArray[j].sSubType;
+                        stickers[j].sDescription = currentRi.stickerArray[j].sDescription;
+
+                        stickers[j].sId = currentRi.stickerArray[j].sId;
+                        stickers[j].sImage = currentRi.stickerArray[j].sImage;
+                        currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
+                        currentRi.stickerArray[j].sRating = stickers[j].sRating;
+                        currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
+
+
+                    }
+                    newCam.transform.position = cameraPositionInLocalization;
+                    newCam.transform.eulerAngles = cameraRotationInLocalization;
+                    newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+
+                    for (int j = 0; j < savedNodeLentgh; j++)
+                    {
+                        stickers[j].positions = new Vector3[4];
+                        for (int i = 0; i < 4; i++)
+                        {
+                            stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                        }
                     }
 
-                    string idnode = "" + jsonParse["placeholders"][j]["placeholder_id"];
-    
-                    for (int x = 0; x < objectsAmount; x++)
-                    {
-                        string idobj = "" + jsonParse["objects"][x]["sticker"]["sticker_id"];
+                }
 
-                        if (idobj.Contains(idnode))
+                if (zeroCoord.transform.eulerAngles == Vector3.zero)
+                {
+                    newCam.transform.position = cameraPositionInLocalization;
+                    newCam.transform.eulerAngles = cameraRotationInLocalization;
+                    newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+                }
+                currentRi.lastCamCoordinate = new Vector3(px, py, pz);
+                localizationStatus = LocalizationStatus.Ready;
+                getStickersAction(currentRi.id, zeroCoord.transform, stickers);
+                Destroy(newCam);
+            }
+            else
+            {
+                Debug.Log("Cant localize");
+
+                localizationStatus = LocalizationStatus.CantLocalize;
+                uim.setDebugPose(0, 0, 0, 0, 0, 0, 0, "cant loc");
+                getStickersAction(null, null, null);
+            }
+        }
+        // -- if -- GEOPOSE
+        else
+        {
+            if (jsonParse["geopose"] != null)
+            {
+                sessionId = jsonParse["geopose"]["reconstruction_id"];
+
+                Debug.Log("sessioID: " + sessionId);
+                do
+                {
+                    objectsAmount++;
+                    js = jsonParse["scrs"][objectsAmount]["type"];
+                    // Debug.Log("js node [" + objectsAmount + "]  - " + js);
+                } while (js != null);
+
+                Debug.Log("nodeAmount =   " + objectsAmount + ", RecoArray Length = " + recoList.Count);
+
+                px = jsonParse["geopose"]["local"]["position"]["x"].AsFloat;
+                py = jsonParse["geopose"]["local"]["position"]["y"].AsFloat;
+                pz = jsonParse["geopose"]["local"]["position"]["z"].AsFloat;
+                ox = jsonParse["geopose"]["local"]["orientation"]["x"].AsFloat;
+                oy = jsonParse["geopose"]["local"]["orientation"]["y"].AsFloat;
+                oz = jsonParse["geopose"]["local"]["orientation"]["z"].AsFloat;
+                ow = jsonParse["geopose"]["local"]["orientation"]["w"].AsFloat;
+                uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                GameObject newCam = new GameObject("tempCam");
+                newCam.transform.localPosition = new Vector3(px, py, pz);
+                newCam.transform.localRotation = new Quaternion(ox, oy, oz, ow);
+                newCam.transform.localPosition = new Vector3(px, -newCam.transform.localPosition.y, pz);
+                // Debug.Log("Camera new: " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
+
+
+
+                newCam.transform.localRotation = Quaternion.Euler(-newCam.transform.localRotation.eulerAngles.x, newCam.transform.localRotation.eulerAngles.y, -newCam.transform.localRotation.eulerAngles.z);
+                GameObject zeroCoord = new GameObject("Zero");
+                zeroCoord.transform.SetParent(newCam.transform);
+                RecoInfo currentRi = checkRecoID(sessionId);
+                StickerInfo[] stickers;
+                stickers = null;
+                if (currentRi == null)
+                {
+                    currentRi = new RecoInfo();
+                    currentRi.id = sessionId;
+                    if (objectsAmount > 0)
+                    {
+                        currentRi.scale3dcloud = tempScale3d;
+                        stickers = new StickerInfo[objectsAmount];
+                        currentRi.stickerArray = new StickerInfo[objectsAmount];
+                        GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
+                        for (int j = 0; j < objectsAmount; j++)
                         {
-                            stickers[j].sPath = "" + jsonParse["objects"][x]["sticker"]["path"];
-                            stickers[j].sText = "" + jsonParse["objects"][x]["sticker"]["sticker_text"];
-                            stickers[j].sType = "" + jsonParse["objects"][x]["sticker"]["sticker_type"];
-                            stickers[j].sSubType = "" + jsonParse["objects"][x]["sticker"]["sticker_subtype"];
-                            stickers[j].sDescription = "" + jsonParse["objects"][x]["sticker"]["description"];
-                            stickers[j].SModel_scale = "" + jsonParse["objects"][x]["sticker"]["model_scale"];
-                            stickers[j].sId = "" + jsonParse["objects"][x]["sticker"]["sticker_id"];
-                            stickers[j].objectId = "" + jsonParse["objects"][x]["placeholder"]["placeholder_id"];
-                            stickers[j].sImage = "" + jsonParse["objects"][x]["sticker"]["Image"];
-                            stickers[j].sAddress = "" + jsonParse["objects"][x]["sticker"]["Address"];
-                            stickers[j].sFeedbackAmount = "" + jsonParse["objects"][x]["sticker"]["Feedback amount"];
-                            stickers[j].sRating = "" + jsonParse["objects"][x]["sticker"]["Rating"];
-                            stickers[j].sUrl_ta = "" + jsonParse["objects"][x]["sticker"]["url_ta"];
-                            stickers[j].sTrajectoryPath = "" + jsonParse["objects"][x]["sticker"]["trajectory_path"];
-                            stickers[j].sTrajectoryOffset = "" + jsonParse["objects"][x]["sticker"]["trajectory_time_offset"];
-                            stickers[j].sTrajectoryPeriod = "" + jsonParse["objects"][x]["sticker"]["trajectory_time_period"];
+                            currentRi.stickerArray[j] = new StickerInfo();
+                            stickers[j] = new StickerInfo();
+                            currentRi.stickerArray[j].positions = new Vector3[4];
+                            float positionObjX = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["x"].AsFloat;
+                            float positionObjY = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["y"].AsFloat;
+                            float positionObjZ = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["z"].AsFloat;
+                            currentRi.stickerArray[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
+                            //  Debug.Log("currentRi.stickerArray[j].mainPositions = " + currentRi.stickerArray[j].mainPositions);
+                            stickers[j].mainPositions = new Vector3(positionObjX, -positionObjY, positionObjZ);
+                            currentRi.stickerArray[j].orientations = new Vector4(jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["x"].AsFloat, jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["y"].AsFloat, jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["z"].AsFloat, jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["w"].AsFloat);
+                            stickers[j].orientations = currentRi.stickerArray[j].orientations;
+                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
+                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
+                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
+                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+
+                            for (int i = 0; i < 4; i++)
+                            {
+                                px = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["x"].AsFloat + positionObjX;
+                                py = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["y"].AsFloat + positionObjY;
+                                pz = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["z"].AsFloat + positionObjZ;
+                                placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                                placeHolders[j, i].transform.SetParent(newCam.transform);
+                                py = -py;
+                                placeHolders[j, i].transform.position = new Vector3(px, py, pz);
+                                currentRi.stickerArray[j].positions[i] = new Vector3(px, py, pz);
+                            }
+
+                            stickers[j].sPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["path"];
+                            stickers[j].sText = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_text"];
+                            stickers[j].sType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_type"];
+                            stickers[j].sSubType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_subtype"];
+                            stickers[j].sDescription = "" + jsonParse["scrs"][j]["content"]["custom_data"]["description"];
+                            stickers[j].SModel_scale = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_scale"];
+                            stickers[j].sId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_id"];
+                            stickers[j].objectId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["placeholder_id"];
+                            stickers[j].sImage = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Image"];
+                            stickers[j].sAddress = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Address"];
+                            stickers[j].sFeedbackAmount = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Feedback amount"];
+                            stickers[j].sRating = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Rating"];
+                            stickers[j].sUrl_ta = "" + jsonParse["scrs"][j]["content"]["custom_data"]["url_ta"];
+                            stickers[j].sTrajectoryPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_path"];
+                            stickers[j].sTrajectoryOffset = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_offset"];
+                            stickers[j].sTrajectoryPeriod = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_period"];
 
                             currentRi.stickerArray[j].sPath = stickers[j].sPath;
                             currentRi.stickerArray[j].sText = stickers[j].sText;
@@ -327,85 +527,87 @@ public class ACityAPIDev : MonoBehaviour
                             currentRi.stickerArray[j].sTrajectoryPath = stickers[j].sTrajectoryPath;
                             currentRi.stickerArray[j].sTrajectoryOffset = stickers[j].sTrajectoryOffset;
                             currentRi.stickerArray[j].sTrajectoryPeriod = stickers[j].sTrajectoryPeriod;
+
+
+                        }
+                        recoList.Add(currentRi);
+                        newCam.transform.position = cameraPositionInLocalization;
+                        newCam.transform.eulerAngles = cameraRotationInLocalization;
+                        newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+                        for (int j = 0; j < objectsAmount; j++)
+                        {
+                            stickers[j].positions = new Vector3[4];
+                            for (int i = 0; i < 4; i++)
+                            {
+                                stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                            }
                         }
                     }
                 }
-                recoList.Add(currentRi);
-                newCam.transform.position = cameraPositionInLocalization;
-                newCam.transform.eulerAngles = cameraRotationInLocalization;
-                newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
-                for (int j = 0; j < objectsAmount; j++)
+                else if (currentRi != null)
                 {
-                    stickers[j].positions = new Vector3[4];
-                    for (int i = 0; i < 4; i++)
+                    cameraDistance = Vector3.Magnitude(currentRi.lastCamCoordinate - new Vector3(px, py, pz));
+                    tempScale3d = currentRi.scale3dcloud;
+                    int savedNodeLentgh = currentRi.stickerArray.Length;
+                    stickers = new StickerInfo[savedNodeLentgh];
+                    GameObject[,] placeHolders = new GameObject[savedNodeLentgh, 4];
+
+                    for (int j = 0; j < savedNodeLentgh; j++)
                     {
-                        stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                        stickers[j] = new StickerInfo();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                            placeHolders[j, i].transform.SetParent(newCam.transform);
+                            placeHolders[j, i].transform.position = currentRi.stickerArray[j].positions[i];
+                        }
+                        stickers[j].sPath = currentRi.stickerArray[j].sPath;
+                        stickers[j].sText = currentRi.stickerArray[j].sText;
+                        stickers[j].sType = currentRi.stickerArray[j].sType;
+                        stickers[j].sSubType = currentRi.stickerArray[j].sSubType;
+                        stickers[j].sDescription = currentRi.stickerArray[j].sDescription;
+
+                        stickers[j].sId = currentRi.stickerArray[j].sId;
+                        stickers[j].sImage = currentRi.stickerArray[j].sImage;
+                        currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
+                        currentRi.stickerArray[j].sRating = stickers[j].sRating;
+                        currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
                     }
+                    newCam.transform.position = cameraPositionInLocalization;
+                    newCam.transform.eulerAngles = cameraRotationInLocalization;
+                    newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+
+                    for (int j = 0; j < savedNodeLentgh; j++)
+                    {
+                        stickers[j].positions = new Vector3[4];
+                        for (int i = 0; i < 4; i++)
+                        {
+                            stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                        }
+                    }
+
                 }
+
+                if (zeroCoord.transform.eulerAngles == Vector3.zero)
+                {
+                    newCam.transform.position = cameraPositionInLocalization;
+                    newCam.transform.eulerAngles = cameraRotationInLocalization;
+                    newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
+                }
+                currentRi.lastCamCoordinate = new Vector3(px, py, pz);
+                localizationStatus = LocalizationStatus.Ready;
+                getStickersAction(currentRi.id, zeroCoord.transform, stickers);
+                Destroy(newCam);
+
             }
-            else if (currentRi != null)
+            else
             {
-                cameraDistance = Vector3.Magnitude(currentRi.lastCamCoordinate - new Vector3(px,py,pz));
-                tempScale3d = currentRi.scale3dcloud;
-                int savedNodeLentgh = currentRi.stickerArray.Length;
-                stickers = new StickerInfo[savedNodeLentgh];
-                GameObject[,] placeHolders = new GameObject[savedNodeLentgh, 4];
+                Debug.Log("Cant localize");
 
-
-                for (int j = 0; j < savedNodeLentgh; j++)
-                {
-                    stickers[j] = new StickerInfo();
-                    for (int i = 0; i < 4; i++)
-                    {
-                        placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
-                        placeHolders[j, i].transform.SetParent(newCam.transform);
-                        placeHolders[j, i].transform.position = currentRi.stickerArray[j].positions[i];
-                    }
-                    stickers[j].sPath = currentRi.stickerArray[j].sPath;
-                    stickers[j].sText = currentRi.stickerArray[j].sText;
-                    stickers[j].sType = currentRi.stickerArray[j].sType;
-                    stickers[j].sSubType = currentRi.stickerArray[j].sSubType;
-                    stickers[j].sDescription = currentRi.stickerArray[j].sDescription;
-
-                    stickers[j].sId = currentRi.stickerArray[j].sId;
-                    stickers[j].sImage = currentRi.stickerArray[j].sImage;
-                    currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
-                    currentRi.stickerArray[j].sRating = stickers[j].sRating;
-                    currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
-                }
-                newCam.transform.position = cameraPositionInLocalization;
-                newCam.transform.eulerAngles = cameraRotationInLocalization;
-                newCam.transform.RotateAround(newCam.transform.position, newCam.transform.forward, 90);
-                for (int j = 0; j < savedNodeLentgh; j++)
-                {
-                    stickers[j].positions = new Vector3[4];
-                    for (int i = 0; i < 4; i++)
-                    {
-                        stickers[j].positions[i] = placeHolders[j, i].transform.position;
-
-                    }
-                }
-
+                localizationStatus = LocalizationStatus.CantLocalize;
+                uim.setDebugPose(0, 0, 0, 0, 0, 0, 0, "cant loc");
+                getStickersAction(null, null, null);
             }
-            if (currentRi == null)
-            {
-                currentRi = new RecoInfo();
-                currentRi.id = sessionId;
-                currentRi.stickerArray = null;
-            }
-
-            currentRi.lastCamCoordinate = new Vector3(px, py, pz);
-            localizationStatus = LocalizationStatus.Ready;
-            getStickersAction(currentRi.id, zeroCoord.transform, stickers);
-
-            Destroy(newCam);
-        }
-        else {
-            Debug.Log("Cant localize");
-            localizationStatus = LocalizationStatus.CantLocalize;
-            uim.setDebugPose(0, 0, 0, 0, 0, 0, 0, "cant loc");
-
-            getStickersAction(null, null, null);
         }
     }
 
@@ -471,11 +673,73 @@ public class ACityAPIDev : MonoBehaviour
         return rinfo;
     }
 
-    public void uploadFrame(byte[] bytes, string apiURL, float langitude, float latitude, Action<string> getJsonCameraObjects) {
-        StartCoroutine(UploadJPGwithGPS( bytes, apiURL, langitude, latitude, getJsonCameraObjects));
+    public void uploadFrame(byte[] bytes, string apiURL, float langitude, float latitude, Action<string, bool> getJsonCameraObjects)
+    {
+        if (!useOSCP)
+        {
+            StartCoroutine(UploadJPGwithGPS(bytes, apiURL, langitude, latitude, getJsonCameraObjects));
+        }
+        else StartCoroutine(UploadJPGwithGPSOSCP(bytes, apiURL, langitude, latitude, getJsonCameraObjects));
     }
 
-    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float langitude, float latitude, Action<string> getJsonCameraObjects)
+    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string apiURL, float langitude, float latitude, Action<string, bool> getJsonCameraObjects)
+    {
+        localizationStatus = LocalizationStatus.WaitForAPIAnswer;
+        //  byte[] bytes = File.ReadAllBytes(filePath);
+        Debug.Log("bytes length = " + bytes.Length);
+        string rotationDevice = "180";
+        if (!editorTestMode)
+        {
+            if (Input.deviceOrientation == DeviceOrientation.Portrait) { rotationDevice = "0"; }
+            if (Input.deviceOrientation == DeviceOrientation.LandscapeRight) { rotationDevice = "90"; }
+            if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) { rotationDevice = "180"; }
+            if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft) { rotationDevice = "270"; }
+        }
+
+        //  string shot = System.Text.Encoding.UTF8.GetString(bytes);
+        string shot = Convert.ToBase64String(bytes);
+        // Debug.Log("Uploading Screenshot started...");
+
+        string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + langitude + ",\"longitude\":" + latitude + ",\"altitude\":0}}]}";
+        Debug.Log("finalJson OSCP = " + finalJson);
+        Debug.Log(apiURL + "/scrs/geopose_objs_local");
+        /*  string path = "request.json";
+        //  File.Create(path);
+          StreamWriter writer = new StreamWriter(path, true, Encoding.UTF8, 1000000);
+          writer.WriteLine(finalJson);
+          writer.Close();*/
+
+        var request = new UnityWebRequest(apiURL + "/scrs/geopose_objs_local", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(finalJson);
+        request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+        request.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
+        request.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.uploadHandler.contentType = "application/json";
+        request.timeout = 50;
+        yield return request.SendWebRequest();
+        if (request.isNetworkError || request.isHttpError)
+        {
+            Debug.Log(request.error); localizationStatus = LocalizationStatus.ServerError;
+
+        }
+        else
+        {
+            //  Debug.Log("Finished Uploading Screenshot");
+        }
+        Debug.Log(request.downloadHandler.text);
+        var jsonParse = JSON.Parse(request.downloadHandler.text);
+        string sid = null;
+        if (jsonParse["camera"] != null)
+        {
+            sid = jsonParse["reconstruction_id"];
+        }
+        tempScale3d = 1;
+        getJsonCameraObjects(request.downloadHandler.text, true);
+    }
+
+    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float langitude, float latitude, Action<string, bool> getJsonCameraObjects)
     {
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         Debug.Log("bytes = " + bytes.Length);
@@ -518,7 +782,7 @@ public class ACityAPIDev : MonoBehaviour
          }
         tempScale3d = 1;
 
-        getJsonCameraObjects(w.downloadHandler.text);
+        getJsonCameraObjects(w.downloadHandler.text, false);
     }
 
 

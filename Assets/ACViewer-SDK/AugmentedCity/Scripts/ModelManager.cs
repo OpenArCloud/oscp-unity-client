@@ -33,6 +33,12 @@ public class ModelManager : MonoBehaviour
         bundleName = "trans2tank";
         gph = GetComponent<GetPlaceHoldersDev>();
         uim = GetComponent<UIManager>();
+        #if UNITY_IOS
+            modelPath = modelPath + "ios/";
+        #endif
+        #if PLATFORM_ANDROID
+            modelPath = modelPath + "android/";
+        #endif
     }
 
     void Update()
