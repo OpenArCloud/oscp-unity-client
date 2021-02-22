@@ -17,7 +17,7 @@ Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true
 - Minimum API Level: Android 8.0
 - Target Architectures - ARM64
-- Delete VulcanAPI from Graphics API (ARCore doesn’t support).
+- Delete VulcanAPI from Graphics API (ARCore doesnâ€™t support).
 
 Set project settings for iOS and ARKit:
 - Allow 'unsafe' Code - true
@@ -26,4 +26,4 @@ Set project settings for iOS and ARKit:
 
 ## License
 
-Copyright © Augmented City, Ltd.
+[MIT Licence](Licence.md)
