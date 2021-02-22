@@ -26,4 +26,4 @@ Set project settings for iOS and ARKit:
 
 ## License
 
-[MIT Licence](Licence.md)
+[MIT License](Licence.md)
