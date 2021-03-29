@@ -8,7 +8,7 @@ public class ModelManager : MonoBehaviour
 
     string bundleName;
     public GameObject ABloader;
-    public string modelPath;
+    string modelPath;
     GameObject activeModel;
     GetPlaceHoldersDev gph;
     UIManager uim;
@@ -33,12 +33,6 @@ public class ModelManager : MonoBehaviour
         bundleName = "trans2tank";
         gph = GetComponent<GetPlaceHoldersDev>();
         uim = GetComponent<UIManager>();
-        #if UNITY_IOS
-            modelPath = modelPath + "ios/";
-        #endif
-        #if PLATFORM_ANDROID
-            modelPath = modelPath + "android/";
-        #endif
     }
 
     void Update()

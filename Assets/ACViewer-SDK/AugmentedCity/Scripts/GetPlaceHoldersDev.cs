@@ -72,7 +72,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         Debug.Log(ans+"CLIENT");
     }
 
-    public void startDevLocation() { // Test loacalization from Unity Editor
+    public void startDevLocation() { // Test localization from Unity Editor
         if (acapi.editorTestMode) timeForRelocation = 100f;
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
@@ -82,9 +82,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
         Texture2D tex = new Texture2D(2, 2);
         tex.LoadImage(bytes);
         devCamMat.mainTexture = tex;
-        // acapi.firstLocalization(59.934320f, 30.272606f, devImagePath, showPlaceHolders); // 59.934320f, 30.272606f - ВО офис, двор
-       //  acapi.firstLocalization(41.1224f, 16.8684f, devImagePath, showPlaceHolders); //Bari cafe lat=41.1224f, long=16.8684f
-         acapi.firstLocalization(43.40529f, 39.95574f, devImagePath, showPlaceHolders); // Sochi - 43.404521f, 39.954741f / / 43.404080, 39.954735// 43.404769, 39.954042//43.40529, 39.95574
+
+        //acapi.firstLocalization(59.934320f, 30.272606f, devImagePath, showPlaceHolders); // 59.934320f, 30.272606f - ВО офис, двор
+        //acapi.firstLocalization(41.1224f, 16.8684f, devImagePath, showPlaceHolders); //Bari cafe lat=41.1224f, long=16.8684f
+        acapi.firstLocalization(43.40529f, 39.95574f, 30, devImagePath, showPlaceHolders); // Sochi - 43.404521f, 39.954741f / / 43.404080, 39.954735// 43.404769, 39.954042//43.40529, 39.95574
+
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
@@ -170,7 +172,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
                             GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
                             string bundleName = stickers[j].sText.ToLower();
                             model.GetComponent<AssetLoader>().ABName = bundleName;
-                            model.GetComponent<AssetLoader>().BundleFullURL = GetComponent<ModelManager>().modelPath;
                             model.transform.localPosition = stickers[j].mainPositions;// * acapi.tempScale3d;
                             model.transform.localPosition = new Vector3(model.transform.localPosition.x,-model.transform.localPosition.y,model.transform.localPosition.z);
                             model.transform.localRotation = new Quaternion(stickers[j].orientations.x, stickers[j].orientations.y, stickers[j].orientations.z, stickers[j].orientations.w);
@@ -221,19 +222,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
                         relocationCompleted = true;
 
                     }
-                    GameObject id3d = get3dFromLocal(id);
-                    if (id3d != null)
-                    {
-                        GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
-                        model.GetComponent<AssetLoader>().ABName = id3d.name;
-                        model.GetComponent<AssetLoader>().BundleFullURL = GetComponent<ModelManager>().modelPath;
-                        model.transform.localPosition = id3d.transform.position;
-                        model.transform.localRotation = id3d.transform.rotation;
-                        model.GetComponent<Mover>().setLocked(true);
-                        Debug.Log("Loaded pos = " + id3d.transform.position + ", ori = " + id3d.transform.rotation);
-                        models.Add(model);
-                    }
-
 
                     turnOffVideoDemos(videoDemosTurn);
                     turnOffPlaceHolders(toShowPlaceHolders);
@@ -400,7 +388,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void set3dToLocal(string id, string name, Vector3 coords, Quaternion orientation) {
         PlayerPrefs.SetString(id, name);
-        PlayerPrefs.SetFloat(id+"coordx", coords.x);
+        PlayerPrefs.SetFloat(id + "coordx", coords.x);
         PlayerPrefs.SetFloat(id + "coordy", coords.y);
         PlayerPrefs.SetFloat(id + "coordz", coords.z);
         PlayerPrefs.SetFloat(id + "orix", orientation.x);
@@ -411,15 +399,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
         Debug.Log("saved pos = " + coords + ", ori = " + orientation);
     }
 
-    public GameObject get3dFromLocal(string id) {
-        GameObject temp = null;
-        if (PlayerPrefs.HasKey(id)) {
-            temp = new GameObject(PlayerPrefs.GetString(id));
-            temp.transform.position = new Vector3(PlayerPrefs.GetFloat(id + "coordx"), PlayerPrefs.GetFloat(id + "coordy"), PlayerPrefs.GetFloat(id + "coordz"));
-            temp.transform.rotation = new Quaternion(PlayerPrefs.GetFloat(id + "orix"), PlayerPrefs.GetFloat(id + "oriy"), PlayerPrefs.GetFloat(id + "oriz"), PlayerPrefs.GetFloat(id + "oriw"));
-        }
-        return temp;
-    }
 
     public string getCurrentRecoId() {
         return lastLocalizedRecoId;

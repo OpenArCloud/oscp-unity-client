@@ -6,7 +6,6 @@ using UnityEngine.Networking;
 
     public class AssetLoader : MonoBehaviour
     {
-
         public string BundleFullURL;
         string AssetName;
         public Preloader preloader;
@@ -42,21 +41,20 @@ using UnityEngine.Networking;
                     preloader.Loaded();
                     bundleTaken = true;
                 }
-
             }
             if (!bundleTaken)
             {
                 StartCoroutine(LoadAsset());
             }
         }
-        }
+    }
 
-        public void StopLoad() {
-            StopCoroutine(LoadAsset());
-        }
+    public void StopLoad() {
+        StopCoroutine(LoadAsset());
+    }
 
-        IEnumerator LoadAsset()
-        {
+    IEnumerator LoadAsset()
+    {
         modelManager.loadingBunles.Add(ABName);
         /*while (!Caching.ready)
             yield return null;
@@ -85,36 +83,43 @@ using UnityEngine.Networking;
             Debug.Log("Check asset name");
         }*/
 
-          Debug.Log("Load Coroutine GOOO!!! =   " + BundleFullURL + ABName);
-          CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0,0));
-          using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(BundleFullURL + ABName, cab))
-          {
-              preloader.LoadPercent(uwr);
-              yield return uwr.SendWebRequest();
+#if UNITY_IOS
+        BundleFullURL = PlayerPrefs.GetString("ApiUrl") + "/media/3d/"+ ABName + "/ios/bundle";
+#endif
+#if PLATFORM_ANDROID
+        BundleFullURL = PlayerPrefs.GetString("ApiUrl") + "/media/3d/" + ABName + "/android/bundle";
+#endif
+        Debug.Log("Load Bundle Path = " + BundleFullURL);
 
-              if (uwr.isNetworkError || uwr.isHttpError)
-              {
-                  Debug.Log(uwr.error);
-                  preloader.CantLoad();
+        CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0,0));
+        using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(BundleFullURL, cab))
+        {
+            preloader.LoadPercent(uwr);
+            yield return uwr.SendWebRequest();
+
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                Debug.Log(uwr.error);
+                preloader.CantLoad();
                 preloader.Loaded();
                 GetComponent<Collider>().enabled = false;
                 GetComponent<Mover>().enabled = false;
             }
             else
-              {
-                  // Get downloaded asset bundle
-                  AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(uwr);
-                  if (bundle.Contains(AssetName))
-                  {
-                      Instantiate(bundle.LoadAssetAsync(AssetName).asset, gameObject.transform);
+            {
+                // Get downloaded asset bundle
+                AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(uwr);
+                if (bundle.Contains(AssetName))
+                {
+                    Instantiate(bundle.LoadAssetAsync(AssetName).asset, gameObject.transform);
                     modelManager.bundles.Add(bundle);
                     modelManager.loadingBunles.Remove(ABName);
                     mover.modelName = ABName;
                     Debug.Log("is OBJ");
-                      preloader.Loaded();
-                  }
-                  else
-                  {
+                    preloader.Loaded();
+                }
+                else
+                {
                     Debug.Log("Check asset name");
                     preloader.CantLoad();
                     preloader.Loaded();
@@ -122,7 +127,7 @@ using UnityEngine.Networking;
                     GetComponent<Mover>().enabled = false;
                 }
             }
-          }
+        }
     }
 
     IEnumerator WaitToLoad()
