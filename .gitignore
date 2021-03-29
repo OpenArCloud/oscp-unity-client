@@ -1,2 +1,5 @@
-Library
-Obj
+Library/
+Temp/
+Obj/
+obj/
+build/

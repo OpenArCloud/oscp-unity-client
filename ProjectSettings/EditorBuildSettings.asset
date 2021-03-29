@@ -8,15 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ACViewer-SDK/AugmentedCity/Scenes/AugCityDemo.unity
     guid: 72376cf567213444cb1f3263260812ea
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: be572e69b92a3054d821a92ad9433a89,
       type: 2}

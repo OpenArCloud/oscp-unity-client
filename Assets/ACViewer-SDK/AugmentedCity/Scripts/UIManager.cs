@@ -240,14 +240,17 @@ public class UIManager : MonoBehaviour
 
     }
 
-    public void gpsDebug(float lat, float lon) {
+    public void gpsDebug(float lat, float lon, float hdop)
+    {
         debugPose[10].text = "lat = " + lat;
         debugPose[11].text = "lon = " + lon;
+        debugPose[14].text = "hdop= " + hdop;
     }
 
     public void planeDebug(float yplane) {
         debugPose[12].text = "PlaneUnderCam: " + (aRcamera.transform.position.y - yplane);
     }
+
     public void ClearCash() {
         UnityWebRequest.ClearCookieCache();
         Caching.ClearCache();
