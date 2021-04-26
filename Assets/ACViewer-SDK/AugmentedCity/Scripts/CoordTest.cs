@@ -12,30 +12,35 @@ public class CoordTest : MonoBehaviour
     public Toggle[] toggles;
     // public Text[] servers;
     // Start is called before the first frame update
+
     void Start()
     {
         camARTrans = Camera.main.gameObject.transform;
         if (PlayerPrefs.HasKey("Tnumber"))
         {
-          //  ToggleGroup a;
+            //ToggleGroup a;
             toggles[PlayerPrefs.GetInt("Tnumber")].isOn = true;
-            if (PlayerPrefs.GetInt("Tnumber") == 6) { textInputServer.text = PlayerPrefs.GetString("ApiUrl");
+            if (PlayerPrefs.GetInt("Tnumber") == 6)
+            {
+                textInputServer.text = PlayerPrefs.GetString("ApiUrl");
                 textInputServerPlaceholder.text = PlayerPrefs.GetString("ApiUrl");
             }
         }
-        else { toggles[0].isOn = true; }
+        else {
+            toggles[0].isOn = true;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        t1.text = ""+camARTrans.eulerAngles.x;
+        t1.text = "" + camARTrans.eulerAngles.x;
         t2.text = "" + camARTrans.eulerAngles.y;
         t3.text = "" + camARTrans.eulerAngles.z;
-
     }
 
-    public void SetServ(Text tt) {
+    public void SetServ(Text tt)
+    {
         if (tt.text.Length > 6)
         {
             Debug.Log("Serv  = " + tt.text);

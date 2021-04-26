@@ -19,7 +19,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
     public Material devCamMat;
     public string devImagePath;
 
-    List<GameObject> recos = new List<GameObject>();
+    List<GameObject> recos = new List<GameObject>();        // cache of created scene of gameobjects by entry 'id'
     List<GameObject> videoDemos = new List<GameObject>();
     List<GameObject> stickerObjects = new List<GameObject>();
     List<GameObject> videoURLs = new List<GameObject>();
@@ -43,10 +43,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
     UIManager uim;
     GameObject activeReco, modelToServer;
 
-
     bool ARStarted, relocationCompleted, toShowPlaceHolders, videoDemosTurn, toShowStickers;
     [HideInInspector]
     public float timeForRelocation = 2f;
+
+
     void Start()
     {
         acapi = GetComponent<ACityAPIDev>();
@@ -55,7 +56,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         relocationCompleted = true;
         toShowStickers = true;
         uim = this.GetComponent<UIManager>();
-        acapi.prepareSession(preparationCheck);
+        acapi.prepareSession(preparationCheck); //FixMe: in aco3d it's off
     }
 
     public void setTimeForRelocation(float tfr) {
@@ -72,8 +73,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
         Debug.Log(ans+"CLIENT");
     }
 
-    public void startDevLocation() { // Test localization from Unity Editor
-        if (acapi.editorTestMode) timeForRelocation = 100f;
+    public void startDevLocation()   // Test localization from Unity Editor
+    {
+        if (acapi.editorTestMode) {
+            timeForRelocation = 200f;
+        }
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
 
@@ -83,9 +87,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
         tex.LoadImage(bytes);
         devCamMat.mainTexture = tex;
 
-        //acapi.firstLocalization(59.934320f, 30.272606f, devImagePath, showPlaceHolders); // 59.934320f, 30.272606f - ВО офис, двор
-        //acapi.firstLocalization(41.1224f, 16.8684f, devImagePath, showPlaceHolders); //Bari cafe lat=41.1224f, long=16.8684f
-        acapi.firstLocalization(43.40529f, 39.95574f, 30, devImagePath, showPlaceHolders); // Sochi - 43.404521f, 39.954741f / / 43.404080, 39.954735// 43.404769, 39.954042//43.40529, 39.95574
+
+        //acapi.firstLocalization(59.934320f,  30.272610f, 30, devImagePath, showPlaceHolders); // Spb VO-yard
+        //acapi.firstLocalization(41.122400f,  16.868400f, 30, devImagePath, showPlaceHolders); // Bari cafe (lat=41.1224f, lon=16.8684f)
+        acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
 
         timerRelocation = timeForRelocation;
         ARStarted = true;
@@ -93,7 +98,8 @@ public class GetPlaceHoldersDev : MonoBehaviour
     }
 
 
-    public void startLocalization() {
+    public void startLocalization()
+    {
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
         Debug.Log("ARcam x = " + aRcamera.transform.position.x);
@@ -104,35 +110,47 @@ public class GetPlaceHoldersDev : MonoBehaviour
     }
 
 
-    void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers) {
+    void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers)
+    {
         if (id != null)
         {
-            Debug.Log("zero = " + zeroP.position.x + "    " + zeroP.position.y + "    " + zeroP.position.z);
-            Debug.Log("zeroeulerAngles = " + zeroP.eulerAngles.x + "    " + zeroP.eulerAngles.y + "    " + zeroP.eulerAngles.z);
+          /*Debug.Log("zeroPpos = " + zeroP.position.x + "    " + zeroP.position.y + "    " + zeroP.position.z);
+            Debug.Log("zeroPori = " + zeroP.eulerAngles.x + "    " + zeroP.eulerAngles.y + "    " + zeroP.eulerAngles.z);*/
 
             GameObject placeHolderParent;
             placeHolderParent = checkSavedID(id);
-            if (placeHolderParent == null)
+
+            /*if (pcloud == null)
             {
-                if (stickers != null)
+                pcloud = GetComponent<plyreader>().GetPointCloud();
+                if (pcloud != null)
                 {
-                    GameObject scaleParent = new GameObject("CamParent-" + id);
+                    pcloud.transform.position = zeroP.position;
+                    pcloud.transform.rotation = zeroP.rotation;
+                }
+            }*/
+
+            if (placeHolderParent == null)          // if it's first time we need to generate a new scene
+            {
+                if (stickers != null)               // nothing to do at the empty scene, no objects to create for
+                {
+                    GameObject scaleParent = new GameObject("CamParent-" + id);  // add 'id' into the name
                     scaleParent.transform.position = arCamCoordinates;
                     placeHolderParent = new GameObject(id);
                     placeHolderParent.transform.position = zeroP.position;
                     placeHolderParent.transform.rotation = zeroP.rotation;
-                    activeReco = placeHolderParent;   
+                    activeReco = placeHolderParent;
 
                     for (int j = 0; j < stickers.Length; j++)
                     {
-                        //Placeholders
+                        // Placeholders
                         for (int i = 0; i < 4; i++)
                         {
                             GameObject go = Instantiate(dot, placeHolderParent.transform);
                             go.transform.position = stickers[j].positions[i];
                             placeHoldersDotsLines.Add(go);
                         }
-                        //Lines
+                        // Lines
                         GameObject lineHolder = Instantiate(linePrefab);
                         LineRenderer lr = lineHolder.GetComponent<LineRenderer>();
                         lr.positionCount = 4;
@@ -141,7 +159,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                         lr.useWorldSpace = false;
                         placeHoldersDotsLines.Add(lineHolder);
 
-                        //---VideoPlayer
+                        // VideoPlayer
                         GameObject temp1 = Instantiate(dot, placeHolderParent.transform);
                         temp1.transform.position = stickers[j].positions[0];
                         GameObject temp2 = Instantiate(dot, placeHolderParent.transform);
@@ -160,68 +178,127 @@ public class GetPlaceHoldersDev : MonoBehaviour
                         vp.transform.localScale = (vp.transform.localScale * Vector3.Magnitude(stickers[j].positions[0] - stickers[j].positions[1]));
                         videoDemos.Add(vp);
 
-                        if (stickers[j].sPath.Contains("mp4"))
+                        if (stickers[j] != null)                        // if the sticker object is not failed
                         {
-                            GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
-                            VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
-                            vidos.source = VideoSource.Url;
-                            vidos.url = stickers[j].sPath;
-                            videoURLs.Add(urlVid);
-                        }
-                        else if (stickers[j].sSubType.Contains("3dobject")||stickers[j].sPath.Contains("3dobject")) {
-                            GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
-                            string bundleName = stickers[j].sText.ToLower();
-                            model.GetComponent<AssetLoader>().ABName = bundleName;
-                            model.transform.localPosition = stickers[j].mainPositions;// * acapi.tempScale3d;
-                            model.transform.localPosition = new Vector3(model.transform.localPosition.x,-model.transform.localPosition.y,model.transform.localPosition.z);
-                            model.transform.localRotation = new Quaternion(stickers[j].orientations.x, stickers[j].orientations.y, stickers[j].orientations.z, stickers[j].orientations.w);
+                            bool isVideoSticker =
+                                stickers[j].sPath != null &&
+                                stickers[j].sPath.Contains(".mp4");
 
-                               if (stickers[j].sTrajectoryPath.Length > 1) {
-                                   Trajectory tr = model.GetComponent<Trajectory>();
-                                   tr.go = true;
-                                   tr.acapi = acapi;
-                                   tr.sTrajectory = stickers[j].sTrajectoryPath;
-                                   tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
-                                   tr.sOffset = stickers[j].sTrajectoryOffset;
-                               }
+                            bool is3dModel = !isVideoSticker &&
+                                (stickers[j].type.ToLower().Contains("3d") ||   // new 3d object format
+                                 stickers[j].sSubType.Contains("3dobject") ||   // old 3d object format
+                                 (stickers[j].sPath != null &&
+                                  stickers[j].sPath.Contains("3dobject"))       // oldest 3d object format
+                                );
 
-                            Debug.Log(stickers[j].sTrajectoryPath);
+                            bool is3dModelTransfer =
+                                stickers[j].sDescription.ToLower().Contains("transfer") ||
+                                stickers[j].subType.ToLower().Contains("transfer");
 
-                            // TEMP
-                            Mover mover = model.GetComponent<Mover>();
-                            mover.setLocked(true);
-                            mover.objectId = stickers[j].objectId;
-                            if (bundleName.Contains("quar") || bundleName.Contains("santa") || bundleName.Contains("pavel") || bundleName.Contains("gard"))
+                            if (isVideoSticker)                         // if it's a video-sticker
                             {
-                                mover.landed = true;
+                                GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
+                                VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
+                                vidos.source = VideoSource.Url;
+                                vidos.url = stickers[j].sPath;
+#if PLATFORM_ANDROID                                                    //FixMe: waits AC cert fix
+                                vidos.url = vidos.url.Replace("https://developer.augmented.city",
+                                                               "http://developer.augmented.city");
+#endif
+                                videoURLs.Add(urlVid);
+                            }
+                            else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
+                            {
+                                GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
+                                string bundleName = stickers[j].sText.ToLower();
+                                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
+                                {
+                                    bundleName = stickers[j].bundleName.ToLower();
+                                    if (string.IsNullOrEmpty(bundleName)) {
+                                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
+                                    }
+                                }
+                                model.GetComponent<AssetLoader>().ABName = bundleName;
+                                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
+                                model.transform.localRotation = new Quaternion(
+                                    stickers[j].orientations.x,
+                                    stickers[j].orientations.y,
+                                    stickers[j].orientations.z,
+                                    stickers[j].orientations.w);
+
+                                if (stickers[j].sTrajectoryPath.Length > 1)
+                                {
+                                    Trajectory tr = model.GetComponent<Trajectory>();
+                                    tr.go = true;
+                                    tr.acapi = acapi;
+                                    tr.sTrajectory = stickers[j].sTrajectoryPath;
+                                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
+                                    tr.sOffset = stickers[j].sTrajectoryOffset;
+                                }
+
+                                //Debug.Log(stickers[j].sTrajectoryPath);
+
+                                // TEMP
+                                Mover mover = model.GetComponent<Mover>();
+                                mover.setLocked(true);
+                                mover.objectId = stickers[j].objectId;
+
+                                if (!stickers[j].vertical ||
+                                    bundleName.Contains("nograv")) {
+                                    mover.noGravity = true;
+                                }
+
+                                if (stickers[j].grounded ||
+                                    bundleName.Contains("quar") ||
+                                    bundleName.Contains("santa") ||
+                                    bundleName.Contains("pavel") ||
+                                    bundleName.Contains("gard"))
+                                {
+                                    mover.landed = true;
+                                }
+
+
+                                /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
+                                    + " = " + model.transform.localPosition
+                                    + " model.rot = " + model.transform.localRotation
+                                    + " stick.ori = " + stickers[j].orientations);*/
+
+                                if (stickers[j].SModel_scale.Length > 0) {
+                                    float scale = float.Parse(stickers[j].SModel_scale);
+                                    model.transform.localScale = new Vector3(scale, scale, scale);
+                                }
+
+                                models.Add(model);                      // store the new just created model
+                            }
+                            else                                        // other types of objects - info-stickers
+                            {
+                                GameObject newSticker = null;
+                                string checkType = stickers[j].sType.ToLower();
+                                if (checkType.Contains("food") || checkType.Contains("restaurant")) {
+                                    newSticker = Instantiate(stickerFood, placeHolderParent.transform);
+                                } else if (checkType.Contains("place")) {
+                                    newSticker = Instantiate(stickerPlace, placeHolderParent.transform);
+                                } else if (checkType.Contains("shop")) {
+                                    newSticker = Instantiate(stickerShop, placeHolderParent.transform);
+                                } else {
+                                    newSticker = Instantiate(stickerPref, placeHolderParent.transform);
+                                }
+                                if (newSticker != null)
+                                {
+                                    newSticker.transform.position = stickers[j].positions[0] - raznp;
+                                    StickerController sc = newSticker.GetComponent<StickerController>();
+                                    sc.setStickerInfo(stickers[j]);
+
+                                    stickerObjects.Add(newSticker);     // store the new just created info-sticker
+                                }
                             }
 
-                            Debug.Log(j+". 3dmodel "+ stickers[j].sText + " = " + model.transform.localPosition + " ROT Quaternion = " + model.transform.localRotation + " stickers[j].orientations = " + stickers[j].orientations);
-                           
-                            if (stickers[j].SModel_scale.Length>0) model.transform.localScale = new Vector3(float.Parse(stickers[j].SModel_scale), float.Parse(stickers[j].SModel_scale), float.Parse(stickers[j].SModel_scale));
-                            models.Add(model);
-                        }
-                        else
-                        {
-                            GameObject newSticker = null;
-                            string checkType = stickers[j].sType.ToLower();
-                            if (checkType.Contains("food") || checkType.Contains("restaurant")) newSticker = Instantiate(stickerFood, placeHolderParent.transform);
-                            else if (checkType.Contains("place")) newSticker = Instantiate(stickerPlace, placeHolderParent.transform);
-                            else if (checkType.Contains("shop")) newSticker = Instantiate(stickerShop, placeHolderParent.transform);
-                            else newSticker = Instantiate(stickerPref, placeHolderParent.transform);
-                            if (newSticker != null)
-                            {
-                                newSticker.transform.position = stickers[j].positions[0] - raznp;
-                                StickerController sc = newSticker.GetComponent<StickerController>();
-                                sc.setStickerInfo(stickers[j]);
-                                stickerObjects.Add(newSticker);
-                            }
-                        }
-                        Destroy(temp1); Destroy(temp2);
+                        } // if (stickers[j] != null...)
+
+                        Destroy(temp1);
+                        Destroy(temp2);
                         Destroy(temp3);
-                        relocationCompleted = true;
-
-                    }
+                    } // for (j < stickers.Length)
 
                     turnOffVideoDemos(videoDemosTurn);
                     turnOffPlaceHolders(toShowPlaceHolders);
@@ -229,37 +306,39 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                     localizedImage.SetActive(true);
                     placeHolderParent.transform.SetParent(scaleParent.transform);
-                    recos.Add(placeHolderParent);
+                    recos.Add(placeHolderParent);  // store processed scene into the cache
                     uim.Located();
+
+                    relocationCompleted = true;
                 }
                 else
                 {
                     Debug.Log("No stickers");
-
                     CantLocalize();
                 }
             }
-            else
+            else // if (placeHolderParent == null)
             {
                 Transform scaleParentTransform = placeHolderParent.transform.root;
+                //if (needScaling && lastLocalizedRecoId.Contains(id)) {}
                 placeHolderParent.SetActive(true);
                 GameObject tempScaler = new GameObject("TempScaler");
                 tempScaler.transform.position = arCamCoordinates;
                 GameObject tempBiasVector = new GameObject("TempBiasVector");
-                tempBiasVector.transform.position = zeroP.position;
+                tempBiasVector.transform.position    = zeroP.position;
                 tempBiasVector.transform.eulerAngles = zeroP.eulerAngles;
 
                 tempBiasVector.transform.SetParent(tempScaler.transform);
                 tempScaler.transform.localScale = scaleParentTransform.localScale;
 
-
                 Translocation(placeHolderParent, tempBiasVector.transform, animationTime);
-                Destroy(tempScaler); Destroy(tempBiasVector);
+                Destroy(tempScaler);
+                Destroy(tempBiasVector);
             }
 
             lastLocalizedRecoId = id;
         }
-        else
+        else // if (id != null)
         {
             CantLocalize();
         }
@@ -268,31 +347,42 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     void Translocation(GameObject transObject, Transform targetTransform, float time)
     {
-        movingTransform = transObject.transform;
-        moveFrames = time / Time.fixedDeltaTime;
-        frameCounter = moveFrames;
+        movingTransform      = transObject.transform;
+        moveFrames           = time / Time.fixedDeltaTime;
+        frameCounter         = moveFrames;
         deltaTranslateVector = movingTransform.position;
-        deltaRotateVector = targetTransform.position;
-        translateAction = true;
-        targetRotation = targetTransform.rotation;
-        startRotation = movingTransform.rotation;
+        deltaRotateVector    = targetTransform.position;
+        translateAction      = true;
+        targetRotation       = targetTransform.rotation;
+        startRotation        = movingTransform.rotation;
     }
 
-    void TranslationMover() {
+    void TranslationMover()
+    {
         movingTransform.position = Vector3.Lerp(deltaTranslateVector, deltaRotateVector, (moveFrames - frameCounter) / moveFrames);
-        movingTransform.rotation = Quaternion.Slerp(startRotation, targetRotation, (moveFrames-frameCounter)/ moveFrames);
+        movingTransform.rotation = Quaternion.Slerp(startRotation, targetRotation, (moveFrames - frameCounter) / moveFrames);
         frameCounter--;
-        if (frameCounter <= 0) { translateAction = false; relocationCompleted = true; }
+        if (frameCounter <= 0) {
+            translateAction = false; relocationCompleted = true;
+        }
     }
 
     void FixedUpdate()
     {
-        if (translateAction) TranslationMover();
-        if (ARStarted) {
+        if (translateAction) {
+            TranslationMover();
+        }
+        if (ARStarted)
+        {
             timerRelocation = timerRelocation - Time.fixedDeltaTime;
-            if ((timerRelocation < 0) && (relocationCompleted)) {
-               if (acapi.editorTestMode) startDevLocation();
-                else startLocalization();
+            if ((timerRelocation < 0) && relocationCompleted)
+            {
+                if (acapi.editorTestMode) {
+                    startDevLocation();
+                }
+                else {
+                    startLocalization();
+                }
                 timerRelocation = timeForRelocation;
             }
         }
@@ -303,25 +393,35 @@ public class GetPlaceHoldersDev : MonoBehaviour
         return stickerObjects;
     }
 
-    void CantLocalize() {
+    void CantLocalize()
+    {
         Debug.Log("Can't localize client or no stickers");
         ACityAPIDev.LocalizationStatus ls = acapi.getLocalizationStatus();
-            timerRelocation = 1.1f;
+        /*if (recos.Count > 0) timerRelocation = timeForRelocation;
+        else */
+        timerRelocation = 1.1f;
         relocationCompleted = true;
     }
 
-    public void SetRecoScale(float scale) {
+    public void SetRecoScale(float scale)
+    {
         Transform llrt = checkSavedID(lastLocalizedRecoId).transform.root;
-        if (llrt != null) { llrt.localScale = new Vector3(scale, scale, scale); }
+        if (llrt != null) {
+            llrt.localScale = new Vector3(scale, scale, scale);
+        }
     }
 
-    GameObject checkSavedID(string id)
+    GameObject checkSavedID(string id)  // extract from the cache the gameobject by 'id'
     {
         GameObject reco = null;
         foreach (GameObject go in recos)
         {
-            if (go.name.Contains(id)) { reco = go; }
-            else go.SetActive(false);
+            if (go.name.Contains(id)) {
+                reco = go;
+            }
+            else {
+                go.SetActive(false);
+            }
         }
         return reco;
     }
@@ -335,13 +435,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
         videoDemosTurn = setup;
         if (videoDemos != null)
         {
-            foreach (GameObject go in videoDemos)
-            {
+            foreach (GameObject go in videoDemos) {
                 go.SetActive(setup);
             }
-
-            foreach (GameObject go in videoURLs)
-            {
+            foreach (GameObject go in videoURLs) {
                 go.SetActive(!setup);
             }
         }
@@ -349,8 +446,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void turnOffVideoURL(bool setup)
     {
-        foreach (GameObject go in videoURLs)
-        {
+        foreach (GameObject go in videoURLs) {
             go.SetActive(setup);
         }
     }
@@ -365,16 +461,14 @@ public class GetPlaceHoldersDev : MonoBehaviour
     public void turnOffStickers(bool onOff)
     {
         toShowStickers = onOff;
-        foreach (GameObject sticker in stickerObjects)
-        {
+        foreach (GameObject sticker in stickerObjects) {
             sticker.SetActive(onOff);
         }
     }
 
     public void turnOffModels(bool setup)
     {
-        foreach (GameObject go in models)
-        {
+        foreach (GameObject go in models) {
             go.SetActive(setup);
         }
     }

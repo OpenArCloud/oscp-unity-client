@@ -14,8 +14,6 @@ public class UIManager : MonoBehaviour
     public Text placeholderRelocationTimer;
     public Text[] debugPose;
 
-
-
     public GameObject locateButton;
     public GameObject lowPanelButtons;
     public GameObject menuButtons;
@@ -47,17 +45,14 @@ public class UIManager : MonoBehaviour
         gph = GetComponent<GetPlaceHoldersDev>();
         stickerInfoForPanel = null;
         stickerDeActivate = null;
-        gloc = 0; bloc=0;
+        gloc = 0; bloc = 0;
         if (PlayerPrefs.HasKey("TimeForRelocation")) { 
             gph.setTimeForRelocation(PlayerPrefs.GetFloat("TimeForRelocation"));
             placeholderRelocationTimer.text = "" + PlayerPrefs.GetFloat("TimeForRelocation");
         }
         aRcamera = Camera.main.gameObject;
 
-
-        string ver;
-
-        ver = Application.version;
+        string ver = Application.version;
 
         if (PlayerPrefs.HasKey("bver"))
         {
@@ -78,13 +73,10 @@ public class UIManager : MonoBehaviour
         }
 
         Debug.Log("Version " + Application.version + " bver " + ver);
-
-
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
     }
 
     void OnApplicationPause(bool pauseStatus)
@@ -97,8 +89,8 @@ public class UIManager : MonoBehaviour
         Debug.Log("Reloaded");
         AssetBundle.UnloadAllAssetBundles(true);
 
-          SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
-     //   Application.LoadLevel("AugCityDebug");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+      //Application.LoadLevel("AugCityDebug");
     }
 
     public void setRelocationTimer(Text tt)
@@ -121,7 +113,6 @@ public class UIManager : MonoBehaviour
     public void setSliderOn() {
         sliderOn = !sliderOn;
     }
-
 
     public void SetStickerPanel(ACityAPIDev.StickerInfo sInfo, Action<bool> stDeAct) {
         if (stickerDeActivate == null) { stickerDeActivate = stDeAct; }
@@ -152,7 +143,7 @@ public class UIManager : MonoBehaviour
 
     public void DownSwipe() {
         stickerPanel.SetActive(false);
-        if   (stickerDeActivate!=null) stickerDeActivate(false);
+        if (stickerDeActivate != null) stickerDeActivate(false);
     }
 
     public void Located() {
@@ -161,7 +152,6 @@ public class UIManager : MonoBehaviour
        // setMapButtons(true);
         setLocalizeProgress(false);
         setColorCenterImage();
-
     }
 
     public void setLocateButton(bool act)
@@ -205,9 +195,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void AddToReco() {
-
     }
-
 
     public void setDebugPose(float xc, float yc, float zc, float xo, float yo, float zo, float wo, string recoId) {
         if (xc != 0)
@@ -220,7 +208,6 @@ public class UIManager : MonoBehaviour
             debugPose[5].text = "zo = " + zo;
             debugPose[6].text = "wo = " + wo;
             gloc++;
-
         }
         else {
             debugPose[0].text = "Cant Localize ";
@@ -230,14 +217,11 @@ public class UIManager : MonoBehaviour
             debugPose[4].text = "yo = " + 0;
             debugPose[5].text = "zo = " + 0;
             debugPose[6].text = "wo = " + 0;
-
             bloc++;
-
         }
         debugPose[7].text = "Good loc = " + gloc;
         debugPose[8].text = "Bad loc = " + bloc;
         debugPose[9].text = "rec_id:#" + recoId;
-
     }
 
     public void gpsDebug(float lat, float lon, float hdop)
@@ -263,10 +247,10 @@ public class UIManager : MonoBehaviour
 
     public void Orient()
     {
-        if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft) { Debug.Log("ScreenOrientation.LandscapeLeft"); }
-        if (Input.deviceOrientation == DeviceOrientation.Portrait) { Debug.Log("ScreenOrientation.Portrait	"); }
-        if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) { Debug.Log("ScreenOrientation.PortraitUpsideDown	"); }
-        if (Input.deviceOrientation == DeviceOrientation.LandscapeRight) { Debug.Log("ScreenOrientation.LandscapeRight	"); }
+        if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft)      { Debug.Log("ScreenOrientation.LandscapeLeft");      }
+        if (Input.deviceOrientation == DeviceOrientation.Portrait)           { Debug.Log("ScreenOrientation.Portrait");           }
+        if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) { Debug.Log("ScreenOrientation.PortraitUpsideDown"); }
+        if (Input.deviceOrientation == DeviceOrientation.LandscapeRight)     { Debug.Log("ScreenOrientation.LandscapeRight");     }
     }
 
 }
