@@ -22,5 +22,4 @@ public class ABBuilder
         BuildPipeline.BuildAssetBundles("Assets/AssetBundles/iOS", BuildAssetBundleOptions.None, BuildTarget.iOS);
     }
 	#endif
-
 }

@@ -52,17 +52,26 @@ public class StickerController : MonoBehaviour
         transform.LookAt(target);
         transform.eulerAngles = new Vector3(0 , transform.eulerAngles.y, 0);
         distanceToCamera = Vector3.Magnitude(this.transform.position - target.transform.position);
-        this.transform.localScale = startLocalScale;// * koefSticker * distanceToCamera;
-        if (distanceToCamera > 15f) { SetMarker(false); }
-        else { SetMarker(true); }
-        if ((distanceToCamera > distanceToPinScalingMin)&&(distanceToCamera < distanceToPinScalingMax)) {
+        this.transform.localScale = startLocalScale;    // * koefSticker * distanceToCamera;
+        if (distanceToCamera > 15f) {
+            SetMarker(false);
+        }
+        else {
+            SetMarker(true);
+        }
+        if ((distanceToCamera > distanceToPinScalingMin) &&
+            (distanceToCamera < distanceToPinScalingMax)) {
             SetScaling(distanceToCamera);
         }
         activePin.SetActive(activated);
         passivePin.SetActive(!activated);
-        if (distanceToCamera > 30f) { pins.SetActive(false); }
-        else { pins.SetActive(true); }
 
+        if (distanceToCamera > 30f) {
+            pins.SetActive(false);
+        }
+        else {
+            pins.SetActive(true);
+        }
 
         timer++;
         if (timer % 10 == 0)
@@ -90,29 +99,29 @@ public class StickerController : MonoBehaviour
         Debug.Log("Adress stick   " + stickerInfo.sAddress);
     }
 
-    public void buttonPressed() {
+    public void buttonPressed()
+    {
         activate(true);
         uim.SetStickerPanel(stickerInfo, activate);
         Debug.Log(Vector3.Magnitude(this.transform.position - target.transform.position));
     }
 
-    IEnumerator setScale() {
+    IEnumerator setScale()
+    {
         yield return new WaitForEndOfFrame();
         Debug.Log("WIDTH ssText     " + sText.text + "     " + rtt.sizeDelta.x);
 
-        if (rtt.sizeDelta.x > 444)
-        {
+        if (rtt.sizeDelta.x > 444) {
             markerRt.sizeDelta = new Vector2(rtt.sizeDelta.x * 0.18f, markerRt.sizeDelta.y);
-
         }
-
     }
 
     public bool PinVisiability() {
         return pinVis.VisibleA();
     }
 
-    public void SetMarker(bool markerActive) {
+    public void SetMarker(bool markerActive)
+    {
         if (marker != null)
         {
             marker.SetActive(markerActive);
