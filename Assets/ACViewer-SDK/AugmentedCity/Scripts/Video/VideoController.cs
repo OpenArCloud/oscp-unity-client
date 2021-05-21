@@ -100,7 +100,7 @@ public class VideoController : MonoBehaviour
             m_PlayButton.enabled = true;
         }
 
-        if ((playV) && (videoPlayer.isPrepared))
+        if (playV && videoPlayer.isPrepared)
         {
             Debug.Log("prepared");
 
@@ -110,7 +110,8 @@ public class VideoController : MonoBehaviour
     }
 
 
-    public void PrepareVid() {
+    public void PrepareVid()
+    {
         videoPlayer.Prepare();
         Debug.Log("preparing video");
     }
@@ -131,11 +132,11 @@ public class VideoController : MonoBehaviour
 
     public void Play()
     {
-            Debug.Log("Pressed 'Play'");
-            pausedByHand = false;
-            videoPlayer.Play();
-            ToggleButton(false);
-            reasonStart = 0;
+        Debug.Log("Pressed 'Play'");
+        pausedByHand = false;
+        videoPlayer.Play();
+        ToggleButton(false);
+        reasonStart = 0;
     }
 
     public void Pause()
@@ -209,31 +210,29 @@ public class VideoController : MonoBehaviour
 
     void HandleVideoError(VideoPlayer video, string errorMsg)
     {
-      //  Debug.LogError("Error: " + video.clip.name + "\nError Message: " + errorMsg);
+        //Debug.LogError("Error: " + video.clip.name + "\nError Message: " + errorMsg);
     }
 
     void HandleStartedEvent(VideoPlayer video)
     {
-     //   Debug.Log("Started: " + video.clip.name);
+        //Debug.Log("Started: " + video.clip.name);
     }
 
     void HandlePrepareCompleted(VideoPlayer video)
     {
-     //   Debug.Log("Prepare Completed: " + video.clip.name);
+        //Debug.Log("Prepare Completed: " + video.clip.name);
     }
 
     void HandleSeekCompleted(VideoPlayer video)
     {
-      //  Debug.Log("Seek Completed: " + video.clip.name);
+        //Debug.Log("Seek Completed: " + video.clip.name);
     }
 
     void HandleLoopPointReached(VideoPlayer video)
     {
-     //   Debug.Log("Loop Point Reached: " + video.clip.name);
-
+        //Debug.Log("Loop Point Reached: " + video.clip.name);
         ToggleButton(true);
     }
 
     #endregion //DELEGATES
-
 }

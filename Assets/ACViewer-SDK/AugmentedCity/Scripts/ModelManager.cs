@@ -37,7 +37,6 @@ public class ModelManager : MonoBehaviour
 
     void Update()
     {
-
     }
 
     public void setModel(string bName)
@@ -56,14 +55,14 @@ public class ModelManager : MonoBehaviour
 
     }
 
-    public void setActiveButton(GameObject ImageObj) {
+    public void setActiveButton(GameObject ImageObj)
+    {
         activeButtonImage.SetActive(false);
         ImageObj.SetActive(true);
         activeButtonImage = ImageObj;
     }
 
     public void setColorImage(Image imag)
-
     {
         actImage.color = gk;
         imag.color = Color.white;
@@ -71,7 +70,8 @@ public class ModelManager : MonoBehaviour
     }
 
 
-    public bool GetEditMode() {
+    public bool GetEditMode()
+    {
         return editModeOn;
     }
 

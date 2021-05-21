@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/ACViewer-SDK/AugmentedCity/Scenes/AugCityDemo.unity
     guid: 72376cf567213444cb1f3263260812ea
   m_configObjects:
-    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: be572e69b92a3054d821a92ad9433a89,
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: ff449554225d2cd47b55c8d15e5d115f,
       type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 320a4f8263f37dd449b740e521b76de7,
       type: 2}

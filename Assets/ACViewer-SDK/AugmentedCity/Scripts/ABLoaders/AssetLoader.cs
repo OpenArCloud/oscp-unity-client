@@ -93,7 +93,7 @@ public class AssetLoader : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Check !loaded asset name: " + AssetName);
+                    Debug.Log("Check !loaded Asset name: " + AssetName);
                     preloader.CantLoad();
                     preloader.Loaded();
                     GetComponent<Collider>().enabled = false;
