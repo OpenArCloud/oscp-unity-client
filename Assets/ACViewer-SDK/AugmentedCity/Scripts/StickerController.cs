@@ -89,21 +89,20 @@ public class StickerController : MonoBehaviour
         */
     }
 
-    public void setStickerInfo(ACityAPIDev.StickerInfo sInfo) {
+    public void setStickerInfo(ACityAPIDev.StickerInfo sInfo)
+    {
         if (sInfo.sText.Length > 40) sText.text = sInfo.sText.Substring(0, 30); else sText.text = sInfo.sText;
         if (sInfo.sSubType.Length > 40) subType.text = sInfo.sSubType.Substring(0, 30); else subType.text = sInfo.sSubType;
         rtt = sText.gameObject.GetComponent<RectTransform>();
         marker = markerRt.gameObject;
         StartCoroutine(setScale());
         stickerInfo = sInfo;
-        Debug.Log("Adress stick   " + stickerInfo.sAddress);
     }
 
     public void buttonPressed()
     {
         activate(true);
         uim.SetStickerPanel(stickerInfo, activate);
-        Debug.Log(Vector3.Magnitude(this.transform.position - target.transform.position));
     }
 
     IEnumerator setScale()

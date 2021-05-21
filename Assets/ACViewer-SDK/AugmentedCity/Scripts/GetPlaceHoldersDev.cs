@@ -45,7 +45,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     bool ARStarted, relocationCompleted, toShowPlaceHolders, videoDemosTurn, toShowStickers;
     [HideInInspector]
-    public float timeForRelocation = 2f;
+    public float timeForRelocation = 20f;  // set reloc time to 20 secs by default
 
 
     void Start()
@@ -77,6 +77,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
     {
         if (acapi.editorTestMode) {
             timeForRelocation = 200f;
+            PlayerPrefs.SetFloat("TimeForRelocation", timeForRelocation);
         }
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
@@ -90,8 +91,9 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
         //acapi.firstLocalization(59.934320f,  30.272610f, 30, devImagePath, showPlaceHolders); // Spb VO-yard
         //acapi.firstLocalization(41.122400f,  16.868400f, 30, devImagePath, showPlaceHolders); // Bari cafe (lat=41.1224f, lon=16.8684f)
-        acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
-
+        // acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
+        //acapi.firstLocalization(59.91467f, 30.30398f, 30, devImagePath, showPlaceHolders); // Новый дом, 8я красноармейская 59.914639, 30.304093 59.91462671296234, 30.304159752060876// 59.9131102286, 30.303762554748754
+        acapi.firstLocalization(59.9145560f, 30.304109f, 30, devImagePath, showPlaceHolders);
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
@@ -129,6 +131,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                     pcloud.transform.rotation = zeroP.rotation;
                 }
             }*/
+            setTimeForRelocation(PlayerPrefs.GetFloat("TimeForRelocation"));
 
             if (placeHolderParent == null)          // if it's first time we need to generate a new scene
             {
@@ -201,10 +204,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
                                 vidos.source = VideoSource.Url;
                                 vidos.url = stickers[j].sPath;
-#if PLATFORM_ANDROID                                                    //FixMe: waits AC cert fix
-                                vidos.url = vidos.url.Replace("https://developer.augmented.city",
-                                                               "http://developer.augmented.city");
-#endif
+//#if PLATFORM_ANDROID                                                    //FixMe: waits AC cert fix
+//                                vidos.url = vidos.url.Replace("https://developer.augmented.city",
+//                                                               "http://developer.augmented.city");
+//#endif
+//                                Debug.Log("VID URL = " + vidos.url);
                                 videoURLs.Add(urlVid);
                             }
                             else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
