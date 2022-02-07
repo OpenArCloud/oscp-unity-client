@@ -34,14 +34,14 @@ public class MockResponseLoad : MonoBehaviour
 
     private void HandleServerResponse(string jsonResponse)
     {
-
+        
         jsonResponseNode = JSON.Parse(jsonResponse);
 
         StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
 
     }
 
-    private void LoadFromJson()
+    public void LoadFromJsonFile()
     {
 
         MockResponse mockResponse = new MockResponse();
@@ -63,22 +63,6 @@ public class MockResponseLoad : MonoBehaviour
 
     private IEnumerator CreateSpatialRecordList(JSONNode jsonNode)
     {
-
-        #region Mock Data camera values
-        float mockCameraPositionX = -0.025755569394875458f;
-        float mockCameraPositionY = 1.0069531161549785f;
-        float mockCameraPositionZ = -3.5817743350396793f;
-
-        float mockCameraOrientationX = 0.034644804677328146f;
-        float mockCameraOrientationY = 0.034644804677328146f;
-        float mockCameraOrientationZ = -0.00696196856064574f;
-        float mockCameraOrientationW = 0.998071707693289f;
-
-        UnityGeoPose unityGeoPose = new UnityGeoPose(new Vector3(mockCameraPositionX, mockCameraPositionY, mockCameraPositionZ), new Quaternion(mockCameraOrientationX, mockCameraOrientationY, mockCameraOrientationZ, mockCameraOrientationW));
-
-        mockCameraPos = unityGeoPose.pos;
-        mockCameraOri = unityGeoPose.GetOrientation();
-        #endregion
 
         int objectAmount = jsonResponseNode.Count;
 
@@ -129,15 +113,6 @@ public class MockResponseLoad : MonoBehaviour
             sp.content.geopose.quaternion.Add("y", oy);
             sp.content.geopose.quaternion.Add("z", oz);
             sp.content.geopose.quaternion.Add("w", ow);
-
-            px = mockCameraPositionX;
-            py = mockCameraPositionY;
-            pz = mockCameraPositionZ;
-
-            UnityGeoPose uPose = new UnityGeoPose(new Vector3(mockCameraPositionX, mockCameraPositionY, mockCameraPositionZ), new Quaternion(ox, oy, oz, ow));
-
-            sp.Position = uPose.pos;
-            sp.Orientation = uPose.GetOrientation();
 
             int length = jsonResponseNode[i]["content"]["keywords"].Count;
             for (int y = 0; y < length; y++)

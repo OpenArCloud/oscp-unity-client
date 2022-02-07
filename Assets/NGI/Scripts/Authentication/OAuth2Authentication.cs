@@ -229,12 +229,6 @@ public class OAuth2Authentication : MonoBehaviour
                 //Get user information
                 GetUserInformtion(tokenEndpointDecoded["access_token"]);
 
-                //Test methods
-               // TestApiConnectionRead(tokenEndpointDecoded["access_token"]);
-                //TestApiConnectionPost(access_token);
-                //TestApiConnectionDelete(access_token, "itemid");
-                //TestApiConnectionPut(access_token, "9f542ca0eed10dab");
-
                 IsAuthenticated?.Invoke(true);
             }
         }

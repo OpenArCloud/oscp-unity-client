@@ -10,9 +10,10 @@ using UnityEngine;
 
 public class OrbitAPI : MonoBehaviour
 {
-
+    [SerializeField] private bool isLoadingFromLocalStorage;
 
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
+    [SerializeField] private MockResponseLoad mockResponseLoad;
 
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
@@ -33,18 +34,25 @@ public class OrbitAPI : MonoBehaviour
 
     public void LoadItemsFromServer()
     {
-
-        string accessToken = GetAccesToken();
-
-        if (string.IsNullOrEmpty(accessToken))
+        if (isLoadingFromLocalStorage)
         {
-            //To do
-            //Inform the user 
-            return;
+            mockResponseLoad.LoadFromJsonFile();
+        }
+        else
+        {
+            string accessToken = GetAccesToken();
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                //To do
+                //Inform the user 
+                return;
+            }
+
+            //Give the possibility for users to change topic
+            GetSpatialContentRecords(accessToken, "history");
         }
 
-        //Give the possibility for users to change topic
-        GetSpatialContentRecords(accessToken, "history");
 
     }
 
@@ -70,6 +78,7 @@ public class OrbitAPI : MonoBehaviour
 
 
     #region Test Methods during development
+
 
     async void GetSpatialContentRecords(string accessToken, string topic)
     {
@@ -163,7 +172,7 @@ public class OrbitAPI : MonoBehaviour
         putRequest.Method = "PUT";
         putRequest.Headers.Add("Authorization", "Bearer " + access_token);
         putRequest.ContentType = "application/json";
-       // putRequest.Accept = "application/json";
+        // putRequest.Accept = "application/json";
 
         putRequest.ContentLength = byteArray.Length;
         Stream stream = putRequest.GetRequestStream();
