@@ -26,8 +26,7 @@ public class Preloader : MonoBehaviour
         if (load && (www1 != null)) {
             float progress = www1.downloadProgress;
           //float progress = ww.progress;
-
-            loading.text = "" + Mathf.RoundToInt(progress * 100) + " %";
+            loading.text = "" + Mathf.RoundToInt(progress * 100) + " %";          
         }
     }
 

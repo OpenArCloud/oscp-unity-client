@@ -54,4 +54,10 @@ public class CoordTest : MonoBehaviour
         Debug.Log("Tnumber wtf = " + tog);
         PlayerPrefs.SetInt("Tnumber", tog);
     }
+
+    public void SetUurl(string url)
+    {
+        
+    }
+
 }

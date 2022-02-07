@@ -1,0 +1,80 @@
+[
+    {
+        "id": "c2162ebf6456c7a0",
+        "type": "scr",
+        "content": {
+            "id": "3",
+            "type": "placeholder",
+            "title": "avocado",
+            "refs": [
+                {
+                    "contentType": "model/gltf+json",
+                    "url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb"
+                }
+            ],
+            "definitions": [
+                {
+                    "type": "testkey",
+                    "value": "testvalue"
+                }
+            ],
+            "geopose": {
+                "longitude": 19.025045365021786,
+                "latitude": 47.467713307111815,
+                "ellipsoidHeight": 0,
+                "quaternion": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                }
+            },
+            "description": "This should be an avocado",
+            "keywords": [
+                "avocado",
+                "gltf"
+            ]
+        },
+        "tenant": "public",
+        "timestamp": 1639602506.035
+    },
+    {
+        "id": "d92c2fadcffc9c2b",
+        "type": "scr",
+        "content": {
+            "id": "1",
+            "type": "placeholder",
+            "title": "car",
+            "refs": [
+                {
+                    "contentType": "model/gltf+json",
+                    "url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ToyCar/glTF-Binary/ToyCar.glb"
+                }
+            ],
+            "definitions": [
+                {
+                    "type": "testkey",
+                    "value": "testvalue"
+                }
+            ],
+            "geopose": {
+                "longitude": 19.024913266473366,
+                "latitude": 47.46764757894552,
+                "ellipsoidHeight": 0,
+                "quaternion": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                }
+            },
+            "description": "This should be an avocado",
+            "keywords": [
+                "avocado",
+                "gltf"
+            ]
+        },
+        "tenant": "public",
+        "timestamp": 1639602506.035
+    }
+]

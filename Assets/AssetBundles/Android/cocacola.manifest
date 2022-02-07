@@ -1,0 +1,31 @@
+ManifestFileVersion: 0
+CRC: 2487359448
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: e55661d435cedb32907b2071b8c68579
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 22b6f76b218336e33314f7c7c10e4242
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/ACViewer-SDK/_Prefabs/OBJ/Cola/obj.prefab
+Dependencies: []

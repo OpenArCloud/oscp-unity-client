@@ -81,8 +81,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
         }
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
-
-        byte[] bytes = File.ReadAllBytes(devImagePath);
+        string path = Application.streamingAssetsPath + "/" + devImagePath;
+        Debug.Log(path);
+        byte[] bytes = File.ReadAllBytes(path);
+        //byte[] bytes = File.ReadAllBytes(devImagePath);
         Debug.Log("bytes = " + bytes.Length);
         Texture2D tex = new Texture2D(2, 2);
         tex.LoadImage(bytes);
@@ -91,9 +93,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
         //acapi.firstLocalization(59.934320f,  30.272610f, 30, devImagePath, showPlaceHolders); // Spb VO-yard
         //acapi.firstLocalization(41.122400f,  16.868400f, 30, devImagePath, showPlaceHolders); // Bari cafe (lat=41.1224f, lon=16.8684f)
-        // acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
+        //acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
         //acapi.firstLocalization(59.91467f, 30.30398f, 30, devImagePath, showPlaceHolders); // Новый дом, 8я красноармейская 59.914639, 30.304093 59.91462671296234, 30.304159752060876// 59.9131102286, 30.303762554748754
-        acapi.firstLocalization(59.9145560f, 30.304109f, 30, devImagePath, showPlaceHolders);
+        //acapi.firstLocalization(59.9145560f, 30.304109f, 30, devImagePath, showPlaceHolders);
+        acapi.firstLocalization(59.168705f, 18.174704f, 30, path, showPlaceHolders); //Brandbergen Sweden
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
@@ -109,6 +112,14 @@ public class GetPlaceHoldersDev : MonoBehaviour
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
+    }
+
+    public void GetOrbitContent()
+    {
+
+       // acapi.orbitAPI.get
+
+
     }
 
 
@@ -198,6 +209,14 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 stickers[j].sDescription.ToLower().Contains("transfer") ||
                                 stickers[j].subType.ToLower().Contains("transfer");
 
+                            //Added for new unity content that is external to augmented city models api
+                            bool isAnchor = stickers[j].anchorName != string.Empty &&
+                                (stickers[j].type.ToLower().Contains("3d") ||   // new 3d object format
+                                 stickers[j].sSubType.Contains("3dobject") ||   // old 3d object format
+                                 (stickers[j].sPath != null &&
+                                  stickers[j].sPath.Contains("3dobject"))       // oldest 3d object format
+                                );
+
                             if (isVideoSticker)                         // if it's a video-sticker
                             {
                                 GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
@@ -210,6 +229,73 @@ public class GetPlaceHoldersDev : MonoBehaviour
 //#endif
 //                                Debug.Log("VID URL = " + vidos.url);
                                 videoURLs.Add(urlVid);
+                            }
+                            else if (isAnchor)
+                            {
+                                Debug.Log("This is an anchor item--------------------------------------------------------------------------------------");
+
+                                GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
+                                string bundleName = stickers[j].sText.ToLower();
+                                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
+                                {
+                                    bundleName = stickers[j].bundleName.ToLower();
+                                    if (string.IsNullOrEmpty(bundleName))
+                                    {
+                                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
+                                    }
+                                }
+                                model.GetComponent<AssetLoaderNGI>().ABName = stickers[j].anchorName.ToLower();
+                                model.GetComponent<AssetLoaderNGI>().customUrl = stickers[j].externalAssetUrl.ToLower();
+                                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
+                                model.transform.localRotation = new Quaternion(
+                                    stickers[j].orientations.x,
+                                    stickers[j].orientations.y,
+                                    stickers[j].orientations.z,
+                                    stickers[j].orientations.w);
+
+                                if (stickers[j].sTrajectoryPath.Length > 1)
+                                {
+                                    Trajectory tr = model.GetComponent<Trajectory>();
+                                    tr.go = true;
+                                    tr.acapi = acapi;
+                                    tr.sTrajectory = stickers[j].sTrajectoryPath;
+                                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
+                                    tr.sOffset = stickers[j].sTrajectoryOffset;
+                                }
+
+                                //Debug.Log(stickers[j].sTrajectoryPath);
+
+                                // TEMP
+                                Mover mover = model.GetComponent<Mover>();
+                                mover.setLocked(true);
+                                mover.objectId = stickers[j].objectId;
+
+                                if (!stickers[j].vertical)
+                                {
+                                    mover.noGravity = true;
+                                }
+
+                                if (stickers[j].grounded)
+                                {
+                                    mover.landed = true;
+                                }
+
+
+                                /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
+                                    + " = " + model.transform.localPosition
+                                    + " model.rot = " + model.transform.localRotation
+                                    + " stick.ori = " + stickers[j].orientations);*/
+
+                                if (stickers[j].SModel_scale.Length > 0)
+                                {
+                                    float scale = float.Parse(stickers[j].SModel_scale);
+                                    model.transform.localScale = new Vector3(scale, scale, scale);
+                                }
+
+                                models.Add(model);                      // store the new just created model
+
+
+
                             }
                             else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
                             {

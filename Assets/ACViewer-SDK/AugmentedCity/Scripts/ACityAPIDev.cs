@@ -14,7 +14,7 @@ using System.Text;
 
 
 
-public class ACityAPIDev : MonoBehaviour
+public class ACityNGI : MonoBehaviour
 {
     public class UnityPose  // class to keep pose of the camera or objects for usage in Unity with left-handed system coords
     {
@@ -92,6 +92,10 @@ public class ACityAPIDev : MonoBehaviour
         public bool   vertical;
         public string type;
         public string subType;
+
+        //Added for external unity assetbundle that is not hosted on augmented city servers.
+        public string anchorName;
+        public string externalAssetUrl;
     }
 
     public class EcefPose
@@ -140,8 +144,8 @@ public class ACityAPIDev : MonoBehaviour
 
     ScreenOrientation ori;
 
-    const double a = 6378137;
-    const double b = 6356752.3142;
+    const double a = 6378137; //I think this number is for earth ellipsoid for: GPS World_Geodetic_System:_WGS_84 https://en.wikipedia.org/wiki/Earth_ellipsoid 
+    const double b = 6356752.3142; 
     const double f = (a - b) / a;
     const double e_sq = f * (2 - f);
 
@@ -159,7 +163,7 @@ public class ACityAPIDev : MonoBehaviour
 
     void Start()
     {
-        // PlayerPrefs.DeleteAll();
+        //PlayerPrefs.DeleteAll();
         //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
@@ -420,6 +424,8 @@ public class ACityAPIDev : MonoBehaviour
                                     stickers[j].subType           = "" + jsonParse["objects"][x]["sticker"]["subtype"];
                                     stickers[j].type              = "" + jsonParse["objects"][x]["sticker"]["type"];
                                     stickers[j].bundleName        = "" + jsonParse["objects"][x]["sticker"]["model_id"];
+                                    stickers[j].anchorName        = "" + jsonParse["objects"][x]["sticker"]["anchor"];
+                                    stickers[j].externalAssetUrl  = "" + jsonParse["objects"][x]["sticker"]["asseturl"];
                                     if (string.IsNullOrEmpty(stickers[j].bundleName))
                                     {
                                         stickers[j].bundleName    = "" + jsonParse["objects"][x]["sticker"]["bundle_name"];
@@ -454,6 +460,9 @@ public class ACityAPIDev : MonoBehaviour
                                     currentRi.stickerArray[j].subType           = stickers[j].subType;
                                     currentRi.stickerArray[j].type              = stickers[j].type;
                                     currentRi.stickerArray[j].bundleName        = stickers[j].bundleName;
+                                    currentRi.stickerArray[j].anchorName        = stickers[j].anchorName;
+                                    currentRi.stickerArray[j].externalAssetUrl  = stickers[j].externalAssetUrl;
+
                                 }
                             }
                         }
@@ -697,7 +706,7 @@ public class ACityAPIDev : MonoBehaviour
                                 Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
                                 px = enupose.x;
                                 py = enupose.y;
-                                pz = enupose.z;
+                                pz = enupose.z; 
                                 ox = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["x"].AsFloat;
                                 oy = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["y"].AsFloat;
                                 oz = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["z"].AsFloat;
@@ -771,6 +780,8 @@ public class ACityAPIDev : MonoBehaviour
                             stickers[j].subType            = "" + jsonParse["scrs"][j]["content"]["custom_data"]["subtype"];
                             stickers[j].type               = "" + jsonParse["scrs"][j]["content"]["custom_data"]["type"];
                             stickers[j].bundleName         = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_id"];
+                            stickers[j].anchorName         = "" + jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
+                            stickers[j].externalAssetUrl   = "" + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
                             if (string.IsNullOrEmpty(stickers[j].bundleName)) {
                                 stickers[j].bundleName     = "" + jsonParse["scrs"][j]["content"]["custom_data"]["bundle_name"];
                             }
@@ -804,6 +815,8 @@ public class ACityAPIDev : MonoBehaviour
                             currentRi.stickerArray[j].subType           = stickers[j].subType;
                             currentRi.stickerArray[j].type              = stickers[j].type;
                             currentRi.stickerArray[j].bundleName        = stickers[j].bundleName;
+                            currentRi.stickerArray[j].anchorName        = stickers[j].anchorName;
+                            currentRi.stickerArray[j].externalAssetUrl  = stickers[j].externalAssetUrl;
                         }
                         recoList.Add(currentRi);
                         newCam.transform.position    = cameraPositionInLocalization;
@@ -1077,7 +1090,10 @@ public class ACityAPIDev : MonoBehaviour
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
         yield return w.SendWebRequest();
-        if (w.isNetworkError || w.isHttpError) { Debug.Log(w.error); localizationStatus = LocalizationStatus.ServerError;
+        if (w.isNetworkError || w.isHttpError) 
+        { 
+            Debug.Log(w.error); 
+            localizationStatus = LocalizationStatus.ServerError;
             getServerAnswer(false, w.downloadHandler.text);
         }
         else
