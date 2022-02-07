@@ -9,9 +9,9 @@ Unity version 2021.1.28f1 or higher.
 Before importing the package, please do the following in the project:
 
 SDK uses ARFoundation systems, so you have to install packages (Window -> Package manager):
-- ARFoundation 4.1.7
-- ARCore XR Plugin 4.1.7
-- ARKit XR Plugin 4.1.7
+- ARFoundation 4.1.9
+- ARCore XR Plugin 4.1.9
+- ARKit XR Plugin 4.1.9
 
 Other Packages
 - TextMeshPro 3.0.6
