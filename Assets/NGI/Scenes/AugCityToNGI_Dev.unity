@@ -985,6 +985,7 @@ GameObject:
   - component: {fileID: 192479091}
   - component: {fileID: 192479093}
   - component: {fileID: 192479092}
+  - component: {fileID: 192479094}
   m_Layer: 0
   m_Name: '@OAuth2'
   m_TagString: Untagged
@@ -1018,7 +1019,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470c0711da3c1a043aefac15115c0a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isLoadingFromLocalStorage: 1
   oAuth2Authentication: {fileID: 192479093}
+  spatialRecordManager: {fileID: 192479094}
 --- !u!114 &192479093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1037,6 +1040,21 @@ MonoBehaviour:
   tokenEndpoint: 
   userInfoEndpoint: 
   redirectURI: 
+--- !u!114 &192479094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192479090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebf76e26dc9e7424aac8cfeb1fdd0a45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mockCameraPos: {x: 0, y: 0, z: 0}
+  mockCameraOri: {x: 0, y: 0, z: 0, w: 0}
+  orbitAPI: {fileID: 192479092}
 --- !u!1 &220193966
 GameObject:
   m_ObjectHideFlags: 0
@@ -8372,7 +8390,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1396039688}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b194259c7f879f46a86db4a808cda58, type: 3}
   m_Name: 
@@ -8387,7 +8405,6 @@ MonoBehaviour:
   useOSCP: 1
   ecef: 0
   useGeopose: 1
-  orbitAPI: {fileID: 0}
 --- !u!114 &1396039692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8490,7 +8507,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1396039688}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5da5a5979f09774aa7e86f3107f4e71, type: 3}
   m_Name: 
@@ -8505,6 +8522,10 @@ MonoBehaviour:
   useOSCP: 1
   ecef: 0
   useGeopose: 1
+  useNGISettings: 0
+  orbitAPI: {fileID: 0}
+  serverOrbitResponse: 
+  spatialRecordManager: {fileID: 0}
 --- !u!114 &1396039697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8519,7 +8540,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ABloader: {fileID: 5134400709888703073, guid: 58b2d06e7c50a49499df2ffe48883476,
     type: 3}
-  ABloaderNGI: {fileID: 0}
+  ABloaderNGI: {fileID: 5134400709888703073, guid: b631c74088eb51747a7dae3b6c4b4406,
+    type: 3}
   activeButtonImage: {fileID: 0}
   groundPlane: {fileID: 2398405419720274315, guid: e405bbbe06e0b534cb580adcdc8d8b58,
     type: 3}

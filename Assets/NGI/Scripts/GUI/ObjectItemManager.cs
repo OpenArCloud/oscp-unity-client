@@ -11,7 +11,7 @@ public class ObjectItemManager : MonoBehaviour
 
     [SerializeField] GameObject prefabToSpawn;
 
-    [SerializeField] MockResponseLoad mockResponse;
+    [SerializeField] SpatialRecordManager spatialRecordManager;
 
     [SerializeField] ObjectInformationGUI informationPanel;
 
@@ -19,13 +19,13 @@ public class ObjectItemManager : MonoBehaviour
     private void OnEnable()
     {
         ObjectListItem.listItemClicked += HandleClickedItem;
-        MockResponseLoad.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
+        SpatialRecordManager.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
     }
 
     private void OnDisable()
     {
         ObjectListItem.listItemClicked -= HandleClickedItem;
-        MockResponseLoad.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
+        SpatialRecordManager.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
     }
 
     private void HandleUpdatedSpatialRecords(SpatialServiceRecord[] spatialRecords)
@@ -65,7 +65,7 @@ public class ObjectItemManager : MonoBehaviour
         }
 
         //CreateObjectItems(mockResponse.spatialServiceRecord);
-        mockResponse.GetSpatialRecords();
+        spatialRecordManager.GetSpatialRecords();
 
     }
 

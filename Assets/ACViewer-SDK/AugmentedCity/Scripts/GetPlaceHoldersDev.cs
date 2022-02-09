@@ -28,6 +28,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
     List<GameObject> models = new List<GameObject>();
 
     ACityAPIDev acapi;
+    //ACityNGI acapi;
     Vector3 deltaTranslateVector, deltaRotateVector;
     public bool needScaling;
     bool translateAction;
@@ -48,9 +49,14 @@ public class GetPlaceHoldersDev : MonoBehaviour
     public float timeForRelocation = 20f;  // set reloc time to 20 secs by default
 
 
+    private OrbitAPI orbitAPI;
+
     void Start()
     {
+        orbitAPI = FindObjectOfType<OrbitAPI>();
+
         acapi = GetComponent<ACityAPIDev>();
+        //acapi = GetComponent<ACityNGI>();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         aRcamera = Camera.main.gameObject;
         relocationCompleted = true;
@@ -100,6 +106,9 @@ public class GetPlaceHoldersDev : MonoBehaviour
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
+
+        GetOrbitContent();
+
     }
 
 
@@ -112,13 +121,15 @@ public class GetPlaceHoldersDev : MonoBehaviour
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
+
+
+        GetOrbitContent();
     }
 
     public void GetOrbitContent()
     {
 
-       // acapi.orbitAPI.get
-
+        orbitAPI.LoadItemsFromServer();
 
     }
 
@@ -229,6 +240,80 @@ public class GetPlaceHoldersDev : MonoBehaviour
 //#endif
 //                                Debug.Log("VID URL = " + vidos.url);
                                 videoURLs.Add(urlVid);
+                            }
+                            else if(stickers[j].spatialServiceRecord != null)
+                            {
+                                Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
+
+                                GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
+                                string bundleName = stickers[j].sText.ToLower();
+                                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
+                                {
+                                    bundleName = stickers[j].bundleName.ToLower();
+                                    if (string.IsNullOrEmpty(bundleName))
+                                    {
+                                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
+                                    }
+                                }
+
+                                //Fix so it supports more than one refs entry
+                                string assetbundleName = "noAsset";
+                                if (stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
+                                {
+                                    assetbundleName = stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
+                                }
+                                
+                                string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
+
+                                model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName;
+                                model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl;
+                                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
+                                model.transform.localRotation = new Quaternion(
+                                    stickers[j].orientations.x,
+                                    stickers[j].orientations.y,
+                                    stickers[j].orientations.z,
+                                    stickers[j].orientations.w);
+
+                                if (stickers[j].sTrajectoryPath.Length > 1)
+                                {
+                                    Trajectory tr = model.GetComponent<Trajectory>();
+                                    tr.go = true;
+                                    tr.acapi = acapi;
+                                    tr.sTrajectory = stickers[j].sTrajectoryPath;
+                                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
+                                    tr.sOffset = stickers[j].sTrajectoryOffset;
+                                }
+
+                                //Debug.Log(stickers[j].sTrajectoryPath);
+
+                                // TEMP
+                                Mover mover = model.GetComponent<Mover>();
+                                mover.setLocked(true);
+                                mover.objectId = stickers[j].objectId;
+
+                                if (!stickers[j].vertical)
+                                {
+                                    mover.noGravity = true;
+                                }
+
+                                if (stickers[j].grounded)
+                                {
+                                    mover.landed = true;
+                                }
+
+
+                                /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
+                                    + " = " + model.transform.localPosition
+                                    + " model.rot = " + model.transform.localRotation
+                                    + " stick.ori = " + stickers[j].orientations);*/
+
+                                if (stickers[j].SModel_scale.Length > 0)
+                                {
+                                    float scale = float.Parse(stickers[j].SModel_scale);
+                                    model.transform.localScale = new Vector3(scale, scale, scale);
+                                }
+
+                                models.Add(model);                      // store the new just created model
                             }
                             else if (isAnchor)
                             {

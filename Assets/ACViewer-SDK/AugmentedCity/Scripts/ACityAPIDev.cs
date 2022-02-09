@@ -11,10 +11,9 @@ using System.IO;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Android;
 using System.Text;
+using NGI.Api;
 
-
-
-public class ACityNGI : MonoBehaviour
+public class ACityAPIDev : MonoBehaviour
 {
     public class UnityPose  // class to keep pose of the camera or objects for usage in Unity with left-handed system coords
     {
@@ -96,6 +95,7 @@ public class ACityNGI : MonoBehaviour
         //Added for external unity assetbundle that is not hosted on augmented city servers.
         public string anchorName;
         public string externalAssetUrl;
+        public SpatialServiceRecord spatialServiceRecord;
     }
 
     public class EcefPose
@@ -161,8 +161,12 @@ public class ACityNGI : MonoBehaviour
     LocalizationStatus localizationStatus = LocalizationStatus.NotStarted;
     UIManager uim;
 
+    SpatialRecordManager spatialRecordManager;
+
     void Start()
     {
+        spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
+
         //PlayerPrefs.DeleteAll();
         //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?
         globalTimer = -1;
@@ -193,6 +197,7 @@ public class ACityNGI : MonoBehaviour
         if (nr == NetworkReachability.ReachableViaCarrierDataNetwork) uim.statusDebug("Mobile internet");
         if (nr == NetworkReachability.ReachableViaLocalAreaNetwork  ) uim.statusDebug("Wifi");
     }
+
 
     public void SetOSCPusage(bool os)
     {
@@ -668,6 +673,8 @@ public class ACityNGI : MonoBehaviour
                     currentRi.zeroCamEcefPose = zeroEcefCam;
                     currentRi.zeroCamGeoPose  = zeroGeoCam;
 
+                    objectsAmount = spatialRecordManager.spatialServiceRecord.Length;
+
                     if (objectsAmount > 0)
                     {
                         currentRi.scale3dcloud = tempScale3d;
@@ -795,6 +802,9 @@ public class ACityNGI : MonoBehaviour
                             {
                                 if (verticals.Contains("1")) { stickers[j].vertical = true; }
                             }
+
+                            //Testing to add Spatialrecord. Simple way to use current code flow
+                            stickers[j].spatialServiceRecord = spatialRecordManager.spatialServiceRecord[j];
 
                             currentRi.stickerArray[j].sPath             = stickers[j].sPath;
                             currentRi.stickerArray[j].sText             = stickers[j].sText;

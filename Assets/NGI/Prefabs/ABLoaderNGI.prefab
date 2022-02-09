@@ -407,8 +407,9 @@ GameObject:
   - component: {fileID: 3343785451754119810}
   - component: {fileID: -3453391441725960386}
   - component: {fileID: 3930143048861115508}
+  - component: {fileID: 2768872531565739139}
   m_Layer: 8
-  m_Name: ABLoader
+  m_Name: ABLoaderNGI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -436,14 +437,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5134400709888703073}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1cb31af78b46cee47935dfd595e7ca13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BundleFullURL: https://glazar.pa.infobox.ru/ar/GlazAR/android64/
+  BundleFullURL: 
   preloader: {fileID: 5379881170964703611}
-  ABName: sirius1
+  ABName: 
   customUrl: 
 --- !u!65 &3343785451754119810
 BoxCollider:
@@ -492,6 +493,22 @@ MonoBehaviour:
   sOffset: 
   sTimePeriod: 
   acapi: {fileID: 0}
+--- !u!114 &2768872531565739139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5134400709888703073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01dd73f829e1def4cae3b2ca7aeb16d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BundleFullURL: 
+  ABName: 
+  preloader: {fileID: 5379881170964703611}
+  customUrl: 
 --- !u!1 &5633847103519255745
 GameObject:
   m_ObjectHideFlags: 0
@@ -939,7 +956,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &7210428582863441002
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -115,9 +115,9 @@ public class ObjectInformationGUI : MonoBehaviour
 
     public void UpdateSpatialObject()
     {
-        MockResponseLoad mockResponseLoad = FindObjectOfType<MockResponseLoad>();
+        SpatialRecordManager spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
 
-        mockResponseLoad.UpdateSpatialObject(GetSpatialObject());
+        spatialRecordManager.UpdateSpatialObject(GetSpatialObject());
 
     }
 

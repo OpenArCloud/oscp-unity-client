@@ -63,15 +63,17 @@ public class AssetLoaderNGI : MonoBehaviour
         modelManager.loadingBunles.Add(ABName);
 
 #if UNITY_IOS
-       customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
+       //customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
 #endif
 #if PLATFORM_ANDROID
-        customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
+        //customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
 #endif
         Debug.Log("Load Bundle Path = " + customUrl);
+
+        
        
         CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0, 0));
-        using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
+        using (UnityWebRequest uwr = UnityWebRequest.Get(customUrl)) //UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
         {
             preloader.LoadPercent(uwr);
             yield return uwr.SendWebRequest();
@@ -91,7 +93,7 @@ public class AssetLoaderNGI : MonoBehaviour
 
                 string[] names = bundle.GetAllAssetNames();
 
-                foreach(var item in names)
+                foreach (var item in names)
                 {
                     Debug.Log("Name of asset: " + item);
                 }

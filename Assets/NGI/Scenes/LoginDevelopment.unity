@@ -2252,14 +2252,14 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 416063371}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1108067678}
-        m_TargetAssemblyTypeName: MockResponseLoad, Assembly-CSharp
-        m_MethodName: SaveSpatialRecordListToLocal
+        m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
+        m_MethodName: SaveSpatialRecordListToLocalStorage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2821,7 +2821,7 @@ MonoBehaviour:
   contentHolder: {fileID: 1728336477}
   prefabToSpawn: {fileID: 8332775679143077325, guid: 14fcbdac931b23545853ca68387e7c33,
     type: 3}
-  mockResponse: {fileID: 1108067678}
+  spatialRecordManager: {fileID: 1108067678}
   informationPanel: {fileID: 600066856}
 --- !u!222 &566859976
 CanvasRenderer:
@@ -3152,7 +3152,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &671690885
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4569,14 +4569,14 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 977023111}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1108067678}
-        m_TargetAssemblyTypeName: MockResponseLoad, Assembly-CSharp
-        m_MethodName: LoadFromJson
+        m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
+        m_MethodName: LoadFromJsonFile
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5157,8 +5157,8 @@ GameObject:
   - component: {fileID: 1108067676}
   - component: {fileID: 1108067675}
   - component: {fileID: 1108067677}
-  - component: {fileID: 1108067678}
   - component: {fileID: 1108067679}
+  - component: {fileID: 1108067678}
   m_Layer: 0
   m_Name: '@Oauth2'
   m_TagString: Untagged
@@ -5223,7 +5223,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1108067674}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 351cbdc7515249a4a80b46c18b7aec6a, type: 3}
+  m_Script: {fileID: 11500000, guid: ebf76e26dc9e7424aac8cfeb1fdd0a45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mockCameraPos: {x: 0, y: 0, z: 0}
@@ -5241,7 +5241,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470c0711da3c1a043aefac15115c0a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isLoadingFromLocalStorage: 0
   oAuth2Authentication: {fileID: 1108067675}
+  spatialRecordManager: {fileID: 0}
 --- !u!1 &1155160889
 GameObject:
   m_ObjectHideFlags: 0
@@ -8357,7 +8359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000011071572}
+  m_AnchoredPosition: {x: 0, y: -0.000026157573}
   m_SizeDelta: {x: 0, y: 669.84}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1728336478

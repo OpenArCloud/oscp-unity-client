@@ -13,30 +13,17 @@ public class OrbitAPI : MonoBehaviour
     [SerializeField] private bool isLoadingFromLocalStorage;
 
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
-    [SerializeField] private MockResponseLoad mockResponseLoad;
+    [SerializeField] private SpatialRecordManager spatialRecordManager;
 
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
-
-    private string GetAccesToken()
-    {
-        UserSessionCache userSessionCache = new UserSessionCache();
-        SaveDataManager.LoadJsonData(userSessionCache);
-
-        if (!string.IsNullOrEmpty(userSessionCache.getAccessToken()))
-        {
-            return userSessionCache.getAccessToken();
-        }
-
-        return null;
-    }
 
 
     public void LoadItemsFromServer()
     {
         if (isLoadingFromLocalStorage)
         {
-            mockResponseLoad.LoadFromJsonFile();
+            spatialRecordManager.LoadFromJsonFile();
         }
         else
         {
@@ -52,7 +39,6 @@ public class OrbitAPI : MonoBehaviour
             //Give the possibility for users to change topic
             GetSpatialContentRecords(accessToken, "history");
         }
-
 
     }
 
@@ -74,6 +60,19 @@ public class OrbitAPI : MonoBehaviour
 
         UpdateSpatialRecord(accessToken, recordID, "history", json);
 
+    }
+
+    private string GetAccesToken()
+    {
+        UserSessionCache userSessionCache = new UserSessionCache();
+        SaveDataManager.LoadJsonData(userSessionCache);
+
+        if (!string.IsNullOrEmpty(userSessionCache.getAccessToken()))
+        {
+            return userSessionCache.getAccessToken();
+        }
+
+        return null;
     }
 
 

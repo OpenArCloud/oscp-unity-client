@@ -9,16 +9,16 @@ namespace NGI.Api
     //Spatial-service-record = SSR
     public class SpatialServiceRecord
     {
-        [System.NonSerialized]
-        public string id;
-        public string type;
-        [System.NonSerialized]
-        public string tenant;
-        [System.NonSerialized]
-        public float timestamp;
-     
+        public string type;    
         public Content content;
 
+
+        [System.NonSerialized]
+        public string id;
+        [System.NonSerialized]
+        public float timestamp;
+        [System.NonSerialized]
+        public string tenant;
         [System.NonSerialized]
         public Vector3 Position;
         [System.NonSerialized]
@@ -31,8 +31,7 @@ namespace NGI.Api
         public double latitude;
         public double longitude;
         public double ellipsoidHeight;
-
-      
+  
         public Dictionary<string, float> quaternion;
     }
 
@@ -42,15 +41,15 @@ namespace NGI.Api
         public string description;
         public string id;
         public string placeKey;
-        public float size;
         public string type;
         public string title;
 
+        public float size;
+        
         public GeoPosition geopose;
 
         public IList<Dictionary<string, string>> definitions;
         public IList<Dictionary<string, string>> refs;
-
         public IList<string> keywords;
 
     }

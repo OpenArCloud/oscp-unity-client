@@ -11,10 +11,9 @@ using System.IO;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Android;
 using System.Text;
+using NGI.Api;
 
-
-
-public class ACityAPIDev : MonoBehaviour
+public class ACityNGI : MonoBehaviour
 {
     public class UnityPose  // class to keep pose of the camera or objects for usage in Unity with left-handed system coords
     {
@@ -96,6 +95,7 @@ public class ACityAPIDev : MonoBehaviour
         //Added for external unity assetbundle that is not hosted on augmented city servers.
         public string anchorName;
         public string externalAssetUrl;
+        public SpatialServiceRecord spatialServiceRecord;
     }
 
     public class EcefPose
@@ -161,11 +161,14 @@ public class ACityAPIDev : MonoBehaviour
     LocalizationStatus localizationStatus = LocalizationStatus.NotStarted;
     UIManager uim;
 
+    [Header("NGI Settings")]
+    [SerializeField] bool useNGISettings;
+
     public OrbitAPI orbitAPI;
 
     public string serverOrbitResponse;
 
-
+    [SerializeField] SpatialRecordManager spatialRecordManager;
 
     void Start()
     {
@@ -212,7 +215,7 @@ public class ACityAPIDev : MonoBehaviour
 
     private void HandleServerResponse(string obj)
     {
-       serverOrbitResponse = obj;
+        serverOrbitResponse = obj;
     }
 
     public void SetOSCPusage(bool os)
@@ -683,10 +686,6 @@ public class ACityAPIDev : MonoBehaviour
                 StickerInfo[] stickers;
                 stickers = null;
 
-                //Add connection to oscp-spatial-content-discovery
-
-
-
 
                 if (currentRi == null)
                 {
@@ -695,166 +694,315 @@ public class ACityAPIDev : MonoBehaviour
                     currentRi.zeroCamEcefPose = zeroEcefCam;
                     currentRi.zeroCamGeoPose = zeroGeoCam;
 
-                    if (objectsAmount > 0)
-                    {
-                        currentRi.scale3dcloud = tempScale3d;
-                        stickers = new StickerInfo[objectsAmount];
-                        currentRi.stickerArray = new StickerInfo[objectsAmount];
-                        GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
-                        for (int j = 0; j < objectsAmount; j++)
-                        {
-                            currentRi.stickerArray[j] = new StickerInfo();
-                            stickers[j] = new StickerInfo();
-                            currentRi.stickerArray[j].positions = new Vector3[4];
+                    //Add connection to oscp-spatial-content-discovery
 
-                            // Object's position
-                            if (ecef)
+                    //To DO                  
+                    //Translate SpatialRecords to StickerInfo
+                    //Use already created flow
+
+                    if (useNGISettings)
+                    {
+                        objectsAmount = spatialRecordManager.spatialServiceRecord.Length;
+
+
+                        if (objectsAmount > 0)
+                        {
+                            currentRi.scale3dcloud = tempScale3d;
+                            stickers = new StickerInfo[objectsAmount];
+                            currentRi.stickerArray = new StickerInfo[objectsAmount];
+                            GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
+                            for (int j = 0; j < objectsAmount; j++)
                             {
-                                double posTX = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["x"].AsDouble;
-                                double posTY = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["y"].AsDouble;
-                                double posTZ = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["z"].AsDouble;
-                                // calc the object position relatively the recently localized camera
-                                px = (float)(posTX - px0);
-                                py = (float)(posTY - py0);
-                                pz = (float)(posTZ - pz0);
-                                ox = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["x"].AsFloat;
-                                oy = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["y"].AsFloat;
-                                oz = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["z"].AsFloat;
-                                ow = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["w"].AsFloat;
-                            }
-                            else if (useGeopose)
-                            {
+                                currentRi.stickerArray[j] = new StickerInfo();
+                                stickers[j] = new StickerInfo();
+                                currentRi.stickerArray[j].positions = new Vector3[4];
+
+                                // Object's position using GeoPose
+
                                 double tlat, tlon, thei;
-                                tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
-                                tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
-                                thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                tlat = spatialRecordManager.spatialServiceRecord[j].content.geopose.latitude;
+                                tlon = spatialRecordManager.spatialServiceRecord[j].content.geopose.longitude;
+                                thei = spatialRecordManager.spatialServiceRecord[j].content.geopose.ellipsoidHeight;
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                 Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
                                 px = enupose.x;
                                 py = enupose.y;
                                 pz = enupose.z;
-                                ox = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["x"].AsFloat;
-                                oy = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["y"].AsFloat;
-                                oz = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["z"].AsFloat;
-                                ow = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["w"].AsFloat;
+                                ox = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["x"];
+                                oy = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["y"];
+                                oz = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
+                                ow = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
 
                                 //Debug.Log("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
-                            }
-                            else  // object local pose 
-                            {
-                                px = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["x"].AsFloat;
-                                py = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["y"].AsFloat;
-                                pz = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["z"].AsFloat;
-                                ox = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["x"].AsFloat;
-                                oy = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["y"].AsFloat;
-                                oz = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["z"].AsFloat;
-                                ow = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["w"].AsFloat;
-                            }
 
-                            uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
-                            currentRi.stickerArray[j].mainPositions = uPose.pos;
+                                uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
+                                currentRi.stickerArray[j].mainPositions = uPose.pos;
 
-                            // Update object orientation depends on the system coords
-                            if (ecef)
-                            {
+                                // Update object orientation depends on the system coords
                                 currentRi.stickerArray[j].orientations = uPose.SetObjectOriFromGeoPose();
-                            }
-                            else if (useGeopose)
-                            {
-                                currentRi.stickerArray[j].orientations = uPose.SetObjectOriFromGeoPose();
-                            }
-                            else // local pose
-                            {
-                                currentRi.stickerArray[j].orientations = uPose.GetOrientation();
+
+                                stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
+                                stickers[j].orientations = currentRi.stickerArray[j].orientations;
+
+                                /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+                                */
+
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    float pxf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["x"].AsFloat + px;
+                                    float pyf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["y"].AsFloat + py;
+                                    float pzf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["z"].AsFloat + pz;
+                                    placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                                    placeHolders[j, i].transform.SetParent(newCam.transform);
+                                    placeHolders[j, i].transform.position = UnityPose.GetPosition(pxf, pyf, pzf);
+                                    currentRi.stickerArray[j].positions[i] = UnityPose.GetPosition(pxf, pyf, pzf);
+                                }
+
+                                stickers[j].sPath = ""; //Add path to SpatialRecord
+                                stickers[j].sText = "" + spatialRecordManager.spatialServiceRecord[j].content.title;
+                                stickers[j].sType = "" + spatialRecordManager.spatialServiceRecord[j].content.type;
+                                stickers[j].sSubType = "" + spatialRecordManager.spatialServiceRecord[j].content.type; //Atm not using subtype
+                                stickers[j].sDescription = "" + spatialRecordManager.spatialServiceRecord[j].content.description;
+                                stickers[j].SModel_scale = "" + spatialRecordManager.spatialServiceRecord[j].content.size; //is size correct variable for scale?
+                                stickers[j].sId = "" + spatialRecordManager.spatialServiceRecord[j].content.id;
+                                stickers[j].objectId = "" + spatialRecordManager.spatialServiceRecord[j].id;
+                                stickers[j].sImage = ""; //image not implemented on server side
+                                stickers[j].sAddress = ""; //not implemented
+                                stickers[j].sFeedbackAmount = ""; //Not implemented
+                                stickers[j].sRating = ""; //+ jsonParse["scrs"][j]["content"]["custom_data"]["Rating"];
+                                stickers[j].sUrl_ta = ""; //Dont know what it is used for
+                                stickers[j].sTrajectoryPath = ""; // Not implemented on serverside
+                                stickers[j].sTrajectoryOffset = ""; // Not implemented
+                                stickers[j].sTrajectoryPeriod = ""; // Not implemented
+                                stickers[j].subType = ""; // Not implemented
+                                stickers[j].type = "" + spatialRecordManager.spatialServiceRecord[j].type;
+                                stickers[j].bundleName = ""; // Not used
+                                stickers[j].anchorName = ""; //+ jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
+                                stickers[j].externalAssetUrl = "";// + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
+                                if (string.IsNullOrEmpty(stickers[j].bundleName))
+                                {
+                                    stickers[j].bundleName = "";// + jsonParse["scrs"][j]["content"]["custom_data"]["bundle_name"];
+                                }
+                                string groundeds = jsonParse["scrs"][j]["content"]["custom_data"]["grounded"];
+                                string verticals = jsonParse["scrs"][j]["content"]["custom_data"]["vertically_aligned"];
+                                if (groundeds != null)
+                                {
+                                    if (groundeds.Contains("1")) { stickers[j].grounded = true; }
+                                }
+                                if (verticals != null)
+                                {
+                                    if (verticals.Contains("1")) { stickers[j].vertical = true; }
+                                }
+
+                                stickers[j].spatialServiceRecord = spatialRecordManager.spatialServiceRecord[j];
+
+                                currentRi.stickerArray[j].sPath = stickers[j].sPath;
+                                currentRi.stickerArray[j].sText = stickers[j].sText;
+                                currentRi.stickerArray[j].sType = stickers[j].sType;
+                                currentRi.stickerArray[j].sSubType = stickers[j].sSubType;
+                                currentRi.stickerArray[j].sDescription = stickers[j].sDescription;
+                                currentRi.stickerArray[j].SModel_scale = stickers[j].SModel_scale;
+                                currentRi.stickerArray[j].sId = stickers[j].sId;
+                                currentRi.stickerArray[j].sImage = stickers[j].sImage;
+                                currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
+                                currentRi.stickerArray[j].sRating = stickers[j].sRating;
+                                currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
+                                currentRi.stickerArray[j].sTrajectoryPath = stickers[j].sTrajectoryPath;
+                                currentRi.stickerArray[j].sTrajectoryOffset = stickers[j].sTrajectoryOffset;
+                                currentRi.stickerArray[j].sTrajectoryPeriod = stickers[j].sTrajectoryPeriod;
+                                currentRi.stickerArray[j].grounded = stickers[j].grounded;
+                                currentRi.stickerArray[j].vertical = stickers[j].vertical;
+                                currentRi.stickerArray[j].subType = stickers[j].subType;
+                                currentRi.stickerArray[j].type = stickers[j].type;
+                                currentRi.stickerArray[j].bundleName = stickers[j].bundleName;
+                                currentRi.stickerArray[j].anchorName = stickers[j].anchorName;
+                                currentRi.stickerArray[j].externalAssetUrl = stickers[j].externalAssetUrl;
+
+
                             }
 
-                            stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
-                            stickers[j].orientations = currentRi.stickerArray[j].orientations;
-
-                            /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
-                            */
-                            for (int i = 0; i < 4; i++)
+                            recoList.Add(currentRi);
+                            newCam.transform.position = cameraPositionInLocalization;
+                            newCam.transform.eulerAngles = cameraRotationInLocalization;
+                            for (int j = 0; j < objectsAmount; j++)
                             {
-                                float pxf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["x"].AsFloat + px;
-                                float pyf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["y"].AsFloat + py;
-                                float pzf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["z"].AsFloat + pz;
-                                placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
-                                placeHolders[j, i].transform.SetParent(newCam.transform);
-                                placeHolders[j, i].transform.position = UnityPose.GetPosition(pxf, pyf, pzf);
-                                currentRi.stickerArray[j].positions[i] = UnityPose.GetPosition(pxf, pyf, pzf);
+                                stickers[j].positions = new Vector3[4];
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                                }
                             }
-
-                            stickers[j].sPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["path"];
-                            stickers[j].sText = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_text"];
-                            stickers[j].sType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_type"];
-                            stickers[j].sSubType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_subtype"];
-                            stickers[j].sDescription = "" + jsonParse["scrs"][j]["content"]["custom_data"]["description"];
-                            stickers[j].SModel_scale = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_scale"];
-                            stickers[j].sId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_id"];
-                            stickers[j].objectId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["placeholder_id"];
-                            stickers[j].sImage = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Image"];
-                            stickers[j].sAddress = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Address"];
-                            stickers[j].sFeedbackAmount = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Feedback amount"];
-                            stickers[j].sRating = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Rating"];
-                            stickers[j].sUrl_ta = "" + jsonParse["scrs"][j]["content"]["custom_data"]["url_ta"];
-                            stickers[j].sTrajectoryPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_path"];
-                            stickers[j].sTrajectoryOffset = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_offset"];
-                            stickers[j].sTrajectoryPeriod = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_period"];
-                            stickers[j].subType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["subtype"];
-                            stickers[j].type = "" + jsonParse["scrs"][j]["content"]["custom_data"]["type"];
-                            stickers[j].bundleName = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_id"];
-                            stickers[j].anchorName = "" + jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
-                            stickers[j].externalAssetUrl = "" + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
-                            if (string.IsNullOrEmpty(stickers[j].bundleName))
-                            {
-                                stickers[j].bundleName = "" + jsonParse["scrs"][j]["content"]["custom_data"]["bundle_name"];
-                            }
-                            string groundeds = jsonParse["scrs"][j]["content"]["custom_data"]["grounded"];
-                            string verticals = jsonParse["scrs"][j]["content"]["custom_data"]["vertically_aligned"];
-                            if (groundeds != null)
-                            {
-                                if (groundeds.Contains("1")) { stickers[j].grounded = true; }
-                            }
-                            if (verticals != null)
-                            {
-                                if (verticals.Contains("1")) { stickers[j].vertical = true; }
-                            }
-
-                            currentRi.stickerArray[j].sPath = stickers[j].sPath;
-                            currentRi.stickerArray[j].sText = stickers[j].sText;
-                            currentRi.stickerArray[j].sType = stickers[j].sType;
-                            currentRi.stickerArray[j].sSubType = stickers[j].sSubType;
-                            currentRi.stickerArray[j].sDescription = stickers[j].sDescription;
-                            currentRi.stickerArray[j].SModel_scale = stickers[j].SModel_scale;
-                            currentRi.stickerArray[j].sId = stickers[j].sId;
-                            currentRi.stickerArray[j].sImage = stickers[j].sImage;
-                            currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
-                            currentRi.stickerArray[j].sRating = stickers[j].sRating;
-                            currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
-                            currentRi.stickerArray[j].sTrajectoryPath = stickers[j].sTrajectoryPath;
-                            currentRi.stickerArray[j].sTrajectoryOffset = stickers[j].sTrajectoryOffset;
-                            currentRi.stickerArray[j].sTrajectoryPeriod = stickers[j].sTrajectoryPeriod;
-                            currentRi.stickerArray[j].grounded = stickers[j].grounded;
-                            currentRi.stickerArray[j].vertical = stickers[j].vertical;
-                            currentRi.stickerArray[j].subType = stickers[j].subType;
-                            currentRi.stickerArray[j].type = stickers[j].type;
-                            currentRi.stickerArray[j].bundleName = stickers[j].bundleName;
-                            currentRi.stickerArray[j].anchorName = stickers[j].anchorName;
-                            currentRi.stickerArray[j].externalAssetUrl = stickers[j].externalAssetUrl;
                         }
-                        recoList.Add(currentRi);
-                        newCam.transform.position = cameraPositionInLocalization;
-                        newCam.transform.eulerAngles = cameraRotationInLocalization;
-                        for (int j = 0; j < objectsAmount; j++)
+
+                    }
+                    else
+                    {
+                        if (objectsAmount > 0)
                         {
-                            stickers[j].positions = new Vector3[4];
-                            for (int i = 0; i < 4; i++)
+                            currentRi.scale3dcloud = tempScale3d;
+                            stickers = new StickerInfo[objectsAmount];
+                            currentRi.stickerArray = new StickerInfo[objectsAmount];
+                            GameObject[,] placeHolders = new GameObject[objectsAmount, 4];
+                            for (int j = 0; j < objectsAmount; j++)
                             {
-                                stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                                currentRi.stickerArray[j] = new StickerInfo();
+                                stickers[j] = new StickerInfo();
+                                currentRi.stickerArray[j].positions = new Vector3[4];
+
+                                // Object's position
+                                if (ecef)
+                                {
+                                    double posTX = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["x"].AsDouble;
+                                    double posTY = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["y"].AsDouble;
+                                    double posTZ = jsonParse["scrs"][j]["content"]["ecefPose"]["position"]["z"].AsDouble;
+                                    // calc the object position relatively the recently localized camera
+                                    px = (float)(posTX - px0);
+                                    py = (float)(posTY - py0);
+                                    pz = (float)(posTZ - pz0);
+                                    ox = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["x"].AsFloat;
+                                    oy = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["y"].AsFloat;
+                                    oz = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["z"].AsFloat;
+                                    ow = jsonParse["scrs"][j]["content"]["ecefPose"]["quaternion"]["w"].AsFloat;
+                                }
+                                else if (useGeopose)
+                                {
+                                    double tlat, tlon, thei;
+                                    tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
+                                    tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
+                                    thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                    // calc the object position relatively the recently localized camera
+                                    EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
+                                    Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
+                                    px = enupose.x;
+                                    py = enupose.y;
+                                    pz = enupose.z;
+                                    ox = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["x"].AsFloat;
+                                    oy = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["y"].AsFloat;
+                                    oz = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["z"].AsFloat;
+                                    ow = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["w"].AsFloat;
+
+                                    //Debug.Log("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
+                                }
+                                else  // object local pose 
+                                {
+                                    px = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["x"].AsFloat;
+                                    py = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["y"].AsFloat;
+                                    pz = jsonParse["scrs"][j]["content"]["geopose"]["local"]["position"]["z"].AsFloat;
+                                    ox = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["x"].AsFloat;
+                                    oy = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["y"].AsFloat;
+                                    oz = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["z"].AsFloat;
+                                    ow = jsonParse["scrs"][j]["content"]["geopose"]["local"]["orientation"]["w"].AsFloat;
+                                }
+
+                                uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
+                                currentRi.stickerArray[j].mainPositions = uPose.pos;
+
+                                // Update object orientation depends on the system coords
+                                if (ecef)
+                                {
+                                    currentRi.stickerArray[j].orientations = uPose.SetObjectOriFromGeoPose();
+                                }
+                                else if (useGeopose)
+                                {
+                                    currentRi.stickerArray[j].orientations = uPose.SetObjectOriFromGeoPose();
+                                }
+                                else // local pose
+                                {
+                                    currentRi.stickerArray[j].orientations = uPose.GetOrientation();
+                                }
+
+                                stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
+                                stickers[j].orientations = currentRi.stickerArray[j].orientations;
+
+                                /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
+                                   Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+                                */
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    float pxf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["x"].AsFloat + px;
+                                    float pyf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["y"].AsFloat + py;
+                                    float pzf = jsonParse["scrs"][j]["content"]["geopose"]["local"]["frame"][i]["z"].AsFloat + pz;
+                                    placeHolders[j, i] = new GameObject("Placeholder" + j + " " + i);
+                                    placeHolders[j, i].transform.SetParent(newCam.transform);
+                                    placeHolders[j, i].transform.position = UnityPose.GetPosition(pxf, pyf, pzf);
+                                    currentRi.stickerArray[j].positions[i] = UnityPose.GetPosition(pxf, pyf, pzf);
+                                }
+
+                                stickers[j].sPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["path"];
+                                stickers[j].sText = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_text"];
+                                stickers[j].sType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_type"];
+                                stickers[j].sSubType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_subtype"];
+                                stickers[j].sDescription = "" + jsonParse["scrs"][j]["content"]["custom_data"]["description"];
+                                stickers[j].SModel_scale = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_scale"];
+                                stickers[j].sId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["sticker_id"];
+                                stickers[j].objectId = "" + jsonParse["scrs"][j]["content"]["custom_data"]["placeholder_id"];
+                                stickers[j].sImage = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Image"];
+                                stickers[j].sAddress = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Address"];
+                                stickers[j].sFeedbackAmount = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Feedback amount"];
+                                stickers[j].sRating = "" + jsonParse["scrs"][j]["content"]["custom_data"]["Rating"];
+                                stickers[j].sUrl_ta = "" + jsonParse["scrs"][j]["content"]["custom_data"]["url_ta"];
+                                stickers[j].sTrajectoryPath = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_path"];
+                                stickers[j].sTrajectoryOffset = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_offset"];
+                                stickers[j].sTrajectoryPeriod = "" + jsonParse["scrs"][j]["content"]["custom_data"]["trajectory_time_period"];
+                                stickers[j].subType = "" + jsonParse["scrs"][j]["content"]["custom_data"]["subtype"];
+                                stickers[j].type = "" + jsonParse["scrs"][j]["content"]["custom_data"]["type"];
+                                stickers[j].bundleName = "" + jsonParse["scrs"][j]["content"]["custom_data"]["model_id"];
+                                stickers[j].anchorName = "" + jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
+                                stickers[j].externalAssetUrl = "" + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
+                                if (string.IsNullOrEmpty(stickers[j].bundleName))
+                                {
+                                    stickers[j].bundleName = "" + jsonParse["scrs"][j]["content"]["custom_data"]["bundle_name"];
+                                }
+                                string groundeds = jsonParse["scrs"][j]["content"]["custom_data"]["grounded"];
+                                string verticals = jsonParse["scrs"][j]["content"]["custom_data"]["vertically_aligned"];
+                                if (groundeds != null)
+                                {
+                                    if (groundeds.Contains("1")) { stickers[j].grounded = true; }
+                                }
+                                if (verticals != null)
+                                {
+                                    if (verticals.Contains("1")) { stickers[j].vertical = true; }
+                                }
+
+                                currentRi.stickerArray[j].sPath = stickers[j].sPath;
+                                currentRi.stickerArray[j].sText = stickers[j].sText;
+                                currentRi.stickerArray[j].sType = stickers[j].sType;
+                                currentRi.stickerArray[j].sSubType = stickers[j].sSubType;
+                                currentRi.stickerArray[j].sDescription = stickers[j].sDescription;
+                                currentRi.stickerArray[j].SModel_scale = stickers[j].SModel_scale;
+                                currentRi.stickerArray[j].sId = stickers[j].sId;
+                                currentRi.stickerArray[j].sImage = stickers[j].sImage;
+                                currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
+                                currentRi.stickerArray[j].sRating = stickers[j].sRating;
+                                currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
+                                currentRi.stickerArray[j].sTrajectoryPath = stickers[j].sTrajectoryPath;
+                                currentRi.stickerArray[j].sTrajectoryOffset = stickers[j].sTrajectoryOffset;
+                                currentRi.stickerArray[j].sTrajectoryPeriod = stickers[j].sTrajectoryPeriod;
+                                currentRi.stickerArray[j].grounded = stickers[j].grounded;
+                                currentRi.stickerArray[j].vertical = stickers[j].vertical;
+                                currentRi.stickerArray[j].subType = stickers[j].subType;
+                                currentRi.stickerArray[j].type = stickers[j].type;
+                                currentRi.stickerArray[j].bundleName = stickers[j].bundleName;
+                                currentRi.stickerArray[j].anchorName = stickers[j].anchorName;
+                                currentRi.stickerArray[j].externalAssetUrl = stickers[j].externalAssetUrl;
+                            }
+
+                            recoList.Add(currentRi);
+                            newCam.transform.position = cameraPositionInLocalization;
+                            newCam.transform.eulerAngles = cameraRotationInLocalization;
+                            for (int j = 0; j < objectsAmount; j++)
+                            {
+                                stickers[j].positions = new Vector3[4];
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    stickers[j].positions[i] = placeHolders[j, i].transform.position;
+                                }
                             }
                         }
                     }
