@@ -100,7 +100,7 @@ public class MockResponseLoad : MonoBehaviour
 
             //Dont know what these two attributes handle
             sp.content.bbox = "";
-            sp.content.size = -1f;
+            sp.content.size = 1f;
 
 
             //Mock position Needs update when Visual Positioning System is working

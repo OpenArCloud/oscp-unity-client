@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 // Manages all the text and button inputs
 // Also acts like the main manager script for the game.
@@ -119,8 +120,8 @@ public class UIInputManager : MonoBehaviour
    private async void RefreshToken()
    {
 
-     // displayComponentsFromAuthStatus(successfulRefresh);
-   }
+        // displayComponentsFromAuthStatus(successfulRefresh);
+    }
 
    void Start()
    {

@@ -124,6 +124,7 @@
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\IMqttNetworkChannel.cs" />
     <Compile Include="Assets\NGI\Scripts\GUI\ObjectInformationGUI.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgSubscribeEventArgs.cs" />
+    <Compile Include="Assets\NGI\Scripts\InDevelopment\MockData.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgSubscribe.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgUnsuback.cs" />
     <Compile Include="Assets\NGI\Scripts\InDevelopment\OrbitAPI.cs" />

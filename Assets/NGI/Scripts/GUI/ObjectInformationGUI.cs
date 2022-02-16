@@ -106,7 +106,7 @@ public class ObjectInformationGUI : MonoBehaviour
 
         //Just adding values for testing remove and fix working solution
         record.content.bbox = "";
-        record.content.size = -1;
+        record.content.size = 1f;
         record.content.placeKey = "";
 
 

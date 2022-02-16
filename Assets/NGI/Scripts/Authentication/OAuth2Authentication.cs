@@ -66,16 +66,13 @@ public class OAuth2Authentication : MonoBehaviour
 #if UNITY_EDITOR
         CheckLocalTokenChache();
 
-        //AuthenticationInEditor();
+        AuthenticationInEditor();
 #else
         CheckLocalTokenChache();
         //Add logic to check current auth state and only doOAuth() when needed.
-        Authenticate();
+       // Authenticate();
 #endif
 
-#if UNITY_EDITOR
-        // IsAuthenticated?.Invoke(true);
-#endif
     }
 
     // Using this method to validate token until refresh_token functionality is implemented
@@ -97,10 +94,20 @@ public class OAuth2Authentication : MonoBehaviour
                 IsAuthenticated?.Invoke(true);
                 return;
             }
-        }       
+            else
+            {
+                Authenticate();
+            }
+        }
+        else
+        {
+            Authenticate();
+        }
 
         IsAuthenticated?.Invoke(false);
+#if UNITY_EDITOR
         AuthenticationInEditor();
+#endif
     }
 
 

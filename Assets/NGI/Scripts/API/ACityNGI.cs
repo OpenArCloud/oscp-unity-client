@@ -787,7 +787,7 @@ public class ACityNGI : MonoBehaviour
                                 {
                                     stickers[j].bundleName = "";// + jsonParse["scrs"][j]["content"]["custom_data"]["bundle_name"];
                                 }
-                                string groundeds = jsonParse["scrs"][j]["content"]["custom_data"]["grounded"];
+                                string groundeds = "1";//jsonParse["scrs"][j]["content"]["custom_data"]["grounded"];
                                 string verticals = jsonParse["scrs"][j]["content"]["custom_data"]["vertically_aligned"];
                                 if (groundeds != null)
                                 {
@@ -821,7 +821,6 @@ public class ACityNGI : MonoBehaviour
                                 currentRi.stickerArray[j].bundleName = stickers[j].bundleName;
                                 currentRi.stickerArray[j].anchorName = stickers[j].anchorName;
                                 currentRi.stickerArray[j].externalAssetUrl = stickers[j].externalAssetUrl;
-
 
                             }
 
@@ -1181,7 +1180,7 @@ public class ACityNGI : MonoBehaviour
         uim.statusDebug("Waiting response");
         request.timeout = 50;
         yield return request.SendWebRequest();
-        if (request.isNetworkError || request.isHttpError)
+        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.Log(request.error);
             localizationStatus = LocalizationStatus.ServerError;
@@ -1230,7 +1229,7 @@ public class ACityNGI : MonoBehaviour
         uim.statusDebug("Waiting response");
         w.timeout = 50;
         yield return w.SendWebRequest();
-        if (w.isNetworkError || w.isHttpError)
+        if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.Log(w.error); localizationStatus = LocalizationStatus.ServerError;
         }
@@ -1268,7 +1267,7 @@ public class ACityNGI : MonoBehaviour
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
         yield return w.SendWebRequest();
-        if (w.isNetworkError || w.isHttpError)
+        if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.Log(w.error);
             localizationStatus = LocalizationStatus.ServerError;
@@ -1365,7 +1364,7 @@ public class ACityNGI : MonoBehaviour
     {
         var sw = UnityWebRequest.Get("http://developer.augmented.city/api/v2/server_timestamp");
         yield return sw.SendWebRequest();
-        if (sw.isNetworkError || sw.isHttpError)
+        if (sw.result == UnityWebRequest.Result.ConnectionError || sw.result == UnityWebRequest.Result.ProtocolError)
         {
             Debug.Log(sw.error);
         }

@@ -23,6 +23,8 @@ namespace NGI.Api
         public Vector3 Position;
         [System.NonSerialized]
         public Vector4 Orientation;
+        [System.NonSerialized]
+        public bool isToFarAway;
 
     }
 
@@ -53,6 +55,8 @@ namespace NGI.Api
         public IList<string> keywords;
 
     }
+
+    
 
 
 

@@ -107,14 +107,14 @@ public class SpatialRecordManager : MonoBehaviour
 
             //Dont know what these two attributes handle
             sp.content.bbox = "";
-            sp.content.size = -1f;
+            sp.content.size = 1f;
 
 
             //Mock position Needs update when Visual Positioning System is working
             ox = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
             oy = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
             oz = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
-            ow = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
+            ow = 1.0f;//jsonResponseNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
 
             sp.content.geopose.quaternion.Add("x", ox);
             sp.content.geopose.quaternion.Add("y", oy);
