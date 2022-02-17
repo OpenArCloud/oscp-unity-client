@@ -47,7 +47,7 @@ public class AssetLoaderNGI : MonoBehaviour
             }
             if (!bundleTaken)
             {
-                StartCoroutine(LoadAsset());
+                //StartCoroutine(LoadAsset());
             }
         }
     }
@@ -70,15 +70,15 @@ public class AssetLoaderNGI : MonoBehaviour
 #endif
         Debug.Log("Load Bundle Path = " + customUrl);
 
-        
-       
+
+
         CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0, 0));
         using (UnityWebRequest uwr = UnityWebRequest.Get(customUrl)) //UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
         {
             preloader.LoadPercent(uwr);
             yield return uwr.SendWebRequest();
 
-            if (uwr.isNetworkError || uwr.isHttpError)
+            if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.Log(uwr.error);
                 preloader.CantLoad();
