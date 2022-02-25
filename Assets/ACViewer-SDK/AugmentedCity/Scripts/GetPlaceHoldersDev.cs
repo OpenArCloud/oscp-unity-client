@@ -131,7 +131,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void GetOrbitContent()
     {
-
+        
         orbitAPI.LoadItemsFromServer();
 
     }

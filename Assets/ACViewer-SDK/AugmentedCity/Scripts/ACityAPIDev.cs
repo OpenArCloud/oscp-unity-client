@@ -716,6 +716,7 @@ public class ACityAPIDev : MonoBehaviour
                                 oz = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
                                 ow = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
 
+                                //I think this means within +- 100M distance
                                 double latMin = camLat - 0.001;
                                 double latMax = camLat + 0.001;
                                 double lonMin = camLon - 0.001;

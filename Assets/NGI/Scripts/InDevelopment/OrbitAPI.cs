@@ -37,7 +37,10 @@ public class OrbitAPI : MonoBehaviour
             }
 
             //Give the possibility for users to change topic
-            GetSpatialContentRecords(accessToken, "history");
+            if (spatialRecordManager.spatialServiceRecord == null)
+            {
+                GetSpatialContentRecords(accessToken, "history");
+            }
         }
 
     }

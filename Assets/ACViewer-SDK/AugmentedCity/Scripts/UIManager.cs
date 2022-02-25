@@ -163,8 +163,8 @@ public class UIManager : MonoBehaviour
     public void Located()
     {
         setLowPanelButtons(true);
-        //setMenuButtons(true);
-        //setMapButtons(true);
+        setMenuButtons(true);
+        setMapButtons(true);
         setLocalizeProgress(false);
         setColorCenterImage();
     }
