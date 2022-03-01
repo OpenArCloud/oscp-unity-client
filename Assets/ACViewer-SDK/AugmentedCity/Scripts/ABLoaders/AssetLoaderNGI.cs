@@ -14,11 +14,13 @@ public class AssetLoaderNGI : MonoBehaviour
     Mover mover;
 
     //Temporary variable for using external file service, needs a better solution
+    //TODO: Fix a custom Url for both iOS and Android bundles
     public string customUrl;
 
     void Start()
     {
-        AssetName = "obj";
+      
+        AssetName = ABName;//"obj";
         GameObject man = GameObject.FindGameObjectWithTag("Manager");
         modelManager = man.GetComponent<ModelManager>();
         mover = GetComponent<Mover>();
@@ -47,7 +49,7 @@ public class AssetLoaderNGI : MonoBehaviour
             }
             if (!bundleTaken)
             {
-                //StartCoroutine(LoadAsset());
+                StartCoroutine(LoadAsset());
             }
         }
     }
@@ -63,17 +65,20 @@ public class AssetLoaderNGI : MonoBehaviour
         modelManager.loadingBunles.Add(ABName);
 
 #if UNITY_IOS
-       //customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
+      // customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
 #endif
 #if PLATFORM_ANDROID
-        //customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
+       // customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
 #endif
         Debug.Log("Load Bundle Path = " + customUrl);
-
+        if (customUrl == null)
+        {
+            yield break;
+        }
 
 
         CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0, 0));
-        using (UnityWebRequest uwr = UnityWebRequest.Get(customUrl)) //UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
+        using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
         {
             preloader.LoadPercent(uwr);
             yield return uwr.SendWebRequest();

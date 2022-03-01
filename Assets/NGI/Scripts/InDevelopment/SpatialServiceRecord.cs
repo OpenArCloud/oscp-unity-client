@@ -25,6 +25,8 @@ namespace NGI.Api
         public Vector4 Orientation;
         [System.NonSerialized]
         public bool isToFarAway;
+        [System.NonSerialized]
+        public bool isAssetBundle;
 
     }
 

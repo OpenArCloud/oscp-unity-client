@@ -111,7 +111,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
         relocationCompleted = false;
 
         GetOrbitContent();
-
     }
 
 
@@ -125,10 +124,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
-
+        
         GetOrbitContent();
     }
 
+    //NGI addition
     public void GetOrbitContent()
     {
         
@@ -253,7 +253,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                             else if (stickers[j].spatialServiceRecord != null)
                             {
                                 Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
-
+                        
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
                                 string bundleName = stickers[j].sText.ToLower();
                                 if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
@@ -267,21 +267,20 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                                 //Fix so it supports more than one refs entry
                                 string assetbundleName = "noAsset";
-                                if (stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
+
+                                string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
+                                if (string.Equals(stickers[j].spatialServiceRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
                                 {
-                                    assetbundleName = stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
+                                    assetbundleName = stickers[j].spatialServiceRecord.content.title; //stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
+                                    Debug.Log("Assetbundle name is: " +  assetbundleName);
+                                    model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
+                                    model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
                                 }
                                 else
                                 {
                                     var gltf = model.AddComponent<GLTFast.GltfAsset>();
                                     gltf.url = stickers[j].spatialServiceRecord.content.refs[0]["url"];
                                 }
-
-                                string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
-
-                                model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName;
-                                model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl;
-
 
 
                                 model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;

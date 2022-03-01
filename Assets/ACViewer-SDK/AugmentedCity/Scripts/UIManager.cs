@@ -82,10 +82,6 @@ public class UIManager : MonoBehaviour
         aRcamera = Camera.main.gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
 
     void OnApplicationPause(bool pauseStatus)
     {

@@ -18,11 +18,13 @@ public class OrbitAPI : MonoBehaviour
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
 
+    
 
     public void LoadItemsFromServer()
     {
         if (isLoadingFromLocalStorage)
         {
+            
             spatialRecordManager.LoadFromJsonFile();
         }
         else
@@ -31,12 +33,11 @@ public class OrbitAPI : MonoBehaviour
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                //To do
-                //Inform the user 
+                //TODO: Inform the user 
                 return;
             }
 
-            //Give the possibility for users to change topic
+            //TODO: Give the possibility for users to change topic
             if (spatialRecordManager.spatialServiceRecord == null)
             {
                 GetSpatialContentRecords(accessToken, "history");

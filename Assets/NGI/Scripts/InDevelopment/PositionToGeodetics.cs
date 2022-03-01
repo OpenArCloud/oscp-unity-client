@@ -15,8 +15,6 @@ public class PositionToGeodetics : MonoBehaviour
     public GameObject testObject;
 
 
-
-
     //Convert unity vector position to righthanded
 
     //To ENU and then from ENU to ECEF
@@ -26,11 +24,6 @@ public class PositionToGeodetics : MonoBehaviour
     //Set rotation 
 
     //Send to Server
-
-
-
-
-
 
 
     public EcefPose GeodeticToEcef(double lat, double lon, double h)
@@ -102,7 +95,6 @@ public class PositionToGeodetics : MonoBehaviour
         public Vector3 pos;
         public Quaternion ori;
 
-
         public UnityPose(Vector3 acpos, Quaternion acori) // convert right-handed to left-handed, by redirecting axis Y
         {
             pos = GetPosition(acpos.x, acpos.y, acpos.z);
@@ -158,9 +150,6 @@ public class PositionToGeodetics : MonoBehaviour
         //  return newori;
     }
 
-
-
-
     public class EcefPose
     {
         public double x;
@@ -181,6 +170,21 @@ public class PositionToGeodetics : MonoBehaviour
 
         public GeoPose convertLocalPoseToGeoPose(Vector3 position, Quaternion quaternion)
         {
+            //Slam coordiante sytem but is oriented east north up
+
+            //start slam tracking unity scene 0 0 0 
+
+            //Save last image local pose that get sent to server
+            //Save geopose that i get back from the server for the camera
+            //when oriantation is zero camera is looking towards east  //augmented city convetion
+            //find rotation from geoppose to ENU
+            //when hit testing check position from 
+
+
+            //Comparer quat with last image sent and curtrent camera rot
+            //compare hit point location add it upp 
+
+
             //Check if localization exists
 
             /*
@@ -281,9 +285,6 @@ public class PositionToGeodetics : MonoBehaviour
         }
 
 
-
-
-
         public double getEarthRadiusAt(double latitude)
         {
 
@@ -302,17 +303,7 @@ public class PositionToGeodetics : MonoBehaviour
             return Math.Sqrt(numerator / denominator);
         }
 
-
-
-
     }
-
-
-
-
-
-
-
 
 }
 

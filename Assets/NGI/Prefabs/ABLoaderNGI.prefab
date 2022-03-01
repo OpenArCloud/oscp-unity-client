@@ -500,11 +500,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3092011427931133792}
-  - component: {fileID: 8643009604666514993}
   - component: {fileID: 3343785451754119810}
+  - component: {fileID: 2768872531565739139}
   - component: {fileID: -3453391441725960386}
   - component: {fileID: 3930143048861115508}
-  - component: {fileID: 2768872531565739139}
   - component: {fileID: 538568419988417529}
   - component: {fileID: 4681456361846871698}
   - component: {fileID: 5855541916425471649}
@@ -531,22 +530,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8643009604666514993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5134400709888703073}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cb31af78b46cee47935dfd595e7ca13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BundleFullURL: 
-  preloader: {fileID: 5379881170964703611}
-  ABName: 
-  customUrl: 
 --- !u!65 &3343785451754119810
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -560,6 +543,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0.49493814, z: 0}
+--- !u!114 &2768872531565739139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5134400709888703073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01dd73f829e1def4cae3b2ca7aeb16d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BundleFullURL: 
+  ABName: 
+  preloader: {fileID: 5379881170964703611}
+  customUrl: 
 --- !u!114 &-3453391441725960386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,22 +593,6 @@ MonoBehaviour:
   sOffset: 
   sTimePeriod: 
   acapi: {fileID: 0}
---- !u!114 &2768872531565739139
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5134400709888703073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01dd73f829e1def4cae3b2ca7aeb16d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BundleFullURL: 
-  ABName: 
-  preloader: {fileID: 5379881170964703611}
-  customUrl: 
 --- !u!114 &538568419988417529
 MonoBehaviour:
   m_ObjectHideFlags: 0

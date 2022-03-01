@@ -58,16 +58,6 @@ public class SpatialRecordManager : MonoBehaviour
         orbitAPI.LoadItemsFromServer();
     }
 
-
-    public StickerInfo ConvertObjectToStickerInfo(SpatialServiceRecord sp)
-    {
-
-
-
-        return null;
-    }
-
-
     private IEnumerator CreateSpatialRecordList(JSONNode jsonNode)
     {
 
@@ -196,46 +186,5 @@ public class SpatialRecordManager : MonoBehaviour
 
         Debug.Log(json);
 
-    }
-
-
-    public class UnityGeoPose
-    {
-
-        public Vector3 pos;
-        public Quaternion ori;
-
-
-        public UnityGeoPose(Vector3 acpos, Quaternion acori) // convert right-handed to left-handed, by redirecting axis Y
-        {
-            pos = GetPosition(acpos.x, acpos.y, acpos.z);
-            ori = Quaternion.Euler(-acori.eulerAngles.x, acori.eulerAngles.y, -acori.eulerAngles.z);
-        }
-
-        public Vector3 GetPosition(float posx, float posy, float posz)
-        {
-            return new Vector3(posx, -posy, posz); // change the Y axis direction
-        }
-
-        public Vector4 GetOrientation()
-        {
-            return new Vector4(ori.x, ori.y, ori.z, ori.w);
-        }
-
-        public void SetCameraOriFromGeoPose(GameObject cam)
-        {
-            cam.transform.RotateAround(cam.transform.position, cam.transform.right, 90); // rotation around the X-axis to lift the Y-axis up
-            cam.transform.RotateAround(cam.transform.position, cam.transform.up, 90); // rotation around the Y-axis (it looks up) by 90 so that the camera is on the Z-axis instead of X
-        }
-
-        public Vector4 SetObjectOriFromGeoPose()
-        {
-            GameObject temp = new GameObject();
-            temp.transform.localRotation = this.ori;
-            temp.transform.RotateAround(temp.transform.position, temp.transform.right, 90); // rotation around the X-axis to lift the Y-axis up
-            Vector4 newori = new Vector4(temp.transform.localRotation.x, temp.transform.localRotation.y, temp.transform.localRotation.z, temp.transform.localRotation.w);
-            Destroy(temp);
-            return newori;
-        }
     }
 }

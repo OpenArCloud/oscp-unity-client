@@ -64,7 +64,7 @@ public class OAuth2Authentication : MonoBehaviour
     public void DoAuthenticate()
     {
 #if UNITY_EDITOR
-        CheckLocalTokenChache();
+        //CheckLocalTokenChache();
 
         AuthenticationInEditor();
 #else
