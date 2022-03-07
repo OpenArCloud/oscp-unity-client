@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
-public class SimpleMqtt : M2MqttUnityClient
+public class SimpleMqttListner : M2MqttUnityClient
 {
 
     [Tooltip("Set this to true to perform a testing cycle automatically on startup")]
@@ -26,6 +26,15 @@ public class SimpleMqtt : M2MqttUnityClient
     [Header("Publish values")]
     [SerializeField] string topic;
     [SerializeField] string message;
+    [Header("Subscription values")]
+    [SerializeField] string[] subscriptions;
+    [Header("Data visualization Texts")]
+    [SerializeField] Text usageCPU;
+    [SerializeField] Text usageUsers;
+    [SerializeField] Text usagePower;
+    [SerializeField] Text usageBandwidth;
+
+
 
 
     public void TestPublish()
@@ -94,13 +103,19 @@ public class SimpleMqtt : M2MqttUnityClient
 
     protected override void SubscribeTopics()
     {
-        client.Subscribe(new string[] { "M2MQTT_Unity/test" }, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
-        client.Subscribe(new string[] { "M2MQTT_Unity/test/users" }, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
+        byte[] qos = new byte[subscriptions.Length];
+
+        for (int i = 0; i < qos.Length; i++)
+        {
+            qos[i] = MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE;
+        }
+
+        client.Subscribe(subscriptions, qos);
     }
 
     protected override void UnsubscribeTopics()
     {
-        client.Unsubscribe(new string[] { "M2MQTT_Unity/test" });
+        client.Unsubscribe(subscriptions);
     }
 
     protected override void OnConnectionFailed(string errorMessage)
@@ -186,6 +201,8 @@ public class SimpleMqtt : M2MqttUnityClient
                 Disconnect();
             }
         }
+
+        UpdateInfoTexts(topic, msg);
     }
 
     private void StoreMessage(string eventMsg)
@@ -196,6 +213,30 @@ public class SimpleMqtt : M2MqttUnityClient
     private void ProcessMessage(string msg)
     {
         AddUiMessage("Received: " + msg);
+    }
+
+    private void UpdateInfoTexts(string topic, string msg)
+    {
+
+
+        if(topic.Contains("/ngi/cpu"))
+        {
+            usageCPU.text = msg; 
+        }
+        else if(topic.Contains("/ngi/users"))
+        {
+            usageUsers.text = msg;
+        }
+        else if (topic.Contains("/ngi/bandwidth"))
+        {
+            usageBandwidth.text = msg;
+        }
+        else if (topic.Contains("/ngi/power"))
+        {
+            usagePower.text = msg;
+        }
+
+
     }
 
     protected override void Update()

@@ -183,6 +183,11 @@ public class ACityAPIDev : MonoBehaviour
         {
             Permission.RequestUserPermission(Permission.FineLocation);
         }
+
+        if (!Permission.HasUserAuthorizedPermission(Permission.Camera))
+        {
+            Permission.RequestUserPermission(Permission.Camera);
+        }
 #endif
 
 #if UNITY_EDITOR 

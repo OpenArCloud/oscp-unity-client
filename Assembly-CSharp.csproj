@@ -83,6 +83,7 @@
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgConnectEventArgs.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgPubrec.cs" />
     <Compile Include="Assets\ACViewer-SDK\Plugins\IngameDebugConsole\Scripts\DebugsOnScrollListener.cs" />
+    <Compile Include="Assets\NGI\Scripts\InDevelopment\GltfAssetNGI.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgSubscribeEventArgs.cs" />
     <Compile Include="Assets\NGI\Scripts\InDevelopment\MockData.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgUnsuback.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\AR\PlaneManager.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgSuback.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgUnsubscribedEventArgs.cs" />
+    <Compile Include="Assets\M2MqttUnity\Examples\Scripts\SimpleMqttPublisher.cs" />
     <Compile Include="Assets\NGI\Scripts\InDevelopment\SpatialRecordManager.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgConnack.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Exceptions\MqttConnectionException.cs" />
@@ -154,6 +156,7 @@
     <Compile Include="Assets\NGI\Scripts\InDevelopment\OrbitAPI.cs" />
     <Compile Include="Assets\NGI\UI\Scripts\PanelChangeScene.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgPublishedEventArgs.cs" />
+    <Compile Include="Assets\M2MqttUnity\Examples\Scripts\SimpleMqttListner.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgPubcomp.cs" />
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\models\Trajectory.cs" />
     <Compile Include="Assets\NGI\Scripts\GUI\DictionaryItemGUI.cs" />
@@ -164,7 +167,7 @@
     <Compile Include="Assets\NGI\Scripts\Authentication\DeepLinkManager.cs" />
     <Compile Include="Assets\NGI\Scripts\InDevelopment\MockResponseLoad.cs" />
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\LocationSet.cs" />
-    <Compile Include="Assets\M2MqttUnity\Examples\Scripts\SimpleMqtt.cs" />
+    <Compile Include="Assets\NGI\Scripts\InDevelopment\PermissionHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -951,6 +954,9 @@
     </Reference>
     <Reference Include="Unity.XR.ARFoundation">
       <HintPath>Library\ScriptAssemblies\Unity.XR.ARFoundation.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

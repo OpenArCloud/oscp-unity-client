@@ -229,14 +229,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 stickers[j].sDescription.ToLower().Contains("transfer") ||
                                 stickers[j].subType.ToLower().Contains("transfer");
 
-                            //Added for new unity content that is external to augmented city models api
-                            bool isAnchor = stickers[j].anchorName != string.Empty &&
-                                (stickers[j].type.ToLower().Contains("3d") ||   // new 3d object format
-                                 stickers[j].sSubType.Contains("3dobject") ||   // old 3d object format
-                                 (stickers[j].sPath != null &&
-                                  stickers[j].sPath.Contains("3dobject"))       // oldest 3d object format
-                                );
-
                             if (isVideoSticker)                         // if it's a video-sticker
                             {
                                 GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
@@ -255,17 +247,8 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
                         
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
-                                string bundleName = stickers[j].sText.ToLower();
-                                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
-                                {
-                                    bundleName = stickers[j].bundleName.ToLower();
-                                    if (string.IsNullOrEmpty(bundleName))
-                                    {
-                                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
-                                    }
-                                }
 
-                                //Fix so it supports more than one refs entry
+                                //TODO: Fix so it supports more than one refs entry
                                 string assetbundleName = "noAsset";
 
                                 string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
@@ -302,7 +285,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                                 //Debug.Log(stickers[j].sTrajectoryPath);
 
-                                // TEMP
+                                //TODO: Fic The mover scripts is always returning flying
                                 Mover mover = model.GetComponent<Mover>();
                                 mover.setLocked(true);
                                 mover.objectId = stickers[j].objectId;
@@ -330,74 +313,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 }
 
                                 models.Add(model);                      // store the new just created model
-                            }
-                            else if (isAnchor)
-                            {
-                                Debug.Log("This is an anchor item--------------------------------------------------------------------------------------");
-
-                                GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
-                                string bundleName = stickers[j].sText.ToLower();
-                                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
-                                {
-                                    bundleName = stickers[j].bundleName.ToLower();
-                                    if (string.IsNullOrEmpty(bundleName))
-                                    {
-                                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
-                                    }
-                                }
-                                model.GetComponent<AssetLoaderNGI>().ABName = stickers[j].anchorName.ToLower();
-                                model.GetComponent<AssetLoaderNGI>().customUrl = stickers[j].externalAssetUrl.ToLower();
-                                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
-                                model.transform.localRotation = new Quaternion(
-                                    stickers[j].orientations.x,
-                                    stickers[j].orientations.y,
-                                    stickers[j].orientations.z,
-                                    stickers[j].orientations.w);
-
-                                if (stickers[j].sTrajectoryPath.Length > 1)
-                                {
-                                    Trajectory tr = model.GetComponent<Trajectory>();
-                                    tr.go = true;
-                                    tr.acapi = acapi;
-                                    tr.sTrajectory = stickers[j].sTrajectoryPath;
-                                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
-                                    tr.sOffset = stickers[j].sTrajectoryOffset;
-                                }
-
-                                //Debug.Log(stickers[j].sTrajectoryPath);
-
-                                // TEMP
-                                Mover mover = model.GetComponent<Mover>();
-                                mover.setLocked(true);
-                                mover.objectId = stickers[j].objectId;
-
-                                if (!stickers[j].vertical)
-                                {
-                                    mover.noGravity = true;
-                                }
-
-                                if (stickers[j].grounded)
-                                {
-                                    mover.landed = true;
-                                }
-
-
-                                /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
-                                    + " = " + model.transform.localPosition
-                                    + " model.rot = " + model.transform.localRotation
-                                    + " stick.ori = " + stickers[j].orientations);*/
-
-                                if (stickers[j].SModel_scale.Length > 0)
-                                {
-                                    float scale = float.Parse(stickers[j].SModel_scale);
-                                    model.transform.localScale = new Vector3(scale, scale, scale);
-                                }
-
-                                models.Add(model);                      // store the new just created model
-
-
-
-                            }
+                            }                          
                             else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
                             {
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);

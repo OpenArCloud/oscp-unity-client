@@ -64,6 +64,7 @@ public class AssetLoaderNGI : MonoBehaviour
         Caching.ClearCache();
         modelManager.loadingBunles.Add(ABName);
 
+        //TODO: Fix an URL scheme that wortks for both android and iOS assetbundels, so the app downloads the correct one
 #if UNITY_IOS
       // customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
 #endif
@@ -71,7 +72,7 @@ public class AssetLoaderNGI : MonoBehaviour
        // customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
 #endif
         Debug.Log("Load Bundle Path = " + customUrl);
-        if (customUrl == null)
+        if (string.IsNullOrEmpty(customUrl))
         {
             yield break;
         }
