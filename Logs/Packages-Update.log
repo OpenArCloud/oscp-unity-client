@@ -14,3 +14,14 @@ The following packages were updated:
   com.unity.test-framework from version 1.1.24 to 1.1.29
   com.unity.timeline from version 1.5.2 to 1.5.7
   com.unity.xr.management from version 4.0.1 to 4.1.0
+
+=== Tue Mar  8 18:25:35 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.collab-proxy from version 1.13.5 to 1.15.12
+  com.unity.purchasing from version 4.0.3 to 4.1.2
+  com.unity.timeline from version 1.5.7 to 1.6.4
+  com.unity.xr.management from version 4.1.0 to 4.2.0

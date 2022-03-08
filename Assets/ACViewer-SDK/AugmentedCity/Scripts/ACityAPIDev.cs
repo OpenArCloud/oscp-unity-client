@@ -328,6 +328,8 @@ public class ACityAPIDev : MonoBehaviour
 
     public void camLocalize(string jsonanswer, bool geopose)
     {
+        Debug.Log("This is the string response from AC: " + jsonanswer);
+
         var jsonParse = JSON.Parse(jsonanswer);
         float px, py, pz, ox, oy, oz, ow;
         int objectsAmount = -1;

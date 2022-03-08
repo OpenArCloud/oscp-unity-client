@@ -86,7 +86,6 @@ public class GLBDownloader : IDownloadProvider
 {
     public Task<IDownload> Request(System.Uri url)
     {
-
         throw new System.NotImplementedException();
     }
 
