@@ -57,8 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\Mover.cs" />
-    <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\CoordTest.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgConnect.cs" />
+    <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\CoordTest.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Session\MqttSession.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\WinRT\Fx.cs" />
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\DemoSceneScripts\SelfDeactivator.cs" />
@@ -78,6 +78,7 @@
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\MqttSecurity.cs" />
     <Compile Include="Assets\NGI\Scripts\Utilities\SaveDataManager.cs" />
     <Compile Include="Assets\NGI\Scripts\Utilities\FileManager.cs" />
+    <Compile Include="Assets\NGI\Scripts\InDevelopment\PermissionHandler.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Net\Fx.cs" />
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\StickerController.cs" />
     <Compile Include="Assets\M2MqttUnity\M2Mqtt\Messages\MqttMsgConnectEventArgs.cs" />
@@ -167,7 +168,7 @@
     <Compile Include="Assets\NGI\Scripts\Authentication\DeepLinkManager.cs" />
     <Compile Include="Assets\NGI\Scripts\InDevelopment\MockResponseLoad.cs" />
     <Compile Include="Assets\ACViewer-SDK\AugmentedCity\Scripts\LocationSet.cs" />
-    <Compile Include="Assets\NGI\Scripts\InDevelopment\PermissionHandler.cs" />
+    <Compile Include="Assets\NGI\Scripts\InDevelopment\ARInteractionManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -421,6 +422,12 @@
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>E:\GameEngines\2021.1.28f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Burst.Unsafe">
+      <HintPath>Library\PackageCache\com.unity.burst@1.5.6\Unity.Burst.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Cng">
+      <HintPath>Assets\Plugins\Microsoft\System.Security.Cryptography.Cng.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>Assets\Plugins\Restsharp\RestSharp.dll</HintPath>
     </Reference>
@@ -430,9 +437,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@2.0.2\Runtime\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Burst.Unsafe">
-      <HintPath>Library\PackageCache\com.unity.burst@1.5.6\Unity.Burst.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Burst.Cecil.Mdb">
       <HintPath>Library\PackageCache\com.unity.burst@1.5.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Mdb.dll</HintPath>
     </Reference>
@@ -441,9 +445,6 @@
     </Reference>
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library\PackageCache\com.unity.burst@1.5.6\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security.Cryptography.Cng">
-      <HintPath>Assets\Plugins\Microsoft\System.Security.Cryptography.Cng.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>E:\GameEngines\2021.1.28f1\Editor\Data\PlaybackEngines\iOSSupport\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
@@ -910,6 +911,9 @@
     <Reference Include="Ktx">
       <HintPath>Library\ScriptAssemblies\Ktx.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Ktx.Editor">
       <HintPath>Library\ScriptAssemblies\Ktx.Editor.dll</HintPath>
     </Reference>
@@ -954,9 +958,6 @@
     </Reference>
     <Reference Include="Unity.XR.ARFoundation">
       <HintPath>Library\ScriptAssemblies\Unity.XR.ARFoundation.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

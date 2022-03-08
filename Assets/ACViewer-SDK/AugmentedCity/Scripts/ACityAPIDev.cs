@@ -691,6 +691,11 @@ public class ACityAPIDev : MonoBehaviour
                     {
                         objectsAmount = spatialRecordManager.spatialServiceRecord.Length;
 
+                        if(objectsAmount == -1)
+                        {
+                            return;
+                        }
+
 
                         if (objectsAmount > 0)
                         {

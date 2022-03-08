@@ -81,6 +81,22 @@ public class GltfAssetNGI : GltfAssetBase
         sceneInstance = null;
     }
 }
+
+public class GLBDownloader : IDownloadProvider
+{
+    public Task<IDownload> Request(System.Uri url)
+    {
+
+        throw new System.NotImplementedException();
+    }
+
+    public Task<ITextureDownload> RequestTexture(System.Uri url, bool nonReadable)
+    {
+        throw new System.NotImplementedException();
+    }
+}
+
+
 #if false // Decompilation log
 '254' items in cache
 ------------------
