@@ -83,6 +83,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startDevLocation()   // Test localization from Unity Editor
     {
+        Debug.Log("startDevLocalization");
         if (acapi.editorTestMode)
         {
             timeForRelocation = 200f;
@@ -116,6 +117,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startLocalization()
     {
+        Debug.Log("startLocalization");
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
         Debug.Log("ARcam x = " + aRcamera.transform.position.x);
@@ -124,14 +126,14 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
-        
+
         GetOrbitContent();
     }
 
     //NGI addition
     public void GetOrbitContent()
     {
-        
+
         orbitAPI.LoadItemsFromServer();
 
     }
@@ -245,7 +247,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                             else if (stickers[j].spatialServiceRecord != null)
                             {
                                 Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
-                        
+
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
 
                                 //TODO: Fix so it supports more than one refs entry
@@ -313,7 +315,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 }
 
                                 models.Add(model);                      // store the new just created model
-                            }                          
+                            }
                             else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
                             {
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
