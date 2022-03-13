@@ -136,7 +136,7 @@ public class ACityAPIDev : MonoBehaviour
     Vector3 cameraRotationInLocalization;
     Vector3 cameraPositionInLocalization;
     float cameraDistance;
-    float longitude, latitude, hdop;
+
     public float tempScale3d;
     public float globalTimer;
     float serverTimer;
@@ -155,7 +155,8 @@ public class ACityAPIDev : MonoBehaviour
     ARCameraManager m_CameraManager;
     bool startedLocalization;
     bool configurationSetted;
-    bool GPSlocation;
+    bool hasGpsLocation = false;
+    LocationInfo lastGpsLocation;
 
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
@@ -1084,14 +1085,22 @@ public class ACityAPIDev : MonoBehaviour
 
     public void ARLocation(Action<string, Transform, StickerInfo[]> getStickers)
     {
-        if (!configurationSetted) SetCameraConfiguration();
+        if (!configurationSetted)
+        {
+            SetCameraConfiguration();
+        }
+
         getStickersAction = getStickers;
 
-        if (!GPSlocation)
+        if (!hasGpsLocation)
         {
             StartCoroutine(Locate(firstLocalization));
         }
-        else firstLocalization(latitude, longitude, hdop, null, null);
+        else
+        {
+            //firstLocalization(latitude, longitude, hdop, null, null);  // TODO: here the lat and lon were swapped!!!
+            firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
+        }
     }
 
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
@@ -1317,7 +1326,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
 
-    IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> getLocData)
+    IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> onGpsLocationDetermined)
     {
         Debug.Log("Started Locate GPS");
         uim.statusDebug("Locating GPS");
@@ -1358,17 +1367,18 @@ public class ACityAPIDev : MonoBehaviour
         else
         {
             // Access granted and location value could be retrieved
-            Debug.Log("Location: " + Input.location.lastData.latitude + " "
-                                   + Input.location.lastData.longitude + " "
-                                   + Input.location.lastData.altitude + " "
-                                   + Input.location.lastData.horizontalAccuracy + " "
-                                   + Input.location.lastData.timestamp);
-            getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
-            GPSlocation = true;
-            longitude = Input.location.lastData.longitude;
-            latitude = Input.location.lastData.latitude;
-            hdop = Input.location.lastData.horizontalAccuracy;
+            Debug.Log("GPS Location: " + " lat: " + Input.location.lastData.latitude
+                                       + " lon: " + Input.location.lastData.longitude
+                                       + " alt: " + Input.location.lastData.altitude
+                                       + " hAccuracy: " + Input.location.lastData.horizontalAccuracy
+                                       + " timestamp: " + Input.location.lastData.timestamp);
+
+            lastGpsLocation = Input.location.lastData;
+            hasGpsLocation = true;
             uim.statusDebug("Located GPS");
+
+            // callback
+            onGpsLocationDetermined(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
         }
 
         // Stop service if there is no need to query location updates continuously

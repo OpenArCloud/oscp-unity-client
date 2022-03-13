@@ -110,7 +110,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         tex.LoadImage(bytes);
         devCamMat.mainTexture = tex;
 
-        acapi.firstLocalization(devLocationLatitude, devLocationLongitude, devLocationHDOP, path, showPlaceHolders);
+        acapi.firstLocalization(devLocationLongitude, devLocationLatitude, devLocationHDOP, path, showPlaceHolders);
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
