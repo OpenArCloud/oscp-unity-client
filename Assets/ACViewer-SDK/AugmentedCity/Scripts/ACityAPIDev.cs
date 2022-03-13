@@ -1089,9 +1089,9 @@ public class ACityAPIDev : MonoBehaviour
         else firstLocalization(latitude, longitude, hdop, null, null);
     }
 
-    public void firstLocalization(float langitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
+    public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
-        Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + langitude + ", hdop: " + hdop + ", path: " + path);
+        Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
         byte[] bjpg;
         string framePath;
         if (editorTestMode)
@@ -1119,7 +1119,7 @@ public class ACityAPIDev : MonoBehaviour
             {
                 apiURL = PlayerPrefs.GetString("ApiUrl");
             }
-            uploadFrame(bjpg, apiURL, langitude, latitude, hdop, camLocalize);
+            uploadFrame(bjpg, apiURL, longitude, latitude, hdop, camLocalize);
         }
     }
 
@@ -1147,16 +1147,16 @@ public class ACityAPIDev : MonoBehaviour
         return rinfo;
     }
 
-    public void uploadFrame(byte[] bytes, string apiURL, float langitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
+    public void uploadFrame(byte[] bytes, string apiURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
         if (!useOSCP) {
-            StartCoroutine(UploadJPGwithGPS(bytes, apiURL, langitude, latitude, hdop, getJsonCameraObjects));
+            StartCoroutine(UploadJPGwithGPS(bytes, apiURL, longitude, latitude, hdop, getJsonCameraObjects));
         } else {
-            StartCoroutine(UploadJPGwithGPSOSCP(bytes, apiURL, langitude, latitude, hdop, getJsonCameraObjects));
+            StartCoroutine(UploadJPGwithGPSOSCP(bytes, apiURL, longitude, latitude, hdop, getJsonCameraObjects));
         }
     }
 
-    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, float langitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
+    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         //  byte[] bytes = File.ReadAllBytes(filePath);
@@ -1175,8 +1175,8 @@ public class ACityAPIDev : MonoBehaviour
         // Debug.Log("Uploading Screenshot started...");
         // TODO: why do we use the same ID and same timestamp? It seems that the image is also the same.
         // TODO: lat and lon are swapped in the request JSON!
-        //string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + langitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
-        string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + langitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
+        //string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
+        string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
         Debug.Log("finalJson OSCP = " + finalJson);
 
         // TODO: https:// must be used, but the baseURL is still http:// for some reason. Where does the old value come from?
@@ -1218,7 +1218,7 @@ public class ACityAPIDev : MonoBehaviour
         getJsonCameraObjects(request.downloadHandler.text, true);
     }
 
-    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float langitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
+    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         Debug.Log("bytes length = " + bytes.Length);
@@ -1230,8 +1230,9 @@ public class ACityAPIDev : MonoBehaviour
             if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) { rotationDevice = "90"; }
         }
 
-        string jsona = "{\"gps\":{\"latitude\":" + langitude + ",\"longitude\":" + latitude + ",\"hdop\":" + hdop + "},\"rotation\": " + rotationDevice + ",\"mirrored\": false}";
-        uim.gpsDebug(langitude, latitude, hdop);
+        // TODO: latitude and longitude are swapped???
+        string jsona = "{\"gps\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"hdop\":" + hdop + "},\"rotation\": " + rotationDevice + ",\"mirrored\": false}";
+        uim.gpsDebug(longitude, latitude, hdop);
         Debug.Log("" + jsona);
         form.Add(new MultipartFormFileSection("image", bytes, "test.jpg", "image/jpeg"));
         form.Add(new MultipartFormDataSection("description", jsona));
@@ -1276,11 +1277,11 @@ public class ACityAPIDev : MonoBehaviour
         }
     }
 
-    IEnumerator prepareC(float langitude, float latitude, Action<bool, string> getServerAnswer)
+    IEnumerator prepareC(float longitude, float latitude, Action<bool, string> getServerAnswer)
     {
         // Example: https://developer.augmented.city:5000/api/localizer/prepare?lat=59.907458f&lon=30.298400f
-        Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + langitude + "f");
-        var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + langitude + "f");
+        Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
+        var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
         yield return w.SendWebRequest();
