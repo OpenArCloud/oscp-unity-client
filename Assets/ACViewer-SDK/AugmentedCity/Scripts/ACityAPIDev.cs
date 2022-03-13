@@ -124,8 +124,9 @@ public class ACityAPIDev : MonoBehaviour
         Ready
     }
 
+    public string apiURL = "https://developer.augmented.city";
+
     public bool editorTestMode;
-    public string ServerAPI = "https://developer.augmented.city";
     public GameObject devButton;
 
     public TextAsset bb;
@@ -154,7 +155,7 @@ public class ACityAPIDev : MonoBehaviour
     bool startedLocalization;
     bool configurationSetted;
     bool GPSlocation;
-    string apiURL = "https://developer.augmented.city";
+
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
 
@@ -168,13 +169,13 @@ public class ACityAPIDev : MonoBehaviour
     {
         spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
 
-        //PlayerPrefs.DeleteAll();
-        //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?
+        PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
+        //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?  // TODO: ask AC about this line.
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
         m_CameraManager = Camera.main.GetComponent<ARCameraManager>();
         if (!PlayerPrefs.HasKey("ApiUrl"))
-            setApiURL(ServerAPI);
+            setApiURL(apiURL);
         else
             setApiURL(PlayerPrefs.GetString("ApiUrl"));
 
