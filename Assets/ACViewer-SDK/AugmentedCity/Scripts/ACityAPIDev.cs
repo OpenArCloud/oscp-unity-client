@@ -124,7 +124,8 @@ public class ACityAPIDev : MonoBehaviour
         Ready
     }
 
-    public string apiURL = "https://developer.augmented.city";
+    string apiURL = "";
+    public string defaultApiUrl = "https://developer.augmented.city";
 
     public bool editorTestMode;
     public GameObject devButton;
@@ -174,8 +175,11 @@ public class ACityAPIDev : MonoBehaviour
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
         m_CameraManager = Camera.main.GetComponent<ARCameraManager>();
+
+        // NOTE: the ApiUrl player preference may have been already set bu some other script
+        // indeed, it is usually set by the Settings Panel
         if (!PlayerPrefs.HasKey("ApiUrl"))
-            setApiURL(apiURL);
+            setApiURL(defaultApiUrl);
         else
             setApiURL(PlayerPrefs.GetString("ApiUrl"));
 

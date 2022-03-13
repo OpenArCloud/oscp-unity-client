@@ -175,7 +175,7 @@ public class UIManager : MonoBehaviour
     }
     public void setMapButtons(bool act)
     {
-        
+
     }
     public void setMenuButtons(bool act)
     {
@@ -194,6 +194,7 @@ public class UIManager : MonoBehaviour
 
     public void SetServ(Text tt)
     {
+        Debug.Log("UIManager.SetServ: " +  tt.text);
         Debug.Log("Serv  = " + tt.text);
         PlayerPrefs.SetString("ApiUrl", tt.text);
     }
