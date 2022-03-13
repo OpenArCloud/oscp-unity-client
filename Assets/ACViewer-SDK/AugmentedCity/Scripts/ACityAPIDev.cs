@@ -1159,6 +1159,8 @@ public class ACityAPIDev : MonoBehaviour
 
     IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
+        Debug.Log("UploadJPGwithGPSOSCP...");
+
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         //  byte[] bytes = File.ReadAllBytes(filePath);
         Debug.Log("bytes length = " + bytes.Length);
@@ -1205,7 +1207,7 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            //Debug.Log("Finished Uploading Screenshot");
+            Debug.Log("Finished Uploading Screenshot");
         }
         Debug.Log(request.downloadHandler.text);
         var jsonParse = JSON.Parse(request.downloadHandler.text);
@@ -1221,6 +1223,8 @@ public class ACityAPIDev : MonoBehaviour
 
     IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
+        Debug.Log("UploadJPGwithGPS...");
+
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         Debug.Log("bytes length = " + bytes.Length);
         List<IMultipartFormSection> form = new List<IMultipartFormSection>();
@@ -1244,7 +1248,7 @@ public class ACityAPIDev : MonoBehaviour
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
         w.SetRequestHeader("user-agent", "Unity AC-Viewer based app, name: " + Application.productName + ", Device: " + SystemInfo.deviceModel);
 
-        //Debug.Log("Uploading Screenshot started...");
+        Debug.Log("Uploading Screenshot started...");
         uim.statusDebug("Waiting response");
         w.timeout = 50;
         yield return w.SendWebRequest();
@@ -1254,7 +1258,7 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            //Debug.Log("Finished Uploading Screenshot");
+            Debug.Log("Finished Uploading Screenshot");
         }
         Debug.Log(w.downloadHandler.text);
         var jsonParse = JSON.Parse(w.downloadHandler.text);
@@ -1273,13 +1277,21 @@ public class ACityAPIDev : MonoBehaviour
     {
         if (!editorTestMode)
         {
+            if (Input.location.status != LocationServiceStatus.Running)
+            {
+                Debug.Log("LocationService is not running yet! Cannot prepare AC API service.");
+            }
+
             Input.location.Start();
+            // TODO: wait here until it really starts
+
             StartCoroutine(prepareC(Input.location.lastData.longitude, Input.location.lastData.latitude, getServerAnswer));
         }
     }
 
     IEnumerator prepareC(float longitude, float latitude, Action<bool, string> getServerAnswer)
     {
+        Debug.Log("prepareC...");
         // Example: https://developer.augmented.city:5000/api/localizer/prepare?lat=59.907458f&lon=30.298400f
         Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
         var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
