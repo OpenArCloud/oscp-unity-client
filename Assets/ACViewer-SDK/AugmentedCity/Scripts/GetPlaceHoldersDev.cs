@@ -19,6 +19,16 @@ public class GetPlaceHoldersDev : MonoBehaviour
     public Material devCamMat;
     public string devImagePath;
 
+    //59.934320f,  30.272610f, 30, devImagePath, showPlaceHolders); // Spb VO-yard
+    //41.122400f,  16.868400f, 30, devImagePath, showPlaceHolders); // Bari cafe (lat=41.1224f, lon=16.8684f)
+    //43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
+    //59.91467f, 30.30398f, 30, devImagePath, showPlaceHolders); // Новый дом, 8я красноармейская 59.914639, 30.304093 59.91462671296234, 30.304159752060876// 59.9131102286, 30.303762554748754
+    //59.9145560f, 30.304109f, 30, devImagePath, showPlaceHolders);
+    //59.168705f, 18.174704f, 30, path, showPlaceHolders); //Brandbergen Sweden
+    public float devLocationLatitude = 59.168705f;
+    public float devLocationLongitude = 18.174704f;
+    public float devLocationHDOP = 30.0f; // horizontal dilution of precision
+
     List<GameObject> recos = new List<GameObject>();        // cache of created scene of gameobjects by entry 'id'
     List<GameObject> videoDemos = new List<GameObject>();
     List<GameObject> stickerObjects = new List<GameObject>();
@@ -100,13 +110,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         tex.LoadImage(bytes);
         devCamMat.mainTexture = tex;
 
-
-        //acapi.firstLocalization(59.934320f,  30.272610f, 30, devImagePath, showPlaceHolders); // Spb VO-yard
-        //acapi.firstLocalization(41.122400f,  16.868400f, 30, devImagePath, showPlaceHolders); // Bari cafe (lat=41.1224f, lon=16.8684f)
-        //acapi.firstLocalization(43.405290f,  39.955740f, 30, devImagePath, showPlaceHolders); // Sochi 43.404521f,39.954741f 43.404080,39.954735 43.404769,39.954042 43.40529,39.95574
-        //acapi.firstLocalization(59.91467f, 30.30398f, 30, devImagePath, showPlaceHolders); // Новый дом, 8я красноармейская 59.914639, 30.304093 59.91462671296234, 30.304159752060876// 59.9131102286, 30.303762554748754
-        //acapi.firstLocalization(59.9145560f, 30.304109f, 30, devImagePath, showPlaceHolders);
-        acapi.firstLocalization(59.168705f, 18.174704f, 30, path, showPlaceHolders); //Brandbergen Sweden
+        acapi.firstLocalization(devLocationLatitude, devLocationLongitude, devLocationHDOP, path, showPlaceHolders);
         timerRelocation = timeForRelocation;
         ARStarted = true;
         relocationCompleted = false;
@@ -126,16 +130,13 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
-
         GetOrbitContent();
     }
 
     //NGI addition
     public void GetOrbitContent()
     {
-
         orbitAPI.LoadItemsFromServer();
-
     }
 
 
