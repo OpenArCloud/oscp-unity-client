@@ -1105,11 +1105,16 @@ public class ACityAPIDev : MonoBehaviour
 
         if (!hasGpsLocation)
         {
-            StartCoroutine(Locate(firstLocalization));
+            // determine the coarse (GPS) location first, and then query the VPS
+            System.Action onFinishedAction = new System.Action(() => {
+                Debug.Log("ARLocation Locate callback...");
+                firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
+            });
+            StartCoroutine(Locate(onFinishedAction));
         }
         else
         {
-            //firstLocalization(latitude, longitude, hdop, null, null);  // TODO: here the lat and lon were swapped!!!
+            // go directly to VPS
             firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
         }
     }
@@ -1342,24 +1347,36 @@ public class ACityAPIDev : MonoBehaviour
 
     public void prepareSession(Action<bool, string> getServerAnswer)
     {
-        if (!editorTestMode)
+        Debug.Log("prepareSession...");
+        if (editorTestMode)
         {
-            if (Input.location.status != LocationServiceStatus.Running)
-            {
-                Debug.Log("LocationService is not running yet! Cannot prepare AC API service.");
-            }
-
-            Input.location.Start();
-            // TODO: wait here until it really starts
-
-            StartCoroutine(prepareC(Input.location.lastData.longitude, Input.location.lastData.latitude, getServerAnswer));
+            // nothing to do when testing in editor
+            return;
         }
+
+        //if (Input.location.status != LocationServiceStatus.Running)
+        //{
+        //    Debug.Log("LocationService is not running yet! Cannot prepare AC API service.");
+        //}
+        //Input.location.Start();
+        // TODO: wait here until it really starts
+        // --> Locate() initiates the GPS query and waits until a measurement is available
+        System.Action onFinishedAction = new System.Action(() => {
+            Debug.Log("prepareSession Locate callback...");
+            // NOTE: prepareC is a coroutine and must be called like this:
+            StartCoroutine(prepareC(lastGpsLocation.longitude, lastGpsLocation.latitude, getServerAnswer));
+        });
+        StartCoroutine(Locate(onFinishedAction));
     }
 
     IEnumerator prepareC(float longitude, float latitude, Action<bool, string> getServerAnswer)
     {
         Debug.Log("prepareC...");
         // Example: https://developer.augmented.city:5000/api/localizer/prepare?lat=59.907458f&lon=30.298400f
+        if (apiURL == "")
+        {
+            Debug.LogError("apiURL was not set yet!");
+        }
         Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
         var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
@@ -1367,20 +1384,20 @@ public class ACityAPIDev : MonoBehaviour
         yield return w.SendWebRequest();
         if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
         {
-            Debug.Log(w.error);
+            Debug.Log("prepareC Error: " + w.error);
             localizationStatus = LocalizationStatus.ServerError;
-            getServerAnswer(false, w.downloadHandler.text);
+            getServerAnswer.Invoke(false, w.downloadHandler.text);
         }
         else
         {
-            Debug.Log("prepared API");
-            Debug.Log(w.downloadHandler.text);
-            getServerAnswer(true, w.downloadHandler.text);
+            Debug.Log("prepareC Success: " + w.downloadHandler.text);
+            getServerAnswer.Invoke(true, w.downloadHandler.text);
         }
     }
 
 
-    IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> onGpsLocationDetermined)
+    //IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> onGpsLocationUpdated)
+    IEnumerator Locate(Action onGpsLocationUpdatedCallback = null)
     {
         Debug.Log("Started Locate GPS");
         if (uim == null)
@@ -1431,8 +1448,11 @@ public class ACityAPIDev : MonoBehaviour
             updateMyGpsLocation(Input.location.lastData);
             // TODO: should we set a value for localizationStatus here?
 
-            // callback
-            onGpsLocationDetermined(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
+            if (onGpsLocationUpdatedCallback != null)
+            {
+                Debug.Log("Locate invoking callback...");
+                onGpsLocationUpdatedCallback.Invoke();
+            }
         }
 
         // Stop service if there is no need to query location updates continuously
