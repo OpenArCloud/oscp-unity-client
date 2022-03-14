@@ -155,8 +155,19 @@ public class ACityAPIDev : MonoBehaviour
     ARCameraManager m_CameraManager;
     bool startedLocalization;
     bool configurationSetted;
+
     bool hasGpsLocation = false;
-    LocationInfo lastGpsLocation;
+    // This is a modifiable version of UnityEngine.LocationInfo
+    struct MyLocationInfo
+    {
+        public float latitude { get; set; }
+        public float longitude { get; set; }
+        public float altitude { get; set; }
+        public float horizontalAccuracy { get; set; }
+        public float verticalAccuracy { get; set; }
+        public double timestamp { get; set; }
+    }
+    MyLocationInfo lastGpsLocation;
 
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
@@ -1103,6 +1114,25 @@ public class ACityAPIDev : MonoBehaviour
         }
     }
 
+    // This method might be called publicly, for example from a Debug localizer or a separate GpsLocationService
+    public void updateMyGpsLocation(LocationInfo locationInfo)
+    {
+        lastGpsLocation.altitude = locationInfo.altitude;
+        lastGpsLocation.horizontalAccuracy = locationInfo.horizontalAccuracy;
+        lastGpsLocation.latitude = locationInfo.latitude;
+        lastGpsLocation.longitude = locationInfo.longitude;
+        lastGpsLocation.timestamp = locationInfo.timestamp;
+        lastGpsLocation.verticalAccuracy = locationInfo.verticalAccuracy;
+        hasGpsLocation = true;
+        uim.statusDebug("Located GPS");
+        Debug.Log("Updated GPS Location: "
+            + " lat: " + lastGpsLocation.latitude
+            + " lon: " + lastGpsLocation.longitude
+            + " alt: " + lastGpsLocation.altitude
+            + " hAccuracy: " + lastGpsLocation.horizontalAccuracy
+            + " timestamp: " + lastGpsLocation.timestamp);
+    }
+
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
         Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
@@ -1353,7 +1383,14 @@ public class ACityAPIDev : MonoBehaviour
     IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> onGpsLocationDetermined)
     {
         Debug.Log("Started Locate GPS");
-        uim.statusDebug("Locating GPS");
+        if (uim == null)
+        {
+            Debug.LogError("uim is null at this point!"); // TODO: this is likely to happen when this is called during Start()
+        }
+        else
+        {
+            uim.statusDebug("Locating GPS");
+        }
 
         localizationStatus = LocalizationStatus.GetGPSData;
         // First, check if user has location service enabled
@@ -1391,15 +1428,8 @@ public class ACityAPIDev : MonoBehaviour
         else
         {
             // Access granted and location value could be retrieved
-            Debug.Log("GPS Location: " + " lat: " + Input.location.lastData.latitude
-                                       + " lon: " + Input.location.lastData.longitude
-                                       + " alt: " + Input.location.lastData.altitude
-                                       + " hAccuracy: " + Input.location.lastData.horizontalAccuracy
-                                       + " timestamp: " + Input.location.lastData.timestamp);
-
-            lastGpsLocation = Input.location.lastData;
-            hasGpsLocation = true;
-            uim.statusDebug("Located GPS");
+            updateMyGpsLocation(Input.location.lastData);
+            // TODO: should we set a value for localizationStatus here?
 
             // callback
             onGpsLocationDetermined(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
@@ -1407,6 +1437,7 @@ public class ACityAPIDev : MonoBehaviour
 
         // Stop service if there is no need to query location updates continuously
         //Input.location.Stop();
+        Debug.Log("Finished Locate GPS");
     }
 
     public LocalizationStatus getLocalizationStatus() { return localizationStatus; }
@@ -1425,24 +1456,24 @@ public class ACityAPIDev : MonoBehaviour
     {
         Debug.Log("(float)timer  % 100000= " + (float)(timer % 100000));
         serverTimer = (float)(timer % 100000);
-
         Debug.Log("serverTimer = " + serverTimer);
     }
 
     IEnumerator GetTimerC()
     {
+        Debug.Log("Getting server time...");
+        // TODO: do not use hardcoded API URL. But this method is currently called before setApiUrl()
         var sw = UnityWebRequest.Get("https://developer.augmented.city/api/v2/server_timestamp");
         yield return sw.SendWebRequest();
         if (sw.result == UnityWebRequest.Result.ConnectionError || sw.result == UnityWebRequest.Result.ProtocolError)
         {
-            Debug.Log(sw.error);
+            Debug.Log("GetTimerC error: " + sw.error);
         }
         else
         {
-            Debug.Log("timer loaded");
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+            Debug.Log("GetTimerC success: " + sw.downloadHandler.text);
             double timer = double.Parse(sw.downloadHandler.text);
-            Debug.Log("Timer = " + timer);
             SetTimer(timer);
         }
     }
