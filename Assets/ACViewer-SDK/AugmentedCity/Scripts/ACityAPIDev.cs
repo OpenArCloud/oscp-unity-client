@@ -1190,18 +1190,42 @@ public class ACityAPIDev : MonoBehaviour
         string shot = Convert.ToBase64String(bytes);
         // Debug.Log("Uploading Screenshot started...");
         // TODO: why do we use the same ID and same timestamp? It seems that the image is also the same.
-        // TODO: lat and lon are swapped in the request JSON!
-        //string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
-        string finalJson = "{\"id\":\"9089876676575754\",\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"type\":\"geopose\",\"sensors\":[{\"id\":\"0\",\"type\":\"camera\"},{\"id\":\"1\",\"type\":\"geolocation\"}],\"sensorReadings\":[{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"0\",\"reading\":{\"sequenceNumber\":0,\"imageFormat\":\"JPG\",\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"},\"imageBytes\":\"" + shot + "\"}},{\"timestamp\":\"2020-11-11T11:56:21+00:00\",\"sensorId\":\"1\",\"reading\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"altitude\":0" + ",\"accuracy\":" + hdop + "}}]}";
+        string finalJson = "{" +
+            "\"id\":\"9089876676575754\"," +
+            "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+            "\"type\":\"geopose\"," +
+            "\"sensors\":[" +
+                "{\"id\":\"0\",\"type\":\"camera\"}," +
+                "{\"id\":\"1\",\"type\":\"geolocation\"}" +
+            "]," +
+            "\"sensorReadings\":[" +
+                "{" +
+                "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+                "\"sensorId\":\"0\"," +
+                "\"reading\":{" +
+                    "\"sequenceNumber\":0," +
+                    "\"imageFormat\":\"JPG\"," +
+                    "\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"}," +
+                    "\"imageBytes\":\"" + shot + "\"}" +
+                "}, {" +
+                "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+                "\"sensorId\":\"1\"," +
+                "\"reading\":{" +
+                    "\"latitude\":" + latitude + "," +
+                    "\"longitude\":" + longitude + "," +
+                    "\"altitude\":0" + "," +
+                    "\"accuracy\":" + hdop + "}" +
+                "}" +
+            "]" +
+        "}";
         Debug.Log("finalJson OSCP = " + finalJson);
-
-        // TODO: https:// must be used, but the baseURL is still http:// for some reason. Where does the old value come from?
 
         // WARNING: there has been some changes in the URL ending over the past year:
         //string finalUrl = baseURL + "/scrs/geopose_objs_local";  // this returns camera pose and all objects in the neighborhood
         //string finalUrl = baseURL + "/scrs/geopose_objs"; // this is obsolete and should never be used
         string finalUrl = baseURL + "/scrs/geopose"; // this returns camera pose only
         Debug.Log("finalUrl: " + finalUrl);
+
         var request = new UnityWebRequest(finalUrl, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(finalJson);
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
@@ -1248,9 +1272,9 @@ public class ACityAPIDev : MonoBehaviour
             if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) { rotationDevice = "90"; }
         }
 
-        // TODO: latitude and longitude are swapped???
-        string jsona = "{\"gps\":{\"latitude\":" + longitude + ",\"longitude\":" + latitude + ",\"hdop\":" + hdop + "},\"rotation\": " + rotationDevice + ",\"mirrored\": false}";
-        uim.gpsDebug(longitude, latitude, hdop);
+        // TODO: do not hardcode 'mirrored'
+        string jsona = "{\"gps\":{\"latitude\":" + latitude + ",\"longitude\":" + longitude + ",\"hdop\":" + hdop + "},\"rotation\": " + rotationDevice + ",\"mirrored\": false}";
+        uim.gpsDebug(latitude, longitude, hdop);
         Debug.Log("" + jsona);
         form.Add(new MultipartFormFileSection("image", bytes, "test.jpg", "image/jpeg"));
         form.Add(new MultipartFormDataSection("description", jsona));
