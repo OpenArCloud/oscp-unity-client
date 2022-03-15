@@ -170,6 +170,7 @@ public class ACityAPIDev : MonoBehaviour
         public double timestamp { get; set; }
     }
     MyLocationInfo lastGpsLocation;
+    UInt64 geoposeRequestId = 0;
 
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
@@ -1245,11 +1246,24 @@ public class ACityAPIDev : MonoBehaviour
 
         //  string shot = System.Text.Encoding.UTF8.GetString(bytes);
         string shot = Convert.ToBase64String(bytes);
-        // Debug.Log("Uploading Screenshot started...");
-        // TODO: why do we use the same ID and same timestamp? It seems that the image is also the same.
+
+        // TODO: we should not use hardcoded timestamp as before
+        // we should use the real capture timestamp of the image, and of the last GPS measurements
+        const string timestampExample = "2020-11-11T11:56:21+00:00"; // we want this format based on the example:
+        string timestampLocal = System.DateTime.UtcNow.ToString(); // not good: 3/15/2022 7:45:50 PM
+        string timestamp = System.DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture); // almost good 2022-03-15T19:45:50
+
+        // TODO: we should not use hardcoded request_id as before
+        const string requestIdExample = "9089876676575754";
+        geoposeRequestId++;
+        string requestId = geoposeRequestId.ToString();
+
+        // TODO: altitude is hardcoded to 0
+        // TODO: mirrored is hardcoded to false
+        // TODO: sequenceNumber is harcoded to 0
         string finalJson = "{" +
-            "\"id\":\"9089876676575754\"," +
-            "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+            "\"id\":\"" + requestId + "\"," +
+            "\"timestamp\":\""+ timestamp + "\"," +
             "\"type\":\"geopose\"," +
             "\"sensors\":[" +
                 "{\"id\":\"0\",\"type\":\"camera\"}," +
@@ -1257,7 +1271,7 @@ public class ACityAPIDev : MonoBehaviour
             "]," +
             "\"sensorReadings\":[" +
                 "{" +
-                "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+                "\"timestamp\":\"" + timestamp + "\"," +
                 "\"sensorId\":\"0\"," +
                 "\"reading\":{" +
                     "\"sequenceNumber\":0," +
@@ -1265,7 +1279,7 @@ public class ACityAPIDev : MonoBehaviour
                     "\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"}," +
                     "\"imageBytes\":\"" + shot + "\"}" +
                 "}, {" +
-                "\"timestamp\":\"2020-11-11T11:56:21+00:00\"," +
+                "\"timestamp\":\"" + timestamp + "\"," +
                 "\"sensorId\":\"1\"," +
                 "\"reading\":{" +
                     "\"latitude\":" + latitude + "," +
@@ -1283,6 +1297,7 @@ public class ACityAPIDev : MonoBehaviour
         string finalUrl = baseURL + "/scrs/geopose"; // this returns camera pose only
         Debug.Log("finalUrl: " + finalUrl);
 
+        // Debug.Log("Uploading Screenshot started...");
         var request = new UnityWebRequest(finalUrl, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(finalJson);
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
