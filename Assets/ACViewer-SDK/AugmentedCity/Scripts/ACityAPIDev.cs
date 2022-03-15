@@ -144,6 +144,8 @@ public class ACityAPIDev : MonoBehaviour
     public bool ecef;
     public bool useGeopose;
 
+    public bool debugSaveCameraImages = false;
+
     ScreenOrientation ori;
 
     const double a = 6378137; //I think this number is for earth ellipsoid for: GPS World_Geodetic_System:_WGS_84 https://en.wikipedia.org/wiki/Earth_ellipsoid
@@ -1175,6 +1177,13 @@ public class ACityAPIDev : MonoBehaviour
         // save current local pose
         cameraRotationInLocalization = ARCamera.transform.rotation.eulerAngles;
         cameraPositionInLocalization = ARCamera.transform.position;
+
+        if (debugSaveCameraImages)
+        {
+            string debugCameraImagePath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss--fff") + ".jpg");
+            Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
+            File.WriteAllBytes(debugCameraImagePath, bjpg);
+        }
 
         // TODO: at this point, the apiURL must be set properly and we should not overwrite it again. So we can remove the lines below.
         // if there is no apiURL, then we should not try to uploadFrame() anyway.
