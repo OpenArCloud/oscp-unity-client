@@ -130,7 +130,7 @@ public class ACityAPIDev : MonoBehaviour
     public bool editorTestMode;
     public GameObject devButton;
 
-    public TextAsset bb;
+    public TextAsset bb; // TODO: this was some fake image in base64 format in the past? It is missing now.
     public string rotationDevice = "90";
 
     Vector3 cameraRotationInLocalization;
@@ -182,7 +182,13 @@ public class ACityAPIDev : MonoBehaviour
     {
         spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
 
-        PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
+        //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
+        // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.
+        // this is weird but when we deleted all settings, then the CamGetImage always returned null. Even though the camera background was working.
+        // TODO: we should properly initialize the camera settings in every session and not rely on magical settings from a previous run.
+        PlayerPrefs.DeleteKey("ApiUrl"); // only these need to get refreshed.
+        PlayerPrefs.DeleteKey("LocLoaded");
+
         //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?  // TODO: ask AC about this line.
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
@@ -291,56 +297,59 @@ public class ACityAPIDev : MonoBehaviour
     {
         uim.statusDebug("Get cam frame");
         XRCpuImage image;
-        if (m_CameraManager.TryAcquireLatestCpuImage(out image))
+
+        if (!m_CameraManager.TryAcquireLatestCpuImage(out image))
         {
-            var conversionParams = new XRCpuImage.ConversionParams
-            {
-                // Get the entire image.
-                inputRect = new RectInt(0, 0, image.width, image.height),
-
-                // Downsample by 1.
-                outputDimensions = new Vector2Int(image.width, image.height),
-
-                // Choose RGBA format.
-                outputFormat = TextureFormat.RGBA32,
-
-                // Flip across the vertical axis (mirror image).
-                transformation = XRCpuImage.Transformation.MirrorY
-            };
-
-            // See how many bytes we need to store the final image.
-            int size = image.GetConvertedDataSize(conversionParams);
-
-            // Allocate a buffer to store the image
-            var buffer = new NativeArray<byte>(size, Allocator.Temp);
-
-            // Extract the image data
-
-            image.Convert(conversionParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
-            Debug.Log("buffer.Length = " + buffer.Length);
-            // The image was converted to RGBA32 format and written into the provided buffer
-            // so we can dispose of the CameraImage. We must do this or it will leak resources.
-            image.Dispose();
-
-            // At this point, we could process the image, pass it to a computer vision algorithm, etc.
-            // In this example, we'll just apply it to a texture to visualize it.
-
-            // We've got the data; let's put it into a texture so we can visualize it.
-            Texture2D m_Texture = new Texture2D(
-                conversionParams.outputDimensions.x,
-                conversionParams.outputDimensions.y,
-                conversionParams.outputFormat,
-                false);
-
-            m_Texture.LoadRawTextureData(buffer);
-            m_Texture.Apply();
-            buffer.Dispose();
-
-            byte[] bb = m_Texture.EncodeToJPG(100);
-            Destroy(m_Texture);
-            return bb;
+            Debug.Log($"{Time.realtimeSinceStartup} Could not acquire cpu image.");
+            return null; // unsuccessful
         }
-        return null;
+
+        var conversionParams = new XRCpuImage.ConversionParams
+        {
+            // Get the entire image.
+            inputRect = new RectInt(0, 0, image.width, image.height),
+
+            // Downsample by 1.
+            outputDimensions = new Vector2Int(image.width, image.height),
+
+            // Choose RGBA format.
+            outputFormat = TextureFormat.RGBA32,
+
+            // Flip across the vertical axis (mirror image).
+            transformation = XRCpuImage.Transformation.MirrorY
+        };
+
+        // See how many bytes we need to store the final image.
+        int size = image.GetConvertedDataSize(conversionParams);
+
+        // Allocate a buffer to store the image
+        var buffer = new NativeArray<byte>(size, Allocator.Temp);
+
+        // Extract the image data
+
+        image.Convert(conversionParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
+        Debug.Log("buffer.Length = " + buffer.Length);
+        // The image was converted to RGBA32 format and written into the provided buffer
+        // so we can dispose of the CameraImage. We must do this or it will leak resources.
+        image.Dispose();
+
+        // At this point, we could process the image, pass it to a computer vision algorithm, etc.
+        // In this example, we'll just apply it to a texture to visualize it.
+
+        // We've got the data; let's put it into a texture so we can visualize it.
+        Texture2D m_Texture = new Texture2D(
+            conversionParams.outputDimensions.x,
+            conversionParams.outputDimensions.y,
+            conversionParams.outputFormat,
+            false);
+
+        m_Texture.LoadRawTextureData(buffer);
+        m_Texture.Apply();
+        buffer.Dispose();
+
+        byte[] bb = m_Texture.EncodeToJPG(100);
+        Destroy(m_Texture);
+        return bb;
     }
 
     public void camLocalize(string jsonanswer, bool geopose)
@@ -1152,24 +1161,28 @@ public class ACityAPIDev : MonoBehaviour
         else
         {
             bjpg = CamGetFrame();
-            if (bjpg == null)
-            {
-                Debug.Log("Frame has got NULL!!!");
-                bjpg = bb.bytes;
-            }
+        }
+
+        if (bjpg == null)
+        {
+            //bjpg = bb.bytes; // TODO: what is this fake image? abort instead!
+            Debug.Log("Frame is null! Aborting localization");
+            return;
         }
 
         if (getStickers != null) getStickersAction = getStickers;
+
+        // save current local pose
         cameraRotationInLocalization = ARCamera.transform.rotation.eulerAngles;
         cameraPositionInLocalization = ARCamera.transform.position;
-        if (bjpg != null)
-        {
-            if (PlayerPrefs.HasKey("ApiUrl"))
-            {
-                apiURL = PlayerPrefs.GetString("ApiUrl");
-            }
-            uploadFrame(bjpg, apiURL, longitude, latitude, hdop, camLocalize);
-        }
+
+        // TODO: at this point, the apiURL must be set properly and we should not overwrite it again. So we can remove the lines below.
+        // if there is no apiURL, then we should not try to uploadFrame() anyway.
+        //if (PlayerPrefs.HasKey("ApiUrl"))
+        //{
+        //    apiURL = PlayerPrefs.GetString("ApiUrl");
+        //}
+        uploadFrame(bjpg, apiURL, longitude, latitude, hdop, camLocalize);
     }
 
     public void setApiURL(string url)
