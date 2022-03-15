@@ -590,17 +590,19 @@ public class ACityAPIDev : MonoBehaviour
         {
             if (jsonParse["geopose"] != null)
             {
+                // TODO: reconstruction_id has been removed from the reply!
                 sessionId = jsonParse["geopose"]["reconstruction_id"];
-
                 Debug.Log("sessioID: " + sessionId);
+
+                // Spatial Content Records (optional)
                 do
                 {
                     objectsAmount++;
                     js = jsonParse["scrs"][objectsAmount]["type"];
-                    //Debug.Log("js node [" + objectsAmount + "] - " + js);
+                    Debug.Log("js node [" + objectsAmount + "] - " + js);
                 } while (js != null);
-
                 Debug.Log("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
+
                 double camLat = 0, camLon = 0, camHei = 0;
                 double px0 = 0, py0 = 0, pz0 = 0;
                 px = 0; py = 0; pz = 0; // reset position initially
@@ -641,10 +643,46 @@ public class ACityAPIDev : MonoBehaviour
                 }
                 else if (useGeopose)
                 {
-                  // TODO: the GeoPose structure changed in March 2022 so we need to update it here
-                    camLat = jsonParse["geopose"]["pose"]["latitude"].AsDouble;
-                    camLon = jsonParse["geopose"]["pose"]["longitude"].AsDouble;
-                    camHei = jsonParse["geopose"]["pose"]["ellipsoidHeight"].AsDouble;
+
+                    UInt64 timestamp = 0;
+                    if (jsonParse.HasKey("timestamp")) {
+                        timestamp = UInt64.Parse(jsonParse["timestamp"]);
+                        Debug.Log("  timestamp:" + timestamp);
+                    }
+                    UInt64 id = 0;
+                    if (jsonParse.HasKey("id")) {
+                        id = UInt64.Parse(jsonParse["id"]);
+                        Debug.Log("  id:" + id);
+                    }
+                    double positionAccuracy = 0.0;
+                    double orientationAccuracy = 0.0;
+                    if (jsonParse.HasKey("accuracy")) {
+                        JSONNode jsonAccuracy = jsonParse["accuracy"];
+                        positionAccuracy = jsonAccuracy["position"].AsDouble;
+                        orientationAccuracy = jsonAccuracy["orientation"].AsDouble;
+                        Debug.Log("  positionAccuracy:" + positionAccuracy);
+                        Debug.Log("  orientationAccuracy:" + orientationAccuracy);
+                    }
+                    string type = "";
+                    if (jsonParse.HasKey("type"))
+                    {
+                        type = jsonParse["type"].ToString();
+                        Debug.Log("  type:" + type);
+                    }
+
+                    // TODO: the GeoPose structure changed in March 2022 so we have to update it here. The "position" node got introduced.
+                    // this code supports both
+                    if (jsonParse["geopose"].HasKey("position")) {
+                        camLat = jsonParse["geopose"]["position"]["latitude"].AsDouble;
+                        camLon = jsonParse["geopose"]["position"]["longitude"].AsDouble;
+                        camHei = jsonParse["geopose"]["position"]["ellipsoidHeight"].AsDouble;
+                    } else {
+                        // old format contained the location directly
+                        camLat = jsonParse["geopose"]["latitude"].AsDouble;
+                        camLon = jsonParse["geopose"]["longitude"].AsDouble;
+                        camHei = jsonParse["geopose"]["ellipsoidHeight"].AsDouble;
+                    }
+
                     Debug.Log("Cam GEO - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
                     if (currentRi == null)
                     {
@@ -662,17 +700,17 @@ public class ACityAPIDev : MonoBehaviour
                     px = enupose.x;
                     py = enupose.y;
                     pz = enupose.z;
-                    ox = jsonParse["geopose"]["pose"]["quaternion"]["x"].AsFloat;
-                    oy = jsonParse["geopose"]["pose"]["quaternion"]["y"].AsFloat;
-                    oz = jsonParse["geopose"]["pose"]["quaternion"]["z"].AsFloat;
-                    ow = jsonParse["geopose"]["pose"]["quaternion"]["w"].AsFloat;
+                    ox = jsonParse["geopose"]["quaternion"]["x"].AsFloat;
+                    oy = jsonParse["geopose"]["quaternion"]["y"].AsFloat;
+                    oz = jsonParse["geopose"]["quaternion"]["z"].AsFloat;
+                    ow = jsonParse["geopose"]["quaternion"]["w"].AsFloat;
                     Debug.Log("geo.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
                     if (currentRi == null)
                         uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, sessionId);
                     else
                         uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
                 }
-                else
+                else // local pose (AC)
                 {
                     px = jsonParse["geopose"]["localPose"]["position"]["x"].AsFloat;
                     py = jsonParse["geopose"]["localPose"]["position"]["y"].AsFloat;
