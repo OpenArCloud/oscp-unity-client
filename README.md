@@ -68,3 +68,7 @@ Follow the Unity Deep Link
 ## License
 
 [MIT License](Licence.md)
+
+This project uses the following open source libraries:
+- H3Net, https://github.com/RichardVasquez/h3net, Apache License v2
+- DecimalMath, https://github.com/nathanpjones/DecimalMath, MIT license

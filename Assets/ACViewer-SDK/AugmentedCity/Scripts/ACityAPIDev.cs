@@ -155,8 +155,9 @@ public class ACityAPIDev : MonoBehaviour
 
     GameObject ARCamera;
     ARCameraManager m_CameraManager;
-    bool startedLocalization;
+    bool startedLocalization; // TODO: isn't this redundant with localizationStatus? It seems unused anyway.
     bool configurationSetted;
+    LocalizationStatus localizationStatus = LocalizationStatus.NotStarted;
 
     bool hasGpsLocation = false;
     // This is a modifiable version of UnityEngine.LocationInfo
@@ -170,12 +171,14 @@ public class ACityAPIDev : MonoBehaviour
         public double timestamp { get; set; }
     }
     MyLocationInfo lastGpsLocation;
+    const int kH3Resolution = 8;
+    H3Lib.H3Index lastH3Index = new H3Lib.H3Index(0);
     UInt64 geoposeRequestId = 0;
 
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
 
-    LocalizationStatus localizationStatus = LocalizationStatus.NotStarted;
+
     UIManager uim;
 
     SpatialRecordManager spatialRecordManager;
@@ -1186,6 +1189,12 @@ public class ACityAPIDev : MonoBehaviour
             + " alt: " + lastGpsLocation.altitude
             + " hAccuracy: " + lastGpsLocation.horizontalAccuracy
             + " timestamp: " + lastGpsLocation.timestamp);
+
+        decimal radLat = H3Lib.Api.DegsToRads((decimal)lastGpsLocation.latitude);
+        decimal radLon = H3Lib.Api.DegsToRads((decimal)lastGpsLocation.longitude);
+        H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
+        lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
+        Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
     }
 
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
