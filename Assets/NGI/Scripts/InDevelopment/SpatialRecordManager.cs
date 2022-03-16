@@ -65,7 +65,7 @@ public class SpatialRecordManager : MonoBehaviour
 
         spatialServiceRecord = new SpatialServiceRecord[objectAmount];
 
-        Debug.Log(jsonResponseNode);
+       // Debug.Log(jsonResponseNode);
 
         float px, py, pz, ox, oy, oz, ow;
 

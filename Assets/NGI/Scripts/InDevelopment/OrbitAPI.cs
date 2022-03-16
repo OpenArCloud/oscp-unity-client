@@ -100,7 +100,7 @@ public class OrbitAPI : MonoBehaviour
         {
             // reads response body
             string apiInfoResponseText = await apiInforResponseReader.ReadToEndAsync();
-            output("Response from scd-orbit read: " + apiInfoResponseText);
+            //output("Response from scd-orbit read: " + apiInfoResponseText);
 
             ServerResponseGet?.Invoke(apiInfoResponseText);
         }

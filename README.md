@@ -9,12 +9,19 @@ Unity version 2021.1.28f1 or higher.
 Before importing the package, please do the following in the project:
 
 SDK uses ARFoundation systems, so you have to install packages (Window -> Package manager):
-- ARFoundation 4.1.9
-- ARCore XR Plugin 4.1.9
-- ARKit XR Plugin 4.1.9
+- ARFoundation 4.2.2
+- ARCore XR Plugin 4.2.2
+- ARKit XR Plugin 4.2.2
+- XR Plugin Managment 4.2.1
 
 Other Packages
 - TextMeshPro 3.0.6
+- Draco 3D Data Compression 4.0.2
+- glTFast 4.6.0
+- KTX/Basis Texture 2.0.1
+- meshoptimizer decompression for Unity(experimental) 0.1.0-preview.5
+- XR Interaction Toolkit Pre-Release 1.0.0-pre.8
+- Newtonsoft Json 2.0.2
 
 Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true

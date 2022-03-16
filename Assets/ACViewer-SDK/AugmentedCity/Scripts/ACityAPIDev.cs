@@ -179,7 +179,7 @@ public class ACityAPIDev : MonoBehaviour
     UIManager uim;
 
     SpatialRecordManager spatialRecordManager;
-    [SerializeField] bool useOrbitContent;
+    public bool useOrbitContent;
 
     void Start()
     {

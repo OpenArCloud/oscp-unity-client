@@ -136,12 +136,24 @@ public class GetPlaceHoldersDev : MonoBehaviour
     //NGI addition
     public void GetOrbitContent()
     {
-        orbitAPI.LoadItemsFromServer();
+        if (acapi.useOrbitContent)
+        {
+            orbitAPI.LoadItemsFromServer();
+        }
     }
 
 
     void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers)
     {
+
+        //TODO:Remove need for id paramater
+        //If id is null objects is not created
+        //Added this check so objects dosent get created if there are no stickers
+        if (stickers != null)
+        {
+            id = "1";
+        }
+
         if (id != null)
         {
             /*Debug.Log("zeroPpos = " + zeroP.position.x + "    " + zeroP.position.y + "    " + zeroP.position.z);
@@ -258,7 +270,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 if (string.Equals(stickers[j].spatialServiceRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
                                 {
                                     assetbundleName = stickers[j].spatialServiceRecord.content.title; //stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
-                                    Debug.Log("Assetbundle name is: " +  assetbundleName);
+                                    Debug.Log("Assetbundle name is: " + assetbundleName);
                                     model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
                                     model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
                                 }

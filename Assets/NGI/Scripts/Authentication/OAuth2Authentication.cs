@@ -217,13 +217,13 @@ public class OAuth2Authentication : MonoBehaviour
                 // converts to dictionary
                 Dictionary<string, string> tokenEndpointDecoded = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
 
-                Debug.Log("Code exhange tokens result: " + responseText);
+                //Debug.Log("Code exhange tokens result: " + responseText);
 
-
+                /*
                 foreach (var item in tokenEndpointDecoded)
                 {
                     output(String.Format("Items in TokenEndPointDecoded: " + "Key: {0} Value: {1}", item.Key, item.Value));
-                }
+                }*/
                             
                 UserSessionCache userSessionCache = new UserSessionCache(
                   tokenEndpointDecoded["id_token"],
@@ -275,7 +275,7 @@ public class OAuth2Authentication : MonoBehaviour
         {
             // reads response body
             string userinfoResponseText = await userinfoResponseReader.ReadToEndAsync();
-            output("User information response: " +userinfoResponseText);
+          //  output("User information response: " +userinfoResponseText);
         }
     }
 
