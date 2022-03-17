@@ -1197,6 +1197,19 @@ public class ACityAPIDev : MonoBehaviour
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
     }
 
+#if UNITY_EDITOR
+    //Only for use in the editor. This takes lat lon and returns a H3 Index to console log
+    public void GetH3IndexEditor(float lat, float lon)
+    {
+
+        decimal radLat = H3Lib.Api.DegsToRads((decimal)lat);
+        decimal radLon = H3Lib.Api.DegsToRads((decimal)lon);
+        H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
+        lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
+        Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+    }
+#endif
+
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
         Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
@@ -1433,7 +1446,7 @@ public class ACityAPIDev : MonoBehaviour
     {
         Debug.Log("prepareSession...");
         if (editorTestMode)
-        {
+        { 
             // nothing to do when testing in editor
             return;
         }

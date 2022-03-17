@@ -75,7 +75,7 @@ public class OAuth2Authentication : MonoBehaviour
 
     }
 
-    // Using this method to validate token until refresh_token functionality is implemented
+    //TODO: Using this method to validate token until refresh_token functionality is implemented
     public async void CheckLocalTokenChache()
     {
         // add check if file dosent exist
@@ -109,7 +109,6 @@ public class OAuth2Authentication : MonoBehaviour
         AuthenticationInEditor();
 #endif
     }
-
 
     public void Authenticate()
     {
@@ -146,11 +145,9 @@ public class OAuth2Authentication : MonoBehaviour
 
     }
 
-
-
     public void HandleDeepLinkResponse(string urlResponse)
     {
-        Debug.Log("From HandleDeepLinkResponse method urlResponse: " + urlResponse);
+        //Debug.Log("From HandleDeepLinkResponse method urlResponse: " + urlResponse);
 
         string codeStartString = "?code=";
         string stateStartString = "&state=";
@@ -174,7 +171,6 @@ public class OAuth2Authentication : MonoBehaviour
         performCodeExchange(accessCode, _code_verifier, redirectURI);
 
     }
-
 
     async void performCodeExchange(string code, string code_verifier, string redirectURI)
     {

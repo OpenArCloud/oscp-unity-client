@@ -115,6 +115,11 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
+#if UNITY_EDITOR
+        //This uses the location set in editor, editor testing only
+        acapi.GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
+#endif
+
         GetOrbitContent();
     }
 

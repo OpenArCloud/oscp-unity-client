@@ -8,13 +8,9 @@ using UnityEngine.SceneManagement;
 public class PermissionHandler : MonoBehaviour
 {
 
-
-
     void Start()
     {
         StartCoroutine(WaitForPermission());
-
-
     }
 
     private IEnumerator WaitForPermission()
@@ -43,7 +39,7 @@ public class PermissionHandler : MonoBehaviour
 
         }
 
-        SceneManager.LoadSceneAsync("AugCityToNGI_Dev_Interaction");
+       // SceneManager.LoadSceneAsync("AugCityToNGI_Dev_Interaction");
 
     }
 
