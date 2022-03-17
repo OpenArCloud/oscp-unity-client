@@ -1,14 +1,11 @@
 using SimpleJSON;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static SSDManager;
 
-public class SSDItem : MonoBehaviour
+
+//SSR = spatial service record
+public class SSRItem : MonoBehaviour
 {
-
-    // {"id":"ac_geopose_brandbergen","type":"geopose","url":"https://developer.augmented.city/scrs/geopose","title":"AC GeoPose Brandbergen","description":"AC GeoPose Brandbergen"}
 
     [SerializeField] private Text id;
     [SerializeField] private Text type;
@@ -26,8 +23,5 @@ public class SSDItem : MonoBehaviour
         URL.text = item["url"];
         title.text = item["title"];
         description.text = item["description"];
-
     }
-
-
 }

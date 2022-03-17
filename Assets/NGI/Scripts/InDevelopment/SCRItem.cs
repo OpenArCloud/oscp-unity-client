@@ -1,13 +1,10 @@
-using Newtonsoft.Json;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace NGI.Api
 {
-
-    //Spatial-service-record = SSR
-    public class SpatialServiceRecord
+    //SCR = spatial content record
+    public class SCRItem
     {
         public string type;    
         public Content content;

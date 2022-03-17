@@ -5,19 +5,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static ACityAPIDev;
 
-public class SpatialRecordManager : MonoBehaviour
+public class SCRManager : MonoBehaviour
 {
     public JSONNode jsonResponseNode;
-    public SpatialServiceRecord[] spatialServiceRecord;
+    public SCRItem[] spatialServiceRecord;
 
     public Vector3 mockCameraPos;
     public Vector4 mockCameraOri;
 
     [SerializeField] private OrbitAPI orbitAPI;
 
-    public static event Action<SpatialServiceRecord[]> UpdatedSpatialServiceRecord;
+    public static event Action<SCRItem[]> UpdatedSpatialServiceRecord;
 
 
     private void OnEnable()
@@ -63,7 +62,7 @@ public class SpatialRecordManager : MonoBehaviour
 
         int objectAmount = jsonResponseNode.Count;
 
-        spatialServiceRecord = new SpatialServiceRecord[objectAmount];
+        spatialServiceRecord = new SCRItem[objectAmount];
 
        // Debug.Log(jsonResponseNode);
 
@@ -72,7 +71,7 @@ public class SpatialRecordManager : MonoBehaviour
         for (int i = 0; i < objectAmount; i++)
         {
 
-            SpatialServiceRecord sp = new SpatialServiceRecord();
+            SCRItem sp = new SCRItem();
 
             sp.content = new Content();
             sp.content.geopose = new GeoPosition();
@@ -151,7 +150,7 @@ public class SpatialRecordManager : MonoBehaviour
         yield return null;
     }
 
-    public void UpdateSpatialObject(SpatialServiceRecord sp)
+    public void UpdateSpatialObject(SCRItem sp)
     {
 
         int length = spatialServiceRecord.Length;

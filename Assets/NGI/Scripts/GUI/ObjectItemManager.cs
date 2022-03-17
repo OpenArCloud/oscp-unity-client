@@ -11,7 +11,7 @@ public class ObjectItemManager : MonoBehaviour
 
     [SerializeField] GameObject prefabToSpawn;
 
-    [SerializeField] SpatialRecordManager spatialRecordManager;
+    [SerializeField] SCRManager spatialRecordManager;
 
     [SerializeField] ObjectInformationGUI informationPanel;
 
@@ -19,21 +19,21 @@ public class ObjectItemManager : MonoBehaviour
     private void OnEnable()
     {
         ObjectListItem.listItemClicked += HandleClickedItem;
-        SpatialRecordManager.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
+        SCRManager.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
     }
 
     private void OnDisable()
     {
         ObjectListItem.listItemClicked -= HandleClickedItem;
-        SpatialRecordManager.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
+        SCRManager.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
     }
 
-    private void HandleUpdatedSpatialRecords(SpatialServiceRecord[] spatialRecords)
+    private void HandleUpdatedSpatialRecords(SCRItem[] spatialRecords)
     {
         CreateObjectItems(spatialRecords);
     }
 
-    private void HandleClickedItem(SpatialServiceRecord obj)
+    private void HandleClickedItem(SCRItem obj)
     {
 
         Debug.Log("Clicked item: " + obj.id);
@@ -42,7 +42,7 @@ public class ObjectItemManager : MonoBehaviour
 
     }
 
-    public void CreateObjectItems(SpatialServiceRecord[] spatialItems)
+    public void CreateObjectItems(SCRItem[] spatialItems)
     {
         int itemCount = spatialItems.Length;
         for (int i = 0; i < itemCount; i++)

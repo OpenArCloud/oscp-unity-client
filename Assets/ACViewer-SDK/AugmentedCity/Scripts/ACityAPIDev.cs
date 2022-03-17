@@ -1,17 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Unity.Collections;
-using UnityEngine.Networking;
+﻿using NGI.Api;
+using SimpleJSON;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.Networking;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using SimpleJSON;
-using System.IO;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.Android;
-using System.Text;
-using NGI.Api;
 
 public class ACityAPIDev : MonoBehaviour
 {
@@ -95,7 +95,7 @@ public class ACityAPIDev : MonoBehaviour
         //Added for external unity assetbundle that is not hosted on augmented city servers.
         public string anchorName;
         public string externalAssetUrl;
-        public SpatialServiceRecord spatialServiceRecord;
+        public SCRItem spatialServiceRecord;
     }
 
     public class EcefPose
@@ -181,12 +181,12 @@ public class ACityAPIDev : MonoBehaviour
 
     UIManager uim;
 
-    SpatialRecordManager spatialRecordManager;
+    SCRManager spatialRecordManager;
     public bool useOrbitContent;
 
     void Start()
     {
-        spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
+        spatialRecordManager = FindObjectOfType<SCRManager>();
 
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
         // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.

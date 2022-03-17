@@ -13,7 +13,7 @@ public class OrbitAPI : MonoBehaviour
     [SerializeField] private bool isLoadingFromLocalStorage;
 
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
-    [SerializeField] private SpatialRecordManager spatialRecordManager;
+    [SerializeField] private SCRManager spatialRecordManager;
 
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
@@ -46,7 +46,7 @@ public class OrbitAPI : MonoBehaviour
 
     }
 
-    public void UpdateItemOnServer(SpatialServiceRecord sp)
+    public void UpdateItemOnServer(SCRItem sp)
     {
         string recordID = sp.id;
 

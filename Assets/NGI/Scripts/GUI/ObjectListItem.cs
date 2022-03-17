@@ -13,10 +13,10 @@ public class ObjectListItem : MonoBehaviour
 
     [SerializeField] Text type;
 
-    private SpatialServiceRecord spatialObjRef;
+    private SCRItem spatialObjRef;
 
 
-    public static event Action<SpatialServiceRecord> listItemClicked;
+    public static event Action<SCRItem> listItemClicked;
 
 
     public void ButtonClicked()
@@ -24,7 +24,7 @@ public class ObjectListItem : MonoBehaviour
         listItemClicked?.Invoke(spatialObjRef);
     }
 
-    public void SetValues(SpatialServiceRecord spo)
+    public void SetValues(SCRItem spo)
     {
         description.text = spo.content.description;
         id.text = spo.id;
@@ -33,7 +33,7 @@ public class ObjectListItem : MonoBehaviour
         spatialObjRef = spo;
     }
 
-    public SpatialServiceRecord GetSpatialObject()
+    public SCRItem GetSpatialObject()
     {
         return spatialObjRef;
     }

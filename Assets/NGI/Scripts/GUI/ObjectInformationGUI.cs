@@ -38,7 +38,7 @@ public class ObjectInformationGUI : MonoBehaviour
 
 
 
-    public void SetValues(SpatialServiceRecord record)
+    public void SetValues(SCRItem record)
     {
 
         ID.text = record.id;
@@ -65,12 +65,12 @@ public class ObjectInformationGUI : MonoBehaviour
     }
 
 
-    private SpatialServiceRecord GetSpatialObject()
+    private SCRItem GetSpatialObject()
     {
         // TODO
         // Add validation for input 
 
-        SpatialServiceRecord record = new SpatialServiceRecord();
+        SCRItem record = new SCRItem();
         record.content = new Content();
         record.content.geopose = new GeoPosition();
         record.content.geopose.quaternion = new Dictionary<string, float>();
@@ -115,7 +115,7 @@ public class ObjectInformationGUI : MonoBehaviour
 
     public void UpdateSpatialObject()
     {
-        SpatialRecordManager spatialRecordManager = FindObjectOfType<SpatialRecordManager>();
+        SCRManager spatialRecordManager = FindObjectOfType<SCRManager>();
 
         spatialRecordManager.UpdateSpatialObject(GetSpatialObject());
 

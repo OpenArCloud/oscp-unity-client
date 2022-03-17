@@ -1,14 +1,12 @@
-using Newtonsoft.Json;
 using SimpleJSON;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using UnityEngine;
 
 [RequireComponent(typeof(H3Manager))]
-public class SSDManager : MonoBehaviour
+public class SSRManager : MonoBehaviour
 {
     [SerializeField] string ssdServerURL = "https://ssd.orbit-lab.org/";
 
@@ -74,17 +72,12 @@ public class SSDManager : MonoBehaviour
 
         if (listJSONNode.Count > 0)
         {
-
             for (int i = 0; i < listJSONNode.Count; i++)
             {
                 var tempObj = Instantiate(listItemPrefab, rectTransformSpawn);
-                tempObj.GetComponent<SSDItem>().SetValues(listJSONNode[i]);
-            }
-
-            
-
+                tempObj.GetComponent<SSRItem>().SetValues(listJSONNode[i]);
+            }          
         }
-
     }
 
     private void HandleAuthenticate(bool isAuthenticated)
