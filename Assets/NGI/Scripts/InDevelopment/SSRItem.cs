@@ -14,6 +14,10 @@ public class SSRItem : MonoBehaviour
     [SerializeField] private Text title;
     [SerializeField] private Text description;
 
+    [SerializeField] private Button button;
+    [SerializeField] private Image selectedImage;
+
+    public bool IsSelected = false;
 
     public void SetValues(JSONNode item)
     {
@@ -24,4 +28,19 @@ public class SSRItem : MonoBehaviour
         title.text = item["title"];
         description.text = item["description"];
     }
+
+    public string GetURL()
+    {
+        return URL.text;
+    }
+
+    public void HandleClick()
+    {
+        IsSelected = !IsSelected;
+
+        selectedImage.enabled = IsSelected;
+        
+    }
+
+
 }

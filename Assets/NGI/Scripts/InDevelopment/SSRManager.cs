@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(H3Manager))]
 public class SSRManager : MonoBehaviour
@@ -15,9 +16,12 @@ public class SSRManager : MonoBehaviour
 
     [SerializeField] GameObject listItemPrefab;
 
-    [SerializeField] RectTransform rectTransformSpawn;
+    [SerializeField] RectTransform rectTransformSpawnSSR;
+    [SerializeField] RectTransform rectTransformSpawnSCR;
 
     [SerializeField] H3Manager h3Manager;
+
+
 
 
     public static event Action<string> ServerResponseGet;
@@ -54,7 +58,8 @@ public class SSRManager : MonoBehaviour
 
     public void CreateListItems(JSONNode response)
     {
-        List<JSONNode> listJSONNode = new List<JSONNode>();
+        List<JSONNode> ssrList = new List<JSONNode>();
+        List<JSONNode> scrList = new List<JSONNode>();
 
         int length = response[0]["services"].Count;
 
@@ -63,21 +68,77 @@ public class SSRManager : MonoBehaviour
 
             if (string.Equals(response[0]["services"][i]["type"], "geopose"))
             {
-                listJSONNode.Add(response[0]["services"][i]);
+                ssrList.Add(response[0]["services"][i]);
 
-                Debug.Log(response[0]["services"][i]);
+                // Debug.Log(response[0]["services"][i]);
+            }
+
+            if (string.Equals(response[0]["services"][i]["type"], "content-discovery"))
+            {
+                scrList.Add(response[0]["services"][i]);
+
+                // Debug.Log(response[0]["services"][i]);
             }
 
         }
 
-        if (listJSONNode.Count > 0)
+        if (ssrList.Count > 0)
         {
-            for (int i = 0; i < listJSONNode.Count; i++)
+            for (int i = 0; i < ssrList.Count; i++)
             {
-                var tempObj = Instantiate(listItemPrefab, rectTransformSpawn);
-                tempObj.GetComponent<SSRItem>().SetValues(listJSONNode[i]);
-            }          
+                var tempObj = Instantiate(listItemPrefab, rectTransformSpawnSSR);
+                tempObj.GetComponent<SSRItem>().SetValues(ssrList[i]);
+            }
         }
+
+        if (scrList.Count > 0)
+        {
+            for (int i = 0; i < ssrList.Count; i++)
+            {
+                var tempObj = Instantiate(listItemPrefab, rectTransformSpawnSCR);
+                tempObj.GetComponent<SSRItem>().SetValues(ssrList[i]);
+            }
+        }
+    }
+
+    public string GetSelectedSSRItems(Transform parent)
+    {
+        //TODO: Only able to choose one
+        SSRItem[] ssr = parent.GetComponentsInChildren<SSRItem>();     
+
+        foreach (var item in ssr)
+        {
+            if (item.IsSelected)
+            {
+                return ssr[0].GetURL();
+            }
+        }
+
+
+        return String.Empty;
+    }
+
+    public List<string> GetSelectedSCDItems(Transform parent)
+    {
+
+        SSRItem[] scd = parent.GetComponentsInChildren<SSRItem>();
+
+        List<string> scdURLs = new List<string>();
+
+        if(scd.Length > 0)
+        {
+            for (int i = 0; i < scd.Length; i++)
+            {
+                if(scd[i].IsSelected)
+                {
+                    scdURLs.Add(scd[i].GetURL());
+                }            
+            }
+
+            return scdURLs;
+        }
+
+        return null;
     }
 
     private void HandleAuthenticate(bool isAuthenticated)
@@ -110,4 +171,25 @@ public class SSRManager : MonoBehaviour
             ServerResponseGet?.Invoke(apiInfoResponseText);
         }
     }
+
+
+    public void LoadSceneAsync(string sceneName)
+    {
+        OSCPDataHolder.Instance.ClearData();
+
+        OSCPDataHolder.Instance.ContentUrls = GetSelectedSCDItems(rectTransformSpawnSCR);
+        OSCPDataHolder.Instance.GeoPoseServieURL = GetSelectedSSRItems(rectTransformSpawnSSR);
+
+        //TODO: Infor the user that their selection has some errors
+        if (OSCPDataHolder.Instance.CheckSelectedServices())
+        {
+            SceneManager.LoadSceneAsync(sceneName);
+        }
+        else
+        {
+            Debug.Log("Needed values missing in OSCPDataHolder, aborting scene change");
+        }
+        
+    }
+
 }
