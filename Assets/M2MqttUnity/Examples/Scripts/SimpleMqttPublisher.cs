@@ -26,9 +26,13 @@ public class SimpleMqttPublisher : M2MqttUnityClient
     [Header("Publish values")]
     [SerializeField] string[] topics;
 
-
+    [SerializeField] string topic;
+    [SerializeField] string message;
     
-
+    public void PublishTopicButton()
+    {
+        client.Publish(topic, System.Text.Encoding.UTF8.GetBytes(message), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
+    }
 
     public void PublishTopic(string topic, string message)
     {

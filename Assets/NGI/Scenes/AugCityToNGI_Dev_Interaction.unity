@@ -1976,8 +1976,8 @@ GameObject:
   m_Component:
   - component: {fileID: 192479091}
   - component: {fileID: 192479093}
-  - component: {fileID: 192479094}
   - component: {fileID: 192479095}
+  - component: {fileID: 192479096}
   m_Layer: 0
   m_Name: '@OAuth2'
   m_TagString: Untagged
@@ -2018,21 +2018,6 @@ MonoBehaviour:
   tokenEndpoint: https://scd-oscp.us.auth0.com/oauth/token
   userInfoEndpoint: https://scd-oscp.us.auth0.com/userinfo
   redirectURI: oscp://scd-oscp.us.auth0.com/android/com.doors.oscpunityclient/callback
---- !u!114 &192479094
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192479090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebf76e26dc9e7424aac8cfeb1fdd0a45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mockCameraPos: {x: 0, y: 0, z: 0}
-  mockCameraOri: {x: 0, y: 0, z: 0, w: 0}
-  orbitAPI: {fileID: 1355925109}
 --- !u!114 &192479095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2049,6 +2034,21 @@ MonoBehaviour:
   _logoutButton: {fileID: 0}
   _authenticatedGUI: {fileID: 194593167}
   _unAuthenticatedGUI: {fileID: 235000719}
+--- !u!114 &192479096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192479090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee3c1566bdf24948bb5faa32b613575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mockCameraPos: {x: 0, y: 0, z: 0}
+  mockCameraOri: {x: 0, y: 0, z: 0, w: 0}
+  orbitAPI: {fileID: 1355925109}
 --- !u!1 &194593167
 GameObject:
   m_ObjectHideFlags: 0
@@ -8160,7 +8160,7 @@ MonoBehaviour:
   contentHolder: {fileID: 1892090298}
   prefabToSpawn: {fileID: 8332775679143077325, guid: 14fcbdac931b23545853ca68387e7c33,
     type: 3}
-  spatialRecordManager: {fileID: 192479094}
+  spatialRecordManager: {fileID: 0}
   informationPanel: {fileID: 468259265}
 --- !u!222 &694849023
 CanvasRenderer:
@@ -15584,7 +15584,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLoadingFromLocalStorage: 0
   oAuth2Authentication: {fileID: 192479093}
-  spatialRecordManager: {fileID: 192479094}
+  spatialRecordManager: {fileID: 0}
 --- !u!1 &1367069287
 GameObject:
   m_ObjectHideFlags: 0
@@ -17304,7 +17304,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1491196220
 MonoBehaviour:
   m_ObjectHideFlags: 0

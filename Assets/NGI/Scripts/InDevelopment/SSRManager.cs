@@ -93,10 +93,10 @@ public class SSRManager : MonoBehaviour
 
         if (scrList.Count > 0)
         {
-            for (int i = 0; i < ssrList.Count; i++)
+            for (int i = 0; i < scrList.Count; i++)
             {
                 var tempObj = Instantiate(listItemPrefab, rectTransformSpawnSCR);
-                tempObj.GetComponent<SSRItem>().SetValues(ssrList[i]);
+                tempObj.GetComponent<SSRItem>().SetValues(scrList[i]);
             }
         }
     }

@@ -9,9 +9,15 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public string GeoPoseServieURL = "";
 
+
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
     public bool CheckSelectedServices()
     {
-        if (ContentUrls.Count == 0 || !string.IsNullOrEmpty(GeoPoseServieURL))
+        if (ContentUrls.Count == 0 || string.IsNullOrEmpty(GeoPoseServieURL))
         {
             //TODO: Inform the user which is missing
             return false;

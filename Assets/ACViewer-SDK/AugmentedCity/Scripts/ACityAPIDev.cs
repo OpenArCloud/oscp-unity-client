@@ -187,6 +187,7 @@ public class ACityAPIDev : MonoBehaviour
     void Start()
     {
         spatialRecordManager = FindObjectOfType<SCRManager>();
+        defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
 
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
         // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.

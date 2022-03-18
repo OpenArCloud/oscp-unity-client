@@ -18,7 +18,13 @@ public class OrbitAPI : MonoBehaviour
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
 
-    
+    List<string> contentServerUrls = new List<string>();
+
+    private void Start()
+    {
+        contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
+    }
+
 
     public void LoadItemsFromServer()
     {
@@ -87,9 +93,9 @@ public class OrbitAPI : MonoBehaviour
     {
 
         output("Making API Call to read api content...");
-
+        //TODO: Ability to query multiple content servers not just the first in the list
         //sends the request
-        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/tenant/scrs/" + topic);
+        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + topic);
         apiInforequest.Method = "GET";
         apiInforequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
         apiInforequest.ContentType = "application/x-www-form-urlencoded";
