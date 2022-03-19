@@ -19,7 +19,6 @@ public class AssetLoaderNGI : MonoBehaviour
 
     void Start()
     {
-      
         AssetName = ABName;//"obj";
         GameObject man = GameObject.FindGameObjectWithTag("Manager");
         modelManager = man.GetComponent<ModelManager>();
@@ -64,19 +63,19 @@ public class AssetLoaderNGI : MonoBehaviour
         Caching.ClearCache();
         modelManager.loadingBunles.Add(ABName);
 
-        //TODO: Fix an URL scheme that wortks for both android and iOS assetbundels, so the app downloads the correct one
+        //TODO: Fix an URL scheme that works for both android and iOS assetbundels, so the app downloads the correct one
 #if UNITY_IOS
-      // customUrl = customUrl + "/media/3d/" + ABName + "/ios/bundle/" + ABName;
+        customUrl = customUrl + ".ios";
 #endif
 #if PLATFORM_ANDROID
-       // customUrl = customUrl + "/media/3d/" + ABName + "/android/bundle/" + ABName;
+        customUrl = customUrl + ".android";
 #endif
+
         Debug.Log("Load Bundle Path = " + customUrl);
         if (string.IsNullOrEmpty(customUrl))
         {
             yield break;
         }
-
 
         CachedAssetBundle cab = new CachedAssetBundle(ABName, new Hash128(0, 0));
         using (UnityWebRequest uwr = UnityWebRequestAssetBundle.GetAssetBundle(customUrl, cab))
