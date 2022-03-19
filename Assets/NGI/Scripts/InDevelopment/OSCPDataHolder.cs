@@ -9,6 +9,8 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public string GeoPoseServieURL = "";
 
+    public string H3CurrentZone = "";
+
 
     private void Start()
     {
@@ -17,7 +19,7 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public bool CheckSelectedServices()
     {
-        if (ContentUrls.Count == 0 || string.IsNullOrEmpty(GeoPoseServieURL))
+        if (ContentUrls.Count == 0 || string.IsNullOrEmpty(GeoPoseServieURL) || string.IsNullOrEmpty(H3CurrentZone))
         {
             //TODO: Inform the user which is missing
             return false;

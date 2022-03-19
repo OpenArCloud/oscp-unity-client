@@ -15584,7 +15584,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLoadingFromLocalStorage: 0
   oAuth2Authentication: {fileID: 192479093}
-  spatialRecordManager: {fileID: 0}
+  spatialRecordManager: {fileID: 192479096}
 --- !u!1 &1367069287
 GameObject:
   m_ObjectHideFlags: 0
@@ -15757,6 +15757,7 @@ MonoBehaviour:
   ecef: 0
   useGeopose: 1
   debugSaveCameraImages: 0
+  spatialContentManager: {fileID: 192479096}
   useOrbitContent: 1
 --- !u!114 &1396039692
 MonoBehaviour:

@@ -181,12 +181,16 @@ public class ACityAPIDev : MonoBehaviour
 
     UIManager uim;
 
-    SCRManager spatialRecordManager;
+    [SerializeField] private SCRManager spatialContentManager;
     public bool useOrbitContent;
 
     void Start()
     {
-        spatialRecordManager = FindObjectOfType<SCRManager>();
+        if(spatialContentManager == null)
+        {
+            spatialContentManager = FindObjectOfType<SCRManager>();
+        }
+
         defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
 
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
@@ -594,9 +598,11 @@ public class ACityAPIDev : MonoBehaviour
         {
             if (jsonParse["geopose"] != null)
             {
+
                 // TODO: reconstruction_id has been removed from the reply!
-                sessionId = jsonParse["geopose"]["reconstruction_id"];
-                Debug.Log("sessioID: " + sessionId);
+                // TODO: Remove functions that check for reconstruction_id, just added a dummy value for now so it isent null
+                sessionId = "0";//jsonParse["geopose"]["reconstruction_id"];
+                Debug.Log("sessionID: " + sessionId);
 
                 // Spatial Content Records (optional)
                 do
@@ -763,7 +769,7 @@ public class ACityAPIDev : MonoBehaviour
 
                     if (useOrbitContent)
                     {
-                        objectsAmount = spatialRecordManager.spatialServiceRecord.Length;
+                        objectsAmount = spatialContentManager.spatialServiceRecord.Length;
 
                         if(objectsAmount == -1)
                         {
@@ -786,19 +792,19 @@ public class ACityAPIDev : MonoBehaviour
                                 // Object's position using GeoPose
 
                                 double tlat, tlon, thei;
-                                tlat = spatialRecordManager.spatialServiceRecord[j].content.geopose.latitude;
-                                tlon = spatialRecordManager.spatialServiceRecord[j].content.geopose.longitude;
-                                thei = spatialRecordManager.spatialServiceRecord[j].content.geopose.ellipsoidHeight;
+                                tlat = spatialContentManager.spatialServiceRecord[j].content.geopose.latitude;
+                                tlon = spatialContentManager.spatialServiceRecord[j].content.geopose.longitude;
+                                thei = spatialContentManager.spatialServiceRecord[j].content.geopose.ellipsoidHeight;
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                 Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
                                 px = enupose.x;
                                 py = enupose.y;
                                 pz = enupose.z;
-                                ox = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["x"];
-                                oy = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["y"];
-                                oz = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
-                                ow = spatialRecordManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
+                                ox = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["x"];
+                                oy = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["y"];
+                                oz = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
+                                ow = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
 
                                 //I think this means within +- 100M distance
                                 double latMin = camLat - 0.001;
@@ -808,7 +814,7 @@ public class ACityAPIDev : MonoBehaviour
 
                                 if (!(tlat > latMin && tlat < latMax && tlon > lonMin && tlon < lonMax))
                                 {
-                                    spatialRecordManager.spatialServiceRecord[j].isToFarAway = true;
+                                    spatialContentManager.spatialServiceRecord[j].isToFarAway = true;
                                 }
 
 
@@ -841,13 +847,13 @@ public class ACityAPIDev : MonoBehaviour
                                 }
 
                                 stickers[j].sPath = ""; //Add path to SpatialRecord
-                                stickers[j].sText = "" + spatialRecordManager.spatialServiceRecord[j].content.title;
-                                stickers[j].sType = "" + spatialRecordManager.spatialServiceRecord[j].content.type;
-                                stickers[j].sSubType = "" + spatialRecordManager.spatialServiceRecord[j].content.type; //Atm not using subtype
-                                stickers[j].sDescription = "" + spatialRecordManager.spatialServiceRecord[j].content.description;
-                                stickers[j].SModel_scale = "" + spatialRecordManager.spatialServiceRecord[j].content.size; //is size correct variable for scale?
-                                stickers[j].sId = "" + spatialRecordManager.spatialServiceRecord[j].content.id;
-                                stickers[j].objectId = "" + spatialRecordManager.spatialServiceRecord[j].id;
+                                stickers[j].sText = "" + spatialContentManager.spatialServiceRecord[j].content.title;
+                                stickers[j].sType = "" + spatialContentManager.spatialServiceRecord[j].content.type;
+                                stickers[j].sSubType = "" + spatialContentManager.spatialServiceRecord[j].content.type; //Atm not using subtype
+                                stickers[j].sDescription = "" + spatialContentManager.spatialServiceRecord[j].content.description;
+                                stickers[j].SModel_scale = "" + spatialContentManager.spatialServiceRecord[j].content.size; //is size correct variable for scale?
+                                stickers[j].sId = "" + spatialContentManager.spatialServiceRecord[j].content.id;
+                                stickers[j].objectId = "" + spatialContentManager.spatialServiceRecord[j].id;
                                 stickers[j].sImage = ""; //image not implemented on server side
                                 stickers[j].sAddress = ""; //not implemented
                                 stickers[j].sFeedbackAmount = ""; //Not implemented
@@ -857,7 +863,7 @@ public class ACityAPIDev : MonoBehaviour
                                 stickers[j].sTrajectoryOffset = ""; // Not implemented
                                 stickers[j].sTrajectoryPeriod = ""; // Not implemented
                                 stickers[j].subType = ""; // Not implemented
-                                stickers[j].type = "" + spatialRecordManager.spatialServiceRecord[j].type;
+                                stickers[j].type = "" + spatialContentManager.spatialServiceRecord[j].type;
                                 stickers[j].bundleName = ""; // Not used
                                 stickers[j].anchorName = ""; //+ jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
                                 stickers[j].externalAssetUrl = "";// + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
@@ -876,7 +882,7 @@ public class ACityAPIDev : MonoBehaviour
                                     if (verticals.Contains("1")) { stickers[j].vertical = true; }
                                 }
 
-                                stickers[j].spatialServiceRecord = spatialRecordManager.spatialServiceRecord[j];
+                                stickers[j].spatialServiceRecord = spatialContentManager.spatialServiceRecord[j];
 
                                 currentRi.stickerArray[j].sPath = stickers[j].sPath;
                                 currentRi.stickerArray[j].sText = stickers[j].sText;
@@ -1196,6 +1202,7 @@ public class ACityAPIDev : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
     }
 
 #if UNITY_EDITOR
@@ -1208,6 +1215,7 @@ public class ACityAPIDev : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
     }
 #endif
 

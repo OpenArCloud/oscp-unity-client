@@ -43,10 +43,10 @@ public class H3Manager : MonoBehaviour
         StartCoroutine(WaitForLoactionServiceStart());
 
 #else
-
+        GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
 #endif
 
-        GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
+
     }
 
 
@@ -87,10 +87,10 @@ public class H3Manager : MonoBehaviour
             print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
         }
 
-
+        updateMyGpsLocation(Input.location.lastData);
 
         // Stops the location service if there is no need to query location updates continuously.
-        Input.location.Stop();
+       // Input.location.Stop();
 
 
     }
@@ -129,6 +129,7 @@ public class H3Manager : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
     }
 
 #if UNITY_EDITOR
@@ -140,10 +141,9 @@ public class H3Manager : MonoBehaviour
         decimal radLon = H3Lib.Api.DegsToRads((decimal)lon);
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
-
-
-
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
+
     }
 #endif
 

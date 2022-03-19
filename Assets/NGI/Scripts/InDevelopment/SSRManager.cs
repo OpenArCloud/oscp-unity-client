@@ -11,7 +11,7 @@ public class SSRManager : MonoBehaviour
 {
     [SerializeField] string ssdServerURL = "https://ssd.orbit-lab.org/";
 
-    [SerializeField] string h3Index = "ssrs?h3Index=882a13d23bfffff";
+    //[SerializeField] string h3Index = "ssrs?h3Index=882a13d23bfffff";
     [SerializeField] string countryCode = "us";
 
     [SerializeField] GameObject listItemPrefab;
@@ -51,7 +51,7 @@ public class SSRManager : MonoBehaviour
         CreateListItems(JSON.Parse(response));
     }
 
-    public void GetServicesInH3()
+    public void GetServersInCurrentH3()
     {
         GetSpatialContentRecords(countryCode, h3Manager.GetLastH3Index().ToString());
     }
@@ -145,7 +145,7 @@ public class SSRManager : MonoBehaviour
     {
         if (isAuthenticated)
         {
-            GetServicesInH3();
+            GetServersInCurrentH3();
         }
     }
 
@@ -175,7 +175,7 @@ public class SSRManager : MonoBehaviour
 
     public void LoadSceneAsync(string sceneName)
     {
-        OSCPDataHolder.Instance.ClearData();
+       // OSCPDataHolder.Instance.ClearData();
 
         OSCPDataHolder.Instance.ContentUrls = GetSelectedSCDItems(rectTransformSpawnSCR);
         OSCPDataHolder.Instance.GeoPoseServieURL = GetSelectedSSRItems(rectTransformSpawnSSR);

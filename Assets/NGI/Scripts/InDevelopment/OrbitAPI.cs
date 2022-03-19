@@ -43,10 +43,11 @@ public class OrbitAPI : MonoBehaviour
                 return;
             }
 
+
             //TODO: Give the possibility for users to change topic
             if (spatialRecordManager.spatialServiceRecord == null)
             {
-                GetSpatialContentRecords(accessToken, "history");
+                GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
             }
         }
 
@@ -89,13 +90,13 @@ public class OrbitAPI : MonoBehaviour
     #region Test Methods during development
 
 
-    async void GetSpatialContentRecords(string accessToken, string topic)
+    async void GetSpatialContentRecords(string accessToken, string topic, string H3Index)
     {
-
+   // https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff
         output("Making API Call to read api content...");
         //TODO: Ability to query multiple content servers not just the first in the list
         //sends the request
-        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + topic);
+        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] +"/scrs/" + topic + "?h3Index=" + H3Index);
         apiInforequest.Method = "GET";
         apiInforequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
         apiInforequest.ContentType = "application/x-www-form-urlencoded";
