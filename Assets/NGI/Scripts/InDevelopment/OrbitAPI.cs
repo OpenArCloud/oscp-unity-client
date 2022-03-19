@@ -23,6 +23,14 @@ public class OrbitAPI : MonoBehaviour
     private void Start()
     {
         contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
+
+#if UNITY_EDITOR
+        if(contentServerUrls.Count == 0)
+        {
+            //hardcoded test server
+            contentServerUrls.Add("https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff");
+        }
+#endif
     }
 
 

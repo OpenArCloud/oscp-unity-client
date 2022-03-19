@@ -312,7 +312,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                                 if (!stickers[j].vertical)
                                 {
-                                    mover.noGravity = true;
+                                    //mover.noGravity = true;
+
+                                    //Always landed for now
+                                    mover.noGravity = false;
                                 }
 
                                 if (stickers[j].grounded)
