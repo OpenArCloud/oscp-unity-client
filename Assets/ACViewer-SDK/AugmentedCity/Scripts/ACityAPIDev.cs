@@ -705,6 +705,7 @@ public class ACityAPIDev : MonoBehaviour
                         zeroGeoCam = currentRi.zeroCamGeoPose;
                     }
                     Vector3 enupose = EcefToEnu(GeodeticToEcef(camLat, camLon, camHei), zeroGeoCam.lat, zeroGeoCam.lon, zeroGeoCam.h);
+                    OSCPDataHolder.Instance.lastPositon = enupose;
                     Debug.Log("Cam GEO enupose x = " + enupose.x + ", y = " + enupose.y + ", z = " + enupose.z);
 
                     px = enupose.x;
@@ -747,6 +748,11 @@ public class ACityAPIDev : MonoBehaviour
                 }
                 Debug.Log("newCam.transform.locPos pos= " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
                 Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
+
+
+                OSCPDataHolder.Instance.UpdateCoordinates(camLat, camLon, camHei);
+                OSCPDataHolder.Instance.UpdateLocation(newCam.transform.position, newCam.transform.rotation);
+
 
                 GameObject zeroCoord = new GameObject("Zero");
                 zeroCoord.transform.SetParent(newCam.transform);
@@ -806,6 +812,7 @@ public class ACityAPIDev : MonoBehaviour
                                 oz = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
                                 ow = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
 
+                                //TODO: Remove this check from client, server should only return visible objects
                                 //I think this means within +- 100M distance
                                 double latMin = camLat - 0.001;
                                 double latMax = camLat + 0.001;
@@ -1206,7 +1213,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    //Only for use in the editor. This takes lat lon and returns a H3 Index to console log
+    //Only for use in the editor. This takes lat lon and returns a H3 Index to console log and saves to OSCPDataHolder
     public void GetH3IndexEditor(float lat, float lon)
     {
 

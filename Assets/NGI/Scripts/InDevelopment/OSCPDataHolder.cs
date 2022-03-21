@@ -11,6 +11,14 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public string H3CurrentZone = "";
 
+    public Vector3 lastPositon;
+    public Quaternion lastOrientation;
+
+    public double latitude;
+    public double longitude;
+    public double ellipsoidHeight;
+
+
 
     private void Start()
     {
@@ -29,7 +37,20 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     }
 
-    public void ClearData()
+    public void UpdateCoordinates(double lat, double lon, double height)
+    {
+        latitude = lat;
+        longitude = lon;
+        ellipsoidHeight = height;
+    }
+
+    public void UpdateLocation(Vector3 pos, Quaternion rotation)
+    {
+        lastPositon = pos;
+        lastOrientation = rotation;
+    }
+
+    public void ClearURLs()
     {
         ContentUrls.Clear();
         GeoPoseServieURL = string.Empty;

@@ -37,10 +37,7 @@ public class SSRItem : MonoBehaviour
     public void HandleClick()
     {
         IsSelected = !IsSelected;
-
         selectedImage.enabled = IsSelected;
-        
     }
-
 
 }
