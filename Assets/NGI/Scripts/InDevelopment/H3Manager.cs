@@ -97,7 +97,9 @@ public class H3Manager : MonoBehaviour
 
     public H3Index GetLastH3Index()
     {
+#if !UNITY_EDITOR
         updateMyGpsLocation(Input.location.lastData);
+#endif
         return lastH3Index;
     }
 
