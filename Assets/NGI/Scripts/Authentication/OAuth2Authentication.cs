@@ -68,9 +68,9 @@ public class OAuth2Authentication : MonoBehaviour
 
         AuthenticationInEditor();
 #else
-        CheckLocalTokenChache();
+        //CheckLocalTokenChache();
         //Add logic to check current auth state and only doOAuth() when needed.
-       // Authenticate();
+        Authenticate();
 #endif
 
     }

@@ -1,5 +1,6 @@
 using SimpleJSON;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -51,9 +52,22 @@ public class SSRManager : MonoBehaviour
         CreateListItems(JSON.Parse(response));
     }
 
-    public void GetServersInCurrentH3()
+    public IEnumerator GetServersInCurrentH3()
     {
+#if !UNITY_EDITOR
+        if (Input.location.status == LocationServiceStatus.Stopped || Input.location.status == LocationServiceStatus.Failed)
+        {
+            FindObjectOfType<H3Manager>().StartLocationService();
+        }
+
+        yield return new WaitUntil(() => Input.location.status == LocationServiceStatus.Running);
+
         GetSpatialContentRecords(countryCode, h3Manager.GetLastH3Index().ToString());
+#else
+
+        yield return null;
+        GetSpatialContentRecords(countryCode, h3Manager.GetLastH3Index().ToString());
+#endif
     }
 
     public void CreateListItems(JSONNode response)
@@ -104,7 +118,7 @@ public class SSRManager : MonoBehaviour
     public string GetSelectedSSRItems(Transform parent)
     {
         //TODO: Only able to choose one
-        SSRItem[] ssr = parent.GetComponentsInChildren<SSRItem>();     
+        SSRItem[] ssr = parent.GetComponentsInChildren<SSRItem>();
 
         foreach (var item in ssr)
         {
@@ -114,25 +128,24 @@ public class SSRManager : MonoBehaviour
             }
         }
 
-
         return String.Empty;
     }
 
     public List<string> GetSelectedSCDItems(Transform parent)
     {
-
+        //TODO: Ability to selecte multiple SCD items
         SSRItem[] scd = parent.GetComponentsInChildren<SSRItem>();
 
         List<string> scdURLs = new List<string>();
 
-        if(scd.Length > 0)
+        if (scd.Length > 0)
         {
             for (int i = 0; i < scd.Length; i++)
             {
-                if(scd[i].IsSelected)
+                if (scd[i].IsSelected)
                 {
                     scdURLs.Add(scd[i].GetURL());
-                }            
+                }
             }
 
             return scdURLs;
@@ -145,7 +158,7 @@ public class SSRManager : MonoBehaviour
     {
         if (isAuthenticated)
         {
-            GetServersInCurrentH3();
+            StartCoroutine(GetServersInCurrentH3());
         }
     }
 
@@ -175,7 +188,7 @@ public class SSRManager : MonoBehaviour
 
     public void LoadSceneAsync(string sceneName)
     {
-       // OSCPDataHolder.Instance.ClearData();
+        // OSCPDataHolder.Instance.ClearData();
 
         OSCPDataHolder.Instance.ContentUrls = GetSelectedSCDItems(rectTransformSpawnSCR);
         OSCPDataHolder.Instance.GeoPoseServieURL = GetSelectedSSRItems(rectTransformSpawnSSR);
@@ -189,7 +202,7 @@ public class SSRManager : MonoBehaviour
         {
             Debug.Log("Needed values missing in OSCPDataHolder, aborting scene change");
         }
-        
+
     }
 
 }

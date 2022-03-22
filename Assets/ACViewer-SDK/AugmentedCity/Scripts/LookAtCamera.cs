@@ -15,7 +15,7 @@ public class LookAtCamera : MonoBehaviour
         uiManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<UIManager>();
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (uiManager.videoLookAtUser)
         {

@@ -20,12 +20,14 @@ public class ObjectItemManager : MonoBehaviour
     {
         ObjectListItem.listItemClicked += HandleClickedItem;
         SCRManager.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
+
     }
 
     private void OnDisable()
     {
         ObjectListItem.listItemClicked -= HandleClickedItem;
         SCRManager.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
+       
     }
 
     private void HandleUpdatedSpatialRecords(SCRItem[] spatialRecords)

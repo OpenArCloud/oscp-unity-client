@@ -2,6 +2,7 @@ using H3Lib;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class H3Manager : MonoBehaviour
 {
@@ -20,7 +21,6 @@ public class H3Manager : MonoBehaviour
     public float devLocationHDOP = 30.0f; // horizontal dilution of precision
 
     
-
     public enum LocalizationStatus
     {
         NotStarted,
@@ -32,30 +32,30 @@ public class H3Manager : MonoBehaviour
         Ready
     }
 
+
     private void Start()
     {
+#if UNITY_EDITOR
         StartLocationService();
+#endif
     }
 
-    void StartLocationService()
+
+    public void StartLocationService()
     {
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+#if UNITY_EDITOR
+        GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
+
+#elif (UNITY_ANDROID || UNITY_IOS)
         StartCoroutine(WaitForLoactionServiceStart());
 
-#else
-        GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
 #endif
-
 
     }
 
 
     IEnumerator WaitForLoactionServiceStart()
     {
-
-        // Check if the user has location service enabled.
-        if (!Input.location.isEnabledByUser)
-            yield break;
 
         // Starts the location service.
         Input.location.Start();
@@ -85,23 +85,19 @@ public class H3Manager : MonoBehaviour
         {
             // If the connection succeeded, this retrieves the device's current location and displays it in the Console window.
             print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
+
+            updateMyGpsLocation(Input.location.lastData);
         }
 
-        updateMyGpsLocation(Input.location.lastData);
-
+       
         // Stops the location service if there is no need to query location updates continuously.
        // Input.location.Stop();
-
 
     }
 
     public H3Index GetLastH3Index()
     {
-        if(lastH3Index == null)
-        {
-            StartLocationService();
-        }
-
+        updateMyGpsLocation(Input.location.lastData);
         return lastH3Index;
     }
 

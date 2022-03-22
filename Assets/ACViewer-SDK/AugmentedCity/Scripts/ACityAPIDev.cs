@@ -601,7 +601,7 @@ public class ACityAPIDev : MonoBehaviour
 
                 // TODO: reconstruction_id has been removed from the reply!
                 // TODO: Remove functions that check for reconstruction_id, just added a dummy value for now so it isent null
-                sessionId = "0";//jsonParse["geopose"]["reconstruction_id"];
+                sessionId = jsonParse["geopose"]["reconstruction_id"];
                 Debug.Log("sessionID: " + sessionId);
 
                 // Spatial Content Records (optional)
@@ -775,14 +775,11 @@ public class ACityAPIDev : MonoBehaviour
 
                     if (useOrbitContent)
                     {
+                        Debug.Log("Number of objects from orbit: " + objectsAmount);
+
                         objectsAmount = spatialContentManager.spatialServiceRecord.Length;
 
-                        if(objectsAmount == -1)
-                        {
-                            return;
-                        }
-
-
+                        
                         if (objectsAmount > 0)
                         {
                             currentRi.scale3dcloud = tempScale3d;

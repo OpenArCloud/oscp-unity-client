@@ -64,7 +64,7 @@ public class SCRManager : MonoBehaviour
 
         spatialServiceRecord = new SCRItem[objectAmount];
 
-       // Debug.Log(jsonResponseNode);
+        Debug.Log(jsonResponseNode);
 
         float px, py, pz, ox, oy, oz, ow;
 

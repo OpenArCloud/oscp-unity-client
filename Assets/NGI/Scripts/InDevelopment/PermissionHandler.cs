@@ -51,6 +51,7 @@ public class PermissionHandler : MonoBehaviour
 
     private void PermissionCallbacks_PermissionGranted(string obj)
     {
+ 
         Debug.Log("Permission was granted: " + obj);
         // throw new NotImplementedException();
     }

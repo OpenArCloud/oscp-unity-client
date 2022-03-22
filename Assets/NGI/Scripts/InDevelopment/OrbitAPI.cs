@@ -31,7 +31,11 @@ public class OrbitAPI : MonoBehaviour
             contentServerUrls.Add("https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff");
         }
 #endif
+
+        LoadItemsFromServer();
     }
+
+
 
 
     public void LoadItemsFromServer()
@@ -115,7 +119,7 @@ public class OrbitAPI : MonoBehaviour
         {
             // reads response body
             string apiInfoResponseText = await apiInforResponseReader.ReadToEndAsync();
-            //output("Response from scd-orbit read: " + apiInfoResponseText);
+            output("Response from scd-orbit read: " + apiInfoResponseText);
 
             ServerResponseGet?.Invoke(apiInfoResponseText);
         }

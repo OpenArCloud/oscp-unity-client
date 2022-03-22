@@ -93,6 +93,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startDevLocation()   // Test localization from Unity Editor
     {
+       // GetOrbitContent();
         Debug.Log("startDevLocalization");
         if (acapi.editorTestMode)
         {
@@ -120,12 +121,13 @@ public class GetPlaceHoldersDev : MonoBehaviour
         acapi.GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
 #endif
 
-        GetOrbitContent();
+        
     }
 
 
     public void startLocalization()
     {
+        //GetOrbitContent();
         Debug.Log("startLocalization");
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
@@ -135,7 +137,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
-        GetOrbitContent();
+       
     }
 
     //NGI addition
@@ -150,7 +152,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers)
     {
-
+        Debug.Log("Enterd showplaceholders");
         //TODO:Remove need for id paramater
         //If id is null objects is not created
         //Added this check so objects dosent get created if there are no stickers
@@ -274,9 +276,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
                                 if (string.Equals(stickers[j].spatialServiceRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
                                 {
+                                    Debug.Log("This is an assetbundle");
                                     assetbundleName = stickers[j].spatialServiceRecord.content.title; //stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
                                     Debug.Log("Assetbundle name is: " + assetbundleName);
-                                    model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
+                                    model.GetComponent<AssetLoaderNGI>().ABName = "laboratory";//assetbundleName.ToLower();
                                     model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
                                 }
                                 else
