@@ -220,19 +220,19 @@ public class SimpleMqttListner : M2MqttUnityClient
 
         if(topic.Contains("/ngi/cpu"))
         {
-            usageCPU.text = msg + " db"; 
+            usageCPU.text = msg; 
         }
         else if(topic.Contains("/ngi/users"))
         {
-            usageUsers.text = msg + " db";
+            usageUsers.text = msg;
         }
         else if (topic.Contains("/ngi/bandwidth"))
         {
-            usageBandwidth.text = msg + " db";
+            usageBandwidth.text = msg;
         }
         else if (topic.Contains("/ngi/power"))
         {
-            usagePower.text = msg + " db";
+            usagePower.text = msg;
         }
 
     }
