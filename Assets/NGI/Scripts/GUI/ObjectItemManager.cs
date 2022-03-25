@@ -59,7 +59,7 @@ public class ObjectItemManager : MonoBehaviour
 
     public void GetObjects()
     {
-        
+
         //Destroying all objects in GUI
         foreach (Transform child in contentHolder)
         {

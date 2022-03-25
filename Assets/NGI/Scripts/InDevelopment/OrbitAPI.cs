@@ -28,7 +28,7 @@ public class OrbitAPI : MonoBehaviour
         if(contentServerUrls.Count == 0)
         {
             //hardcoded test server
-            contentServerUrls.Add("https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff");
+            contentServerUrls.Add("https://scd.orbit-lab.org");
         }
 #endif
 
@@ -57,7 +57,7 @@ public class OrbitAPI : MonoBehaviour
 
 
             //TODO: Give the possibility for users to change topic
-            if (spatialRecordManager.spatialServiceRecord == null)
+            if (spatialRecordManager.spatialServiceRecord == null || spatialRecordManager.spatialServiceRecord.Length == 0)
             {
                 GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
             }
@@ -67,7 +67,32 @@ public class OrbitAPI : MonoBehaviour
 
     public void UpdateItemOnServer(SCRItem sp)
     {
+
         string recordID = sp.id;
+
+        string json = ConvertSCRtoString(sp);
+
+        string accessToken = GetAccesToken();
+
+        //TODO: Add ability to change topic. Currently hardcoded to history
+        UpdateSpatialRecord(accessToken, recordID, "history", json);
+
+    }
+
+    public void CreateSpatialRecord(SCRItem sp)
+    {
+
+        string json = ConvertSCRtoString(sp);
+
+        string accessToken = GetAccesToken();
+
+        CreateSpatialRecord(accessToken, "history", json);
+
+    }
+
+
+    public string ConvertSCRtoString(SCRItem sp)
+    {
 
         string json = JsonConvert.SerializeObject(sp,
                 new JsonSerializerSettings()
@@ -76,14 +101,11 @@ public class OrbitAPI : MonoBehaviour
 
                 });
 
-
         Debug.Log(json);
 
-        string accessToken = GetAccesToken();
-
-        UpdateSpatialRecord(accessToken, recordID, "history", json);
-
+        return json;
     }
+
 
     private string GetAccesToken()
     {
@@ -104,7 +126,8 @@ public class OrbitAPI : MonoBehaviour
 
     async void GetSpatialContentRecords(string accessToken, string topic, string H3Index)
     {
-   // https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff
+
+        // https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff
         output("Making API Call to read content...");
         //TODO: Ability to query multiple content servers not just the first in the list
         //sends the request
@@ -125,20 +148,23 @@ public class OrbitAPI : MonoBehaviour
         }
     }
 
-    async void CreateSpatialRecord(string access_token, string jsonBody)
+    async void CreateSpatialRecord(string access_token,string topic, string jsonBody)
     {
         output("Making API Call to Post content...");
 
         // Create POST data and convert it to a byte array.
-        string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
-        byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+       // string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
+       
+       
+        
+        byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
         // sends the request
-        HttpWebRequest putRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/history");
+        HttpWebRequest putRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic);
         putRequest.Method = "POST";
         putRequest.Headers.Add("Authorization", "Bearer " + access_token);
         putRequest.ContentType = "application/json";
-        putRequest.Accept = "application/json";
+        //putRequest.Accept = "application/json";
 
         putRequest.ContentLength = byteArray.Length;
         Stream stream = putRequest.GetRequestStream();

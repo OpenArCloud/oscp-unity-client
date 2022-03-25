@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Android;
+using UnityEngine.iOS;
 using UnityEngine.SceneManagement;
 
 public class PermissionHandler : MonoBehaviour

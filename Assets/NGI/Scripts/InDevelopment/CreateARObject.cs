@@ -9,6 +9,8 @@ public class CreateARObject : MonoBehaviour
 
     public GameObject[] gameobjectsAR;
 
+    [SerializeField] OrbitAPI orbitAPI;
+
     //prefab to create
 
     //last known geopose value
@@ -18,6 +20,12 @@ public class CreateARObject : MonoBehaviour
     //
 
     public GameObject arObjectToCreate;
+
+    private void Start()
+    {
+        
+    }
+
 
     public void CreateObject()
     {
@@ -37,12 +45,14 @@ public class CreateARObject : MonoBehaviour
         //call server and post new object with values
         //get response
 
-        GameObject temp = Instantiate(arObjectToCreate);
+       // GameObject temp = Instantiate(arObjectToCreate);
         //GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
-        temp.transform.position = OSCPDataHolder.Instance.lastPositon;
+       // temp.transform.position = OSCPDataHolder.Instance.lastPositon;
         // temp.transform.rotation = OSCPDataHolder.Instance.lastOrientation;
 
+        SCRItem item = CreateSCDItem();
 
+        orbitAPI.CreateSpatialRecord(item);
 
 
     }
@@ -65,6 +75,10 @@ public class CreateARObject : MonoBehaviour
         sp.content.refs = new List<Dictionary<string, string>>();
         sp.content.definitions = new List<Dictionary<string, string>>();
         sp.content.keywords = new List<string>();
+      
+        sp.type = "scr";
+        sp.tenant = "public";
+        sp.timestamp = 0;
 
         sp.content.id = "123456";
         sp.content.type = "placeholder";
@@ -75,13 +89,8 @@ public class CreateARObject : MonoBehaviour
         sp.content.geopose.longitude = OSCPDataHolder.Instance.longitude;
         sp.content.geopose.ellipsoidHeight = OSCPDataHolder.Instance.ellipsoidHeight;
 
-        sp.id = "";
-        sp.type = "scr";
-        sp.tenant = "public";
-        sp.timestamp = 0;
-
         //Dont know what these two attributes handle
-        sp.content.bbox = "";
+        sp.content.bbox = "0";
         sp.content.size = 1f;
 
 
@@ -100,20 +109,20 @@ public class CreateARObject : MonoBehaviour
 
         Dictionary<string, string> keyValuePairsDefinitions = new Dictionary<string, string>();
         keyValuePairsDefinitions.Add("type", "testkey");
-        keyValuePairsDefinitions.Add("valuev", "testvalue");
-        sp.content.refs.Add(keyValuePairsDefinitions);
+        keyValuePairsDefinitions.Add("value", "testvalue");
+        sp.content.definitions.Add(keyValuePairsDefinitions);
 
         Dictionary<string, string> keyValuePairsRefs = new Dictionary<string, string>();
-
         keyValuePairsRefs.Add("contentType", "model/gltf+json");
         keyValuePairsRefs.Add("url", "https://simplecloudstorageefded4746b7146beb038662f439a393602-staging.s3.eu-north-1.amazonaws.com/private/eu-north-1%3Af7c86f34-4d88-4140-8795-37e524ef076f/ngi/media/3d/glb/model%20%2827%29.glb");
-
-
-        sp.content.definitions.Add(keyValuePairsRefs);
+        sp.content.refs.Add(keyValuePairsRefs);
     
 
         return sp;
 
     }
+
+
+
 
 }

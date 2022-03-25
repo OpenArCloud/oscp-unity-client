@@ -225,6 +225,8 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -641,8 +643,9 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: 
-  locationUsageDescription: 
+  cameraUsageDescription: For augmented reality to work
+  locationUsageDescription: To be able to see were the device is and place augmented
+    reality content correctly
   microphoneUsageDescription: 
   bluetoothUsageDescription: 
   switchNMETAOverride: 

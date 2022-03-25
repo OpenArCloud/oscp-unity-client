@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/NGI/Scenes/HandleDevicePermission.unity
+    path: Assets/NGI/Scenes/MainScene.unity
     guid: 98e88f80b85eca749919db8bcfaebca7
   - enabled: 1
     path: Assets/NGI/Scenes/AugCityToNGI_Dev_Interaction.unity
