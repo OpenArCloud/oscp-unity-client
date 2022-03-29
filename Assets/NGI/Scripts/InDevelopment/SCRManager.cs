@@ -103,7 +103,7 @@ public class SCRManager : MonoBehaviour
             ox = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
             oy = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
             oz = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
-            ow = 1.0f;//jsonResponseNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
+            ow = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
 
             sp.content.geopose.quaternion.Add("x", ox);
             sp.content.geopose.quaternion.Add("y", oy);

@@ -93,7 +93,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startDevLocation()   // Test localization from Unity Editor
     {
-       // GetOrbitContent();
+        // GetOrbitContent();
         Debug.Log("startDevLocalization");
         if (acapi.editorTestMode)
         {
@@ -121,7 +121,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         acapi.GetH3IndexEditor(devLocationLatitude, devLocationLongitude);
 #endif
 
-        
+
     }
 
 
@@ -137,7 +137,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         ARStarted = true;
         relocationCompleted = false;
 
-       
+
     }
 
     //NGI addition
@@ -270,6 +270,9 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
 
+                                model.AddComponent<SCRItemTag>();
+
+                                model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialServiceRecord.id;
                                 //TODO: Fix so it supports more than one refs entry
                                 string assetbundleName = "noAsset";
 
@@ -277,13 +280,22 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 if (string.Equals(stickers[j].spatialServiceRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
                                 {
                                     Debug.Log("This is an assetbundle");
-                                    assetbundleName = stickers[j].spatialServiceRecord.content.title; //stickers[j].spatialServiceRecord.content.refs[0]["assetbundle"];
+
+                                    for (int i = 0; i < stickers[j].spatialServiceRecord.content.definitions.Count; i++)
+                                    {
+                                        if (string.Equals(stickers[j].spatialServiceRecord.content.definitions[0]["type"], "assetbundleName"))
+                                        {
+                                            assetbundleName = stickers[j].spatialServiceRecord.content.definitions[0]["value"];
+                                        }
+                                    }
+
                                     Debug.Log("Assetbundle name is: " + assetbundleName);
-                                    model.GetComponent<AssetLoaderNGI>().ABName = "laboratory";//assetbundleName.ToLower();
+                                    model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
                                     model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
                                 }
                                 else
                                 {
+                                    //model.GetComponent<Preloader>().enabled = false;
                                     var gltf = model.AddComponent<GLTFast.GltfAsset>();
                                     gltf.url = stickers[j].spatialServiceRecord.content.refs[0]["url"];
                                 }
@@ -308,7 +320,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                                 //Debug.Log(stickers[j].sTrajectoryPath);
 
-                                //TODO: Fic The mover scripts is always returning flying
+                                //TODO: Fix: The mover scripts is always returning flying
                                 Mover mover = model.GetComponent<Mover>();
                                 mover.setLocked(true);
                                 mover.objectId = stickers[j].objectId;
@@ -534,7 +546,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
             }
         }
     }
-
 
     public List<GameObject> GetAllStickers()
     {

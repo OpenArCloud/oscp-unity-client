@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class OrbitAPI : MonoBehaviour
@@ -79,14 +80,16 @@ public class OrbitAPI : MonoBehaviour
 
     }
 
-    public void CreateSpatialRecord(SCRItem sp)
+    public async Task<string> CreateSpatialRecord(SCRItem sp)
     {
 
         string json = ConvertSCRtoString(sp);
 
         string accessToken = GetAccesToken();
 
-        CreateSpatialRecord(accessToken, "history", json);
+       string id = await CreateSpatialRecord(accessToken, "history", json);
+
+        return id;
 
     }
 
@@ -148,7 +151,7 @@ public class OrbitAPI : MonoBehaviour
         }
     }
 
-    async void CreateSpatialRecord(string access_token,string topic, string jsonBody)
+    private async Task<string> CreateSpatialRecord(string access_token,string topic, string jsonBody)
     {
         output("Making API Call to Post content...");
 
@@ -179,12 +182,11 @@ public class OrbitAPI : MonoBehaviour
             {
                 // reads response body
                 string responseText = await reader.ReadToEndAsync();
-                Console.WriteLine(responseText);
-                //Debug.Log(responseText);
-                //converts to dictionary
-                //Dictionary<string, string> tokenEndpointDecoded = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
 
                 Debug.Log(responseText);
+
+                return responseText;
+               
                 //Debug.Log(access_token);
             }
         }
@@ -200,11 +202,13 @@ public class OrbitAPI : MonoBehaviour
                     {
                         // reads response body
                         string responseText = await reader.ReadToEndAsync();
-                        output(responseText);
+                        output(responseText);                     
                     }
                 }
             }
         }
+        return "";
+
     }
 
     async void UpdateSpatialRecord(string access_token, string itemID, string topic, string jsonBody)

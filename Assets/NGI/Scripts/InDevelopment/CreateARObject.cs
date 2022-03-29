@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CreateARObject : MonoBehaviour
 {
@@ -10,6 +11,16 @@ public class CreateARObject : MonoBehaviour
     public GameObject[] gameobjectsAR;
 
     [SerializeField] OrbitAPI orbitAPI;
+
+    [SerializeField] GameObject inputPanel;
+    [SerializeField] GameObject itemsPanel;
+
+    [SerializeField] private InputField inputTitle;
+    [SerializeField] private InputField inputDescription;
+
+    [SerializeField] string[] urls;
+
+    [SerializeField] string selectedUrl;
 
     //prefab to create
 
@@ -45,23 +56,55 @@ public class CreateARObject : MonoBehaviour
         //call server and post new object with values
         //get response
 
-       // GameObject temp = Instantiate(arObjectToCreate);
-        //GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
-       // temp.transform.position = OSCPDataHolder.Instance.lastPositon;
-        // temp.transform.rotation = OSCPDataHolder.Instance.lastOrientation;
-
         SCRItem item = CreateSCDItem();
 
-        orbitAPI.CreateSpatialRecord(item);
+        //GameObject temp = Instantiate(arObjectToCreate);
 
+        //orbitAPI.CreateSpatialRecord(item);
+        CreateObjectOnServer(item);
 
+        //Toggle active panels
+        OpenItemsPanel();
+        OpenInputPanel();
     }
 
-    public void AddObjectToList()
+    public async void CreateObjectOnServer(SCRItem item)
     {
+        string id = await orbitAPI.CreateSpatialRecord(item);
 
-        //FindObjectOfType<SCRManager>().AddSpatialRecord(CreateSCDItem());
+        if(!string.IsNullOrEmpty(id))
+        {
+             GameObject model = Instantiate(arObjectToCreate);
+
+            model.transform.position = OSCPDataHolder.Instance.lastPositon;
+            model.transform.rotation = OSCPDataHolder.Instance.lastOrientation;
+
+            var gltf = model.AddComponent<GLTFast.GltfAsset>();
+            gltf.url = selectedUrl;
+
+            model.AddComponent<SCRItemTag>();
+
+            model.GetComponent<SCRItemTag>().itemID = id;
+
+        }
+
     }
+
+    public void SelectURL(int selection)
+    {
+        selectedUrl = urls[selection];
+    }
+
+    public void OpenItemsPanel()
+    {
+        itemsPanel.SetActive(!itemsPanel.activeSelf);
+    }
+
+    public void OpenInputPanel()
+    {
+        inputPanel.SetActive(!inputPanel.activeSelf);
+    }
+
 
 
     //Test creation for test item
@@ -82,8 +125,8 @@ public class CreateARObject : MonoBehaviour
 
         sp.content.id = "123456";
         sp.content.type = "placeholder";
-        sp.content.title = "testcube";
-        sp.content.description = "This was created from the unity client";
+        sp.content.title = inputTitle.text;
+        sp.content.description = inputDescription.text;
 
         sp.content.geopose.latitude = OSCPDataHolder.Instance.latitude;
         sp.content.geopose.longitude = OSCPDataHolder.Instance.longitude;
@@ -97,10 +140,10 @@ public class CreateARObject : MonoBehaviour
         //Mock position Needs update when Visual Positioning System is working
         Quaternion tempQ = OSCPDataHolder.Instance.lastOrientation;
 
-        sp.content.geopose.quaternion.Add("x", tempQ.x);
-        sp.content.geopose.quaternion.Add("y", tempQ.y);
-        sp.content.geopose.quaternion.Add("z", tempQ.z);
-        sp.content.geopose.quaternion.Add("w", tempQ.w);
+        sp.content.geopose.quaternion.Add("x", 0); //tempQ.x);
+        sp.content.geopose.quaternion.Add("y", 0);//tempQ.y);
+        sp.content.geopose.quaternion.Add("z", 0);//tempQ.z);
+        sp.content.geopose.quaternion.Add("w", 0);//tempQ.w);
 
         sp.isAssetBundle = false;
 
@@ -114,15 +157,11 @@ public class CreateARObject : MonoBehaviour
 
         Dictionary<string, string> keyValuePairsRefs = new Dictionary<string, string>();
         keyValuePairsRefs.Add("contentType", "model/gltf+json");
-        keyValuePairsRefs.Add("url", "https://simplecloudstorageefded4746b7146beb038662f439a393602-staging.s3.eu-north-1.amazonaws.com/private/eu-north-1%3Af7c86f34-4d88-4140-8795-37e524ef076f/ngi/media/3d/glb/model%20%2827%29.glb");
+        keyValuePairsRefs.Add("url", selectedUrl);
         sp.content.refs.Add(keyValuePairsRefs);
     
-
         return sp;
 
     }
-
-
-
 
 }
