@@ -130,7 +130,9 @@ public class CreateARObject : MonoBehaviour
 
         sp.content.geopose.latitude = OSCPDataHolder.Instance.latitude;
         sp.content.geopose.longitude = OSCPDataHolder.Instance.longitude;
-        sp.content.geopose.ellipsoidHeight = OSCPDataHolder.Instance.ellipsoidHeight;
+
+        //TODO: Evil hack to get Webxr client to show models on the floor that is why we are adding -1.5 height
+        sp.content.geopose.ellipsoidHeight = OSCPDataHolder.Instance.ellipsoidHeight - 1.5;
 
         //Dont know what these two attributes handle
         sp.content.bbox = "0";
@@ -140,10 +142,10 @@ public class CreateARObject : MonoBehaviour
         //Mock position Needs update when Visual Positioning System is working
         Quaternion tempQ = OSCPDataHolder.Instance.lastOrientation;
 
-        sp.content.geopose.quaternion.Add("x", 0); //tempQ.x);
-        sp.content.geopose.quaternion.Add("y", 0);//tempQ.y);
-        sp.content.geopose.quaternion.Add("z", 0);//tempQ.z);
-        sp.content.geopose.quaternion.Add("w", 0);//tempQ.w);
+        sp.content.geopose.quaternion.Add("x", tempQ.x);
+        sp.content.geopose.quaternion.Add("y", tempQ.y);
+        sp.content.geopose.quaternion.Add("z", tempQ.z);
+        sp.content.geopose.quaternion.Add("w", tempQ.w);
 
         sp.isAssetBundle = false;
 

@@ -1145,6 +1145,10 @@ public class ACityAPIDev : MonoBehaviour
                 localizationStatus = LocalizationStatus.Ready;
                 uim.statusDebug("Localized");
                 getStickersAction(currentRi.id, zeroCoord.transform, stickers);
+
+                OSCPDataHolder.Instance.UpdateCoordinates(camLat, camLon, camHei);
+                OSCPDataHolder.Instance.UpdateLocation(newCam.transform.position, newCam.transform.rotation);
+
                 Destroy(newCam);
             }
             else
