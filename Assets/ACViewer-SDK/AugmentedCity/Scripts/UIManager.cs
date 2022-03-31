@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
     public GameObject addButton;
     public GameObject newObjButton;
     public GameObject newObject;
-
+   // public GameObject addButton;
 
     public float koefSticker;
     public float koefPin;
@@ -158,6 +158,7 @@ public class UIManager : MonoBehaviour
 
     public void Located()
     {
+        addButton.SetActive(true);
         setLowPanelButtons(true);
         setMenuButtons(true);
         setMapButtons(true);

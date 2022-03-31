@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class ARInteractionManager : MonoBehaviour
 {
 
-    [SerializeField] ARRaycastManager raycastManager;
+    [SerializeField] XRInteractionManager interactionManager;
     [SerializeField] Toggle toggle;
 
 
@@ -27,7 +28,7 @@ public class ARInteractionManager : MonoBehaviour
 
     void ToggleValueChanged(Toggle change)
     {
-        raycastManager.enabled = change.isOn;
+        interactionManager.enabled = change.isOn;
     }
 
 

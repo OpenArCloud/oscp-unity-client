@@ -97,7 +97,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         Debug.Log("startDevLocalization");
         if (acapi.editorTestMode)
         {
-            timeForRelocation = 200f;
+            timeForRelocation = 20f;
             PlayerPrefs.SetFloat("TimeForRelocation", timeForRelocation);
         }
         pastArCamCoordinates = arCamCoordinates;
@@ -158,7 +158,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         //Added this check so objects dosent get created if there are no stickers
         if (stickers != null)
         {
-            id = "1";
+            id = "0";
         }
 
         if (id != null)

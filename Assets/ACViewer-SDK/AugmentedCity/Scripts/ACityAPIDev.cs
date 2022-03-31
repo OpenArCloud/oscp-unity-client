@@ -601,7 +601,7 @@ public class ACityAPIDev : MonoBehaviour
 
                 // TODO: reconstruction_id has been removed from the reply!
                 // TODO: Remove functions that check for reconstruction_id, just added a dummy value for now so it isent null
-                sessionId = jsonParse["geopose"]["reconstruction_id"];
+                sessionId = jsonParse["id"];
                 Debug.Log("sessionID: " + sessionId);
 
                 // Spatial Content Records (optional)
@@ -620,6 +620,7 @@ public class ACityAPIDev : MonoBehaviour
                 GeoPose zeroGeoCam = new GeoPose();
 
                 RecoInfo currentRi = checkRecoID(sessionId);
+
                 if (currentRi != null)
                 {
                     zeroEcefCam = currentRi.zeroCamEcefPose;
@@ -1096,6 +1097,8 @@ public class ACityAPIDev : MonoBehaviour
                 }
                 else if (currentRi != null)
                 {
+
+
                     cameraDistance = Vector3.Magnitude(currentRi.lastCamCoordinate - new Vector3(px, py, pz));
                     tempScale3d = currentRi.scale3dcloud;
                     int savedNodeLentgh = currentRi.stickerArray.Length;
@@ -1122,6 +1125,10 @@ public class ACityAPIDev : MonoBehaviour
                         currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
                         currentRi.stickerArray[j].sRating = stickers[j].sRating;
                         currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
+
+
+
+
                     }
                     newCam.transform.position = cameraPositionInLocalization;
                     newCam.transform.eulerAngles = cameraRotationInLocalization;
@@ -1332,7 +1339,7 @@ public class ACityAPIDev : MonoBehaviour
 
         // TODO: we should not use hardcoded request_id as before
         const string requestIdExample = "9089876676575754";
-        geoposeRequestId++;
+        //geoposeRequestId++;
         string requestId = geoposeRequestId.ToString();
 
         // TODO: altitude is hardcoded to 0
