@@ -5,16 +5,13 @@ from the Augmented City company.
 
 ## Requirements
 
-Unity version 2021.1.28f1 or higher.
-Before importing the package, please do the following in the project:
+Unity version 2021.2.13f1
 
-SDK uses ARFoundation systems, so you have to install packages (Window -> Package manager):
+### Packages
 - ARFoundation 4.2.2
 - ARCore XR Plugin 4.2.2
 - ARKit XR Plugin 4.2.2
 - XR Plugin Managment 4.2.1
-
-Other Packages
 - TextMeshPro 3.0.6
 - Draco 3D Data Compression 4.0.2
 - glTFast 4.6.0
@@ -23,13 +20,13 @@ Other Packages
 - XR Interaction Toolkit Pre-Release 1.0.0-pre.8
 - Newtonsoft Json 2.0.2
 
-Set project settings for Android and ARcore:
+#### Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true
-- Minimum API Level: Android 8.0
+- Minimum API Level: Android 10.0
 - Target Architectures - ARM64
 - Delete VulcanAPI from Graphics API (ARCore doesn’t support).
 
-Set project settings for iOS and ARKit:
+#### Set project settings for iOS and ARKit:
 - Allow 'unsafe' Code - true
 - other settings standard for ARKit with Unity.
 
