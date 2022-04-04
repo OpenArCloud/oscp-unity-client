@@ -294,8 +294,8 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                     model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
                                 }
                                 else
-                                {
-                                    //model.GetComponent<Preloader>().enabled = false;
+                                {  
+                                    model.GetComponent<AssetLoaderNGI>().enabled = false;
                                     var gltf = model.AddComponent<GLTFast.GltfAsset>();
                                     gltf.url = stickers[j].spatialServiceRecord.content.refs[0]["url"];
                                 }
@@ -486,7 +486,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                 tempBiasVector.transform.SetParent(tempScaler.transform);
                 tempScaler.transform.localScale = scaleParentTransform.localScale;
 
-                Translocation(placeHolderParent, tempBiasVector.transform, animationTime);
+                //Translocation(placeHolderParent, tempBiasVector.transform, animationTime);
                 Destroy(tempScaler);
                 Destroy(tempBiasVector);
             }

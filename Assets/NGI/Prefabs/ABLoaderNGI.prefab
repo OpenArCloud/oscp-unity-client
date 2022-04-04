@@ -109,7 +109,6 @@ GameObject:
   - component: {fileID: 5754662973588068671}
   - component: {fileID: 8136109002150631281}
   - component: {fileID: 7288515964192991645}
-  - component: {fileID: 220425457171883142}
   m_Layer: 8
   m_Name: SelectionVisualization
   m_TagString: Untagged
@@ -124,13 +123,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1421071537944692795}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.502, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4477341481675703656}
-  m_RootOrder: 7
+  m_Father: {fileID: 3092011427931133792}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8136109002150631281
 MeshFilter:
@@ -182,19 +181,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &220425457171883142
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1421071537944692795}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2, z: 1.2}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2268162691025997130
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,9 +317,8 @@ Transform:
   - {fileID: 8796992206454792309}
   - {fileID: 3001824604312523887}
   - {fileID: 7210428582863441001}
-  - {fileID: 5754662973588068671}
   m_Father: {fileID: 3092011427931133792}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1110491911844671695
 MeshFilter:
@@ -513,6 +498,7 @@ GameObject:
   - component: {fileID: 4681456361846871698}
   - component: {fileID: 5855541916425471649}
   - component: {fileID: 5867344968124156845}
+  - component: {fileID: 2760489081229102557}
   m_Layer: 8
   m_Name: ABLoaderNGI
   m_TagString: Untagged
@@ -532,6 +518,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5754662973588068671}
   - {fileID: 4477341481675703656}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -548,7 +535,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.49493814, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &2768872531565739139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -631,10 +618,34 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2760489081229102557}
+        m_TargetAssemblyTypeName: ARInteraction, Assembly-CSharp
+        m_MethodName: ItemSelected
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2760489081229102557}
+        m_TargetAssemblyTypeName: ARInteraction, Assembly-CSharp
+        m_MethodName: ItemExited
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_Activated:
     m_PersistentCalls:
       m_Calls: []
@@ -702,10 +713,34 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_Activated:
     m_PersistentCalls:
       m_Calls: []
@@ -741,7 +776,7 @@ MonoBehaviour:
       m_Calls: []
   m_ARSessionOrigin: {fileID: 0}
   m_ObjectGestureTranslationMode: 0
-  m_MaxTranslationDistance: 10
+  m_MaxTranslationDistance: 100
   m_FallbackLayerMask:
     serializedVersion: 2
     m_Bits: 0
@@ -815,8 +850,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ARSessionOrigin: {fileID: 0}
-  m_MinScale: 0.75
-  m_MaxScale: 1.75
+  m_MinScale: 0.5
+  m_MaxScale: 2
   m_ElasticRatioLimit: 0
   m_Sensitivity: 0.75
   m_Elasticity: 0.15
@@ -892,6 +927,18 @@ MonoBehaviour:
   m_ARSessionOrigin: {fileID: 0}
   m_RotationRateDegreesDrag: 100
   m_RotationRateDegreesTwist: 2.5
+--- !u!114 &2760489081229102557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5134400709888703073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f12f4f3b8e9934b49a9decd5961a78ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5633847103519255745
 GameObject:
   m_ObjectHideFlags: 0
@@ -1106,7 +1153,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7210428581971997426
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1200,7 +1247,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7210428582727640636
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1279,7 +1326,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7210428582863441001
 RectTransform:
   m_ObjectHideFlags: 0

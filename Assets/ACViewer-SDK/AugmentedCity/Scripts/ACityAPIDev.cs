@@ -1154,7 +1154,7 @@ public class ACityAPIDev : MonoBehaviour
                 getStickersAction(currentRi.id, zeroCoord.transform, stickers);
 
                 OSCPDataHolder.Instance.UpdateCoordinates(camLat, camLon, camHei);
-                OSCPDataHolder.Instance.UpdateLocation(newCam.transform.position, newCam.transform.rotation);
+                OSCPDataHolder.Instance.UpdateLocation(ARCamera.transform.position, ARCamera.transform.rotation);
 
                 Destroy(newCam);
             }

@@ -26,7 +26,7 @@ public class OrbitAPI : MonoBehaviour
         contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
 
 #if UNITY_EDITOR
-        if(contentServerUrls.Count == 0)
+        if (contentServerUrls.Count == 0)
         {
             //hardcoded test server
             contentServerUrls.Add("https://scd.orbit-lab.org");
@@ -43,7 +43,7 @@ public class OrbitAPI : MonoBehaviour
     {
         if (isLoadingFromLocalStorage)
         {
-            
+
             spatialRecordManager.LoadFromJsonFile();
         }
         else
@@ -66,7 +66,7 @@ public class OrbitAPI : MonoBehaviour
 
     }
 
-    public void UpdateItemOnServer(SCRItem sp)
+    public void UpdateRecord(SCRItem sp)
     {
 
         string recordID = sp.id;
@@ -80,19 +80,29 @@ public class OrbitAPI : MonoBehaviour
 
     }
 
-    public async Task<string> CreateSpatialRecord(SCRItem sp)
+    public async Task<string> CreateRecord(SCRItem sp)
     {
 
         string json = ConvertSCRtoString(sp);
 
         string accessToken = GetAccesToken();
 
-       string id = await CreateSpatialRecord(accessToken, "history", json);
+        string id = await CreateSpatialRecord(accessToken, "history", json);
 
         return id;
 
     }
 
+    public async Task<bool> DeleteRecord(string itemID)
+    {
+    
+        string accessToken = GetAccesToken();
+
+        bool isDeleted = await DeleteSpatialRecord(accessToken, itemID, "history");
+
+        return isDeleted;
+
+    }
 
     public string ConvertSCRtoString(SCRItem sp)
     {
@@ -134,13 +144,13 @@ public class OrbitAPI : MonoBehaviour
         output("Making API Call to read content...");
         //TODO: Ability to query multiple content servers not just the first in the list
         //sends the request
-        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] +"/scrs/" + topic + "?h3Index=" + H3Index);
-        apiInforequest.Method = "GET";
-        apiInforequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
-        apiInforequest.ContentType = "application/x-www-form-urlencoded";
+        HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic + "?h3Index=" + H3Index);
+        getRequest.Method = "GET";
+        getRequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
+        getRequest.ContentType = "application/x-www-form-urlencoded";
 
         // gets the response
-        WebResponse apiResponse = await apiInforequest.GetResponseAsync();
+        WebResponse apiResponse = await getRequest.GetResponseAsync();
         using (StreamReader apiInforResponseReader = new StreamReader(apiResponse.GetResponseStream()))
         {
             // reads response body
@@ -151,33 +161,33 @@ public class OrbitAPI : MonoBehaviour
         }
     }
 
-    private async Task<string> CreateSpatialRecord(string access_token,string topic, string jsonBody)
+    private async Task<string> CreateSpatialRecord(string access_token, string topic, string jsonBody)
     {
         output("Making API Call to Post content...");
 
         // Create POST data and convert it to a byte array.
-       // string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
-       
-       
-        
+        // string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
+
+
+
         byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
         // sends the request
-        HttpWebRequest putRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic);
-        putRequest.Method = "POST";
-        putRequest.Headers.Add("Authorization", "Bearer " + access_token);
-        putRequest.ContentType = "application/json";
+        HttpWebRequest postRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic);
+        postRequest.Method = "POST";
+        postRequest.Headers.Add("Authorization", "Bearer " + access_token);
+        postRequest.ContentType = "application/json";
         //putRequest.Accept = "application/json";
 
-        putRequest.ContentLength = byteArray.Length;
-        Stream stream = putRequest.GetRequestStream();
+        postRequest.ContentLength = byteArray.Length;
+        Stream stream = postRequest.GetRequestStream();
         await stream.WriteAsync(byteArray, 0, byteArray.Length);
         stream.Close();
 
         try
         {
             // gets the response
-            WebResponse putResponse = await putRequest.GetResponseAsync();
+            WebResponse putResponse = await postRequest.GetResponseAsync();
             using (StreamReader reader = new StreamReader(putResponse.GetResponseStream()))
             {
                 // reads response body
@@ -186,7 +196,7 @@ public class OrbitAPI : MonoBehaviour
                 Debug.Log(responseText);
 
                 return responseText;
-               
+
                 //Debug.Log(access_token);
             }
         }
@@ -202,7 +212,7 @@ public class OrbitAPI : MonoBehaviour
                     {
                         // reads response body
                         string responseText = await reader.ReadToEndAsync();
-                        output(responseText);                     
+                        output(responseText);
                     }
                 }
             }
@@ -268,32 +278,28 @@ public class OrbitAPI : MonoBehaviour
         }
     }
 
-    async void DeleteSpatialRecord(string access_token, string itemID, string jsonBody)
+    async Task<bool> DeleteSpatialRecord(string access_token, string itemID, string topic)
     {
         output("Making API Call to delete item...");
 
-        // Create POST data and convert it to a byte array.
-        string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
-        byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-
-
         // sends the request
-        HttpWebRequest putRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/history/" + itemID);
-        putRequest.Method = "DELETE";
-        putRequest.Headers.Add("Authorization", "Bearer " + access_token);
+        HttpWebRequest deleteRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);
+        deleteRequest.Method = "DELETE";
+        deleteRequest.Headers.Add("Authorization", "Bearer " + access_token);
 
+        //TODO fix server. It always returns a 504 timed out but record is still deleted
         try
         {
             // gets the response
-            WebResponse putResponse = await putRequest.GetResponseAsync();
-            using (StreamReader reader = new StreamReader(putResponse.GetResponseStream()))
+            WebResponse deleteResponse = await deleteRequest.GetResponseAsync();          
+            using (StreamReader reader = new StreamReader(deleteResponse.GetResponseStream()))
             {
                 // reads response body
                 string responseText = await reader.ReadToEndAsync();
                 Console.WriteLine(responseText);
 
                 Debug.Log(responseText);
-
+                return true;
             }
         }
         catch (WebException ex)
@@ -309,9 +315,11 @@ public class OrbitAPI : MonoBehaviour
                         // reads response body
                         string responseText = await reader.ReadToEndAsync();
                         output(responseText);
+                        
                     }
                 }
             }
+            return false;
         }
     }
     #endregion

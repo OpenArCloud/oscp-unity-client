@@ -8,8 +8,7 @@ using UnityEngine.UI;
 public class CreateARObject : MonoBehaviour
 {
 
-    public GameObject[] gameobjectsAR;
-
+  
     [SerializeField] OrbitAPI orbitAPI;
 
     [SerializeField] GameObject inputPanel;
@@ -19,23 +18,11 @@ public class CreateARObject : MonoBehaviour
     [SerializeField] private InputField inputDescription;
 
     [SerializeField] string[] urls;
-
     [SerializeField] string selectedUrl;
 
-    //prefab to create
 
-    //last known geopose value
+    public GameObject prefabToInstantiate;
 
-    //server to connect to
-
-    //
-
-    public GameObject arObjectToCreate;
-
-    private void Start()
-    {
-        
-    }
 
 
     public void CreateObject()
@@ -48,13 +35,6 @@ public class CreateARObject : MonoBehaviour
         //-we create a geopose entry which is the lastGlobalPose (for now.Later we must add the difference between lastLocalPose and currentLocalPose.Finally, we must also add on top of this the raycast hitpoint pose with respect to currentLocalPose).
         //- we place the model's URL into an SCR, we fill in the geopose, and call POST (not much difference from the update PUT, I believe)
 
-
-        //get position / geopose
-
-        //instantiate 
-
-        //call server and post new object with values
-        //get response
 
         SCRItem item = CreateSCDItem();
 
@@ -70,14 +50,14 @@ public class CreateARObject : MonoBehaviour
 
     public async void CreateObjectOnServer(SCRItem item)
     {
-        string id = await orbitAPI.CreateSpatialRecord(item);
+        string id = await orbitAPI.CreateRecord(item);
 
-        if(!string.IsNullOrEmpty(id))
+        if (!string.IsNullOrEmpty(id))
         {
-             GameObject model = Instantiate(arObjectToCreate);
+            GameObject model = Instantiate(prefabToInstantiate);
 
             model.transform.position = OSCPDataHolder.Instance.lastPositon;
-            model.transform.rotation = OSCPDataHolder.Instance.lastOrientation;
+            model.transform.rotation = new Quaternion(0, 0, 0, 1); //OSCPDataHolder.Instance.lastOrientation;
 
             var gltf = model.AddComponent<GLTFast.GltfAsset>();
             gltf.url = selectedUrl;
@@ -107,7 +87,7 @@ public class CreateARObject : MonoBehaviour
 
 
 
-    //Test creation for test item
+    //TODO: SET correct values for created item
     public SCRItem CreateSCDItem()
     {
         SCRItem sp = new SCRItem();
@@ -118,12 +98,12 @@ public class CreateARObject : MonoBehaviour
         sp.content.refs = new List<Dictionary<string, string>>();
         sp.content.definitions = new List<Dictionary<string, string>>();
         sp.content.keywords = new List<string>();
-      
+
         sp.type = "scr";
         sp.tenant = "public";
         sp.timestamp = 0;
 
-        sp.content.id = "123456";
+        sp.content.id = inputTitle.text;
         sp.content.type = "placeholder";
         sp.content.title = inputTitle.text;
         sp.content.description = inputDescription.text;
@@ -132,6 +112,7 @@ public class CreateARObject : MonoBehaviour
         sp.content.geopose.longitude = OSCPDataHolder.Instance.longitude;
 
         //TODO: Evil hack to get Webxr client to show models on the floor that is why we are adding - 1.5 height
+        //If Landed = false in Mover.sc on ABLoaderNGI prefab item will use the height from server. 
         sp.content.geopose.ellipsoidHeight = OSCPDataHolder.Instance.ellipsoidHeight - 1.5;
 
         //Dont know what these two attributes handle
@@ -161,7 +142,7 @@ public class CreateARObject : MonoBehaviour
         keyValuePairsRefs.Add("contentType", "model/gltf+json");
         keyValuePairsRefs.Add("url", selectedUrl);
         sp.content.refs.Add(keyValuePairsRefs);
-    
+
         return sp;
 
     }

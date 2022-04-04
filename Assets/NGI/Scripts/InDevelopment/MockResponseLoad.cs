@@ -168,7 +168,7 @@ public class MockResponseLoad : MonoBehaviour
                 spatialServiceRecord[i] = sp;
                 Debug.Log(string.Format("Updated ObjectID: {0}", spatialServiceRecord[i].id));
 
-                orbitAPI.UpdateItemOnServer(sp);
+                orbitAPI.UpdateRecord(sp);
 
                 return;
             }
