@@ -151,7 +151,7 @@ public class ACityAPIDev : MonoBehaviour
     bool startedLocalization;
     bool configurationSetted;
     bool GPSlocation;
-    string apiURL = ServerAPI;
+    string apiURL;
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
 

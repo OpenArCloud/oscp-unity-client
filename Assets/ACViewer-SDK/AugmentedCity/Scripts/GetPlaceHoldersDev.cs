@@ -510,24 +510,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
         }
     }
 
-    /*
-    public void set3dToLocal(string id, string name, Vector3 coords, Quaternion orientation)
-    {
-        PlayerPrefs.SetString(id, name);
-        PlayerPrefs.SetFloat(id + "coordx", coords.x);
-        PlayerPrefs.SetFloat(id + "coordy", coords.y);
-        PlayerPrefs.SetFloat(id + "coordz", coords.z);
-        PlayerPrefs.SetFloat(id + "orix", orientation.x);
-        PlayerPrefs.SetFloat(id + "oriy", orientation.y);
-        PlayerPrefs.SetFloat(id + "oriz", orientation.z);
-        PlayerPrefs.SetFloat(id + "oriw", orientation.w);
-        PlayerPrefs.Save();
-        Debug.Log("saved pos = " + coords + ", ori = " + orientation);
-    }*/
-
-    }
-
-
     public string getCurrentRecoId() {
         return lastLocalizedRecoId;
     }
