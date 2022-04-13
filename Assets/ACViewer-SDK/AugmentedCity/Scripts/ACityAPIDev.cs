@@ -137,6 +137,7 @@ public class ACityAPIDev : MonoBehaviour
     public bool useOSCP;
     public bool ecef;
     public bool useGeopose;
+    UnityPose oldUPose;
 
     ScreenOrientation ori;
 
@@ -538,9 +539,9 @@ public class ACityAPIDev : MonoBehaviour
         {
             if (jsonParse["geopose"] != null)
             {
-                sessionId = jsonParse["geopose"]["reconstruction_id"];
-
-                Debug.Log("sessioID: " + sessionId);
+                sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
+                string debugSessionId = jsonParse["geopose"]["reconstruction_id"];
+                Debug.Log("sessioID: " + debugSessionId);
                 do
                 {
                     objectsAmount++;
@@ -554,6 +555,7 @@ public class ACityAPIDev : MonoBehaviour
                 px = 0; py = 0; pz = 0; // reset position initially
                 EcefPose zeroEcefCam = new EcefPose();
                 GeoPose  zeroGeoCam  = new GeoPose();
+                bool newGeoPose = false;  // flag whether we use geopose standard 1.0 with fields lat/lon/h at the position section
 
                 RecoInfo currentRi = checkRecoID(sessionId);
                 if (currentRi != null)
@@ -576,23 +578,47 @@ public class ACityAPIDev : MonoBehaviour
                         zeroEcefCam.x = px0;
                         zeroEcefCam.y = py0;
                         zeroEcefCam.z = pz0;
-                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, debugSessionId);
                     }
                     else
                     {
                         px = (float)(px0 - zeroEcefCam.x);
                         py = (float)(py0 - zeroEcefCam.y);
                         pz = (float)(pz0 - zeroEcefCam.z);
-                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                     }
                     //Debug.Log("ecef.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
                 }
                 else if (useGeopose)
                 {
-                    camLat = jsonParse["geopose"]["pose"]["latitude"].AsDouble;
-                    camLon = jsonParse["geopose"]["pose"]["longitude"].AsDouble;
-                    camHei = jsonParse["geopose"]["pose"]["ellipsoidHeight"].AsDouble;
-                    Debug.Log("Cam GEO - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
+                    string checkNewGeo = jsonParse["geopose"]["geopose"]["position"]["lat"];
+                    if (!string.IsNullOrEmpty(checkNewGeo)) { newGeoPose = true; }
+
+                    if (newGeoPose)
+                    {
+                        camLat = jsonParse["geopose"]["geopose"]["position"]["lat"].AsDouble;
+                        camLon = jsonParse["geopose"]["geopose"]["position"]["lon"].AsDouble;
+                        camHei = jsonParse["geopose"]["geopose"]["position"]["h"].AsDouble;
+                        Debug.Log("Cam GEO_v10 - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
+
+                        ox = jsonParse["geopose"]["geopose"]["quaternion"]["x"].AsFloat;
+                        oy = jsonParse["geopose"]["geopose"]["quaternion"]["y"].AsFloat;
+                        oz = jsonParse["geopose"]["geopose"]["quaternion"]["z"].AsFloat;
+                        ow = jsonParse["geopose"]["geopose"]["quaternion"]["w"].AsFloat;
+                    }
+                    else
+                    {
+                        camLat = jsonParse["geopose"]["pose"]["latitude"].AsDouble;
+                        camLon = jsonParse["geopose"]["pose"]["longitude"].AsDouble;
+                        camHei = jsonParse["geopose"]["pose"]["ellipsoidHeight"].AsDouble;
+                        Debug.Log("Cam GEO_v01 - lat = " + camLat + ", lon = " + camLon + ", ellH = " + camHei);
+
+                        ox = jsonParse["geopose"]["pose"]["quaternion"]["x"].AsFloat;
+                        oy = jsonParse["geopose"]["pose"]["quaternion"]["y"].AsFloat;
+                        oz = jsonParse["geopose"]["pose"]["quaternion"]["z"].AsFloat;
+                        ow = jsonParse["geopose"]["pose"]["quaternion"]["w"].AsFloat;
+                    }
+
                     if (currentRi == null)
                     {
                         zeroGeoCam.lat = camLat;
@@ -609,15 +635,11 @@ public class ACityAPIDev : MonoBehaviour
                     px = enupose.x;
                     py = enupose.y;
                     pz = enupose.z;
-                    ox = jsonParse["geopose"]["pose"]["quaternion"]["x"].AsFloat;
-                    oy = jsonParse["geopose"]["pose"]["quaternion"]["y"].AsFloat;
-                    oz = jsonParse["geopose"]["pose"]["quaternion"]["z"].AsFloat;
-                    ow = jsonParse["geopose"]["pose"]["quaternion"]["w"].AsFloat;
                     Debug.Log("geo.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
                     if (currentRi == null)
-                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, debugSessionId);
                     else
-                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                 }
                 else
                 {
@@ -628,11 +650,16 @@ public class ACityAPIDev : MonoBehaviour
                     oy = jsonParse["geopose"]["localPose"]["orientation"]["y"].AsFloat;
                     oz = jsonParse["geopose"]["localPose"]["orientation"]["z"].AsFloat;
                     ow = jsonParse["geopose"]["localPose"]["orientation"]["w"].AsFloat;
-                    uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                    uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                 }
 
                 GameObject newCam = new GameObject("tempCam");
                 UnityPose uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
+                if (oldUPose != null) 
+                {
+                    Debug.Log("DbGL: " + (uPose.pos - oldUPose.pos).magnitude);
+                }
+                oldUPose = uPose;
                 newCam.transform.localPosition = uPose.pos;
                 newCam.transform.localRotation = uPose.ori;
 
@@ -644,7 +671,10 @@ public class ACityAPIDev : MonoBehaviour
                 {
                     uPose.SetCameraOriFromGeoPose(newCam);  // Add additional 2 rotations for camera
                 }
-                Debug.Log("newCam.transform.locPos pos= " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
+                Debug.Log("newCam.transform.locPos pos= "
+                    + newCam.transform.localPosition.x + ", "
+                    + newCam.transform.localPosition.y + ", "
+                    + newCam.transform.localPosition.z);
                 Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
 
                 GameObject zeroCoord = new GameObject("Zero");
@@ -689,9 +719,18 @@ public class ACityAPIDev : MonoBehaviour
                             else if (useGeopose)
                             {
                                 double tlat, tlon, thei;
-                                tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
-                                tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
-                                thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                if (newGeoPose)
+                                {
+                                    tlat = jsonParse["scrs"][j]["content"]["geopose"]["position"]["lat"].AsDouble;
+                                    tlon = jsonParse["scrs"][j]["content"]["geopose"]["position"]["lon"].AsDouble;
+                                    thei = jsonParse["scrs"][j]["content"]["geopose"]["position"]["h"].AsDouble;
+                                }
+                                else
+                                {
+                                    tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
+                                    tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
+                                    thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                }
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                 Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
@@ -736,10 +775,10 @@ public class ACityAPIDev : MonoBehaviour
                             stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
                             stickers[j].orientations  = currentRi.stickerArray[j].orientations;
 
-                            /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
-                               Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+                            /* Debug.Log("!!! currentRi.stickerArray[" + j + "].orientations x " + currentRi.stickerArray[j].orientations.x + " " + stickers[j].orientations.x);
+                               Debug.Log("!!! currentRi.stickerArray[" + j + "].orientations y " + currentRi.stickerArray[j].orientations.y + " " + stickers[j].orientations.y);
+                               Debug.Log("!!! currentRi.stickerArray[" + j + "].orientations z " + currentRi.stickerArray[j].orientations.z + " " + stickers[j].orientations.z);
+                               Debug.Log("!!! currentRi.stickerArray[" + j + "].orientations w " + currentRi.stickerArray[j].orientations.w + " " + stickers[j].orientations.w);
                             */
                             for (int i = 0; i < 4; i++)
                             {
@@ -887,11 +926,15 @@ public class ACityAPIDev : MonoBehaviour
         if (!configurationSetted) SetCameraConfiguration();
         getStickersAction = getStickers;
 
-        if (!GPSlocation)
+        StartCoroutine(Locate(firstLocalization));
+
+        /*if (!GPSlocation) //FixMe: ???
         {
             StartCoroutine(Locate(firstLocalization));
         }
-        else firstLocalization(latitude, longitude, hdop, null, null);
+        else {
+            firstLocalization(latitude, longitude, hdop, null, null);
+        }*/
     }
 
     public void firstLocalization(float langitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
