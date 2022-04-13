@@ -121,7 +121,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     public bool editorTestMode;
-    public string ServerAPI = "http://developer.augmented.city";
+    public string ServerAPI = "https://developer.augmented.city";
     public GameObject devButton;
 
     public TextAsset bb;
@@ -133,7 +133,7 @@ public class ACityAPIDev : MonoBehaviour
     float longitude, latitude, hdop;
     public float tempScale3d;
     public float globalTimer;
-    float serverTimer;
+    float serverTimer = 0;
     public bool useOSCP;
     public bool ecef;
     public bool useGeopose;
@@ -151,7 +151,7 @@ public class ACityAPIDev : MonoBehaviour
     bool startedLocalization;
     bool configurationSetted;
     bool GPSlocation;
-    string apiURL = "http://developer.augmented.city";
+    string apiURL;
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
 
@@ -161,7 +161,7 @@ public class ACityAPIDev : MonoBehaviour
     void Start()
     {
         // PlayerPrefs.DeleteAll();
-        //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?
+        UnityWebRequest.ClearCookieCache(); //FixMe: ACV has commented this, why?
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
         m_CameraManager = Camera.main.GetComponent<ARCameraManager>();
@@ -180,7 +180,9 @@ public class ACityAPIDev : MonoBehaviour
 #if UNITY_EDITOR 
         editorTestMode = true;
         devButton.SetActive(true);
-        AudioListener.volume = 0;
+        AudioListener.volume = 0.1f;  // app controls an audio
+#else
+    editorTestMode = false;
 #endif
         StartCoroutine(GetTimerC());
         Input.location.Start();
@@ -962,9 +964,7 @@ public class ACityAPIDev : MonoBehaviour
         cameraPositionInLocalization = ARCamera.transform.position;
         if (bjpg != null)
         {
-            if (PlayerPrefs.HasKey("ApiUrl")) {
-                apiURL = PlayerPrefs.GetString("ApiUrl");
-            }
+            Debug.Log($"ACityAPIDev::firstLocalization has apiURL = {apiURL}");
             uploadFrame(bjpg, apiURL, langitude, latitude, hdop, camLocalize);
         }
     }
@@ -1005,7 +1005,7 @@ public class ACityAPIDev : MonoBehaviour
     {
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         //  byte[] bytes = File.ReadAllBytes(filePath);
-        Debug.Log("bytes length = " + bytes.Length);
+        Debug.Log("nBytes: " + bytes.Length);
         rotationDevice = "90";
         if (!editorTestMode)
         {
@@ -1047,7 +1047,7 @@ public class ACityAPIDev : MonoBehaviour
         string sid = null;
         if (jsonParse["camera"] != null)
         {
-            sid = jsonParse["reconstruction_id"];
+            sid = jsonParse["reconstruction_id"];   //FixMe: can be null?
             Debug.Log("answer: rec-id:" + sid);
         }
         tempScale3d = 1;
@@ -1059,7 +1059,7 @@ public class ACityAPIDev : MonoBehaviour
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         Debug.Log("bytes length = " + bytes.Length);
         List<IMultipartFormSection> form = new List<IMultipartFormSection>();
-        rotationDevice = "90";
+        rotationDevice = "0";
         if (!editorTestMode)
         {
             rotationDevice = "270";  // Default value
@@ -1071,8 +1071,10 @@ public class ACityAPIDev : MonoBehaviour
         Debug.Log("" + jsona);
         form.Add(new MultipartFormFileSection("image", bytes, "test.jpg", "image/jpeg"));
         form.Add(new MultipartFormDataSection("description", jsona));
+
         byte[] boundary = UnityWebRequest.GenerateBoundary();
-        Debug.Log(apiURL + "/api/localizer/localize");
+        string targetURL = apiURL + "/api/localizer/localize";
+        Debug.Log(targetURL);
         var w = UnityWebRequest.Post(apiURL + "/api/localizer/localize", form, boundary);
       //w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");  //FixMe: commented in aco3d???
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
@@ -1084,7 +1086,8 @@ public class ACityAPIDev : MonoBehaviour
         yield return w.SendWebRequest();
         if (w.isNetworkError || w.isHttpError)
         {
-            Debug.Log(w.error); localizationStatus = LocalizationStatus.ServerError;
+            Debug.Log($"UploadJPGwithGPS: error on connection to {targetURL} error:'{w.error}' "); 
+            localizationStatus = LocalizationStatus.ServerError;
         }
         else
         {
@@ -1112,15 +1115,21 @@ public class ACityAPIDev : MonoBehaviour
         }
     }
 
-    IEnumerator prepareC (float langitude, float latitude, Action<bool, string> getServerAnswer)
+    IEnumerator prepareC(float langitude, float latitude, Action<bool, string> getServerAnswer)
     {
-        // Example: http://developer.augmented.city:5000/api/localizer/prepare?lat=59.907458f&lon=30.298400f 
-        Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + langitude + "f");
-        var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + langitude + "f");
+        // Example: https://developer.augmented.city/api/localizer/prepare?lat=59.907458f&lon=30.298400f
+        //
+        string req = apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + langitude + "f";
+        Debug.Log(req);
+        var w = UnityWebRequest.Get(req);
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
+
         yield return w.SendWebRequest();
-        if (w.isNetworkError || w.isHttpError) { Debug.Log(w.error); localizationStatus = LocalizationStatus.ServerError;
+        if (w.isNetworkError || w.isHttpError)
+        {
+            Debug.Log(w.error);
+            localizationStatus = LocalizationStatus.ServerError;
             getServerAnswer(false, w.downloadHandler.text);
         }
         else
@@ -1180,7 +1189,7 @@ public class ACityAPIDev : MonoBehaviour
                                    + Input.location.lastData.timestamp);
             getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
             GPSlocation = true;
-            longitude  = Input.location.lastData.longitude;
+            longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
             latitude   = Input.location.lastData.latitude;
             hdop       = Input.location.lastData.horizontalAccuracy;
             uim.statusDebug("Located GPS");
@@ -1211,7 +1220,9 @@ public class ACityAPIDev : MonoBehaviour
 
     IEnumerator GetTimerC()
     {
-        var sw = UnityWebRequest.Get("http://developer.augmented.city/api/v2/server_timestamp");
+        string req = apiURL + "/api/v2/server_timestamp";
+        var sw = UnityWebRequest.Get(req);
+        Debug.Log("GetTimerC: getting " + req);
         yield return sw.SendWebRequest();
         if (sw.isNetworkError || sw.isHttpError)
         {
@@ -1221,7 +1232,9 @@ public class ACityAPIDev : MonoBehaviour
         {
             Debug.Log("timer loaded");
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-            double timer = double.Parse(sw.downloadHandler.text);
+            double timer = 0;
+
+            double.TryParse((sw?.downloadHandler?.text)??"0",out timer);
             Debug.Log("Timer = " + timer);
             SetTimer(timer);
         }

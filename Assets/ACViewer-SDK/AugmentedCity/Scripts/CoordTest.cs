@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Outdated and not used anymore, candidate to delete at all
+/// </summary>
 public class CoordTest : MonoBehaviour
 {
     Transform camARTrans;
@@ -26,8 +29,10 @@ public class CoordTest : MonoBehaviour
                 textInputServerPlaceholder.text = PlayerPrefs.GetString("ApiUrl");
             }
         }
-        else {
-            toggles[0].isOn = true;
+        else 
+        {
+            if(toggles[0] != null)
+                toggles[0].isOn = true;
         }
     }
 
@@ -43,9 +48,9 @@ public class CoordTest : MonoBehaviour
     {
         if (tt.text.Length > 6)
         {
-            Debug.Log("Serv  = " + tt.text);
+            Debug.Log("New Server addr = " + tt.text);
             PlayerPrefs.SetString("ApiUrl", tt.text);
-            GetComponent<ACityAPIDev>().setApiURL(tt.text);
+            //GetComponent<ACityAPIDev>().setApiURL(tt.text);
         }
     }
 
