@@ -5,13 +5,13 @@ from the Augmented City company.
 
 ## Requirements
 
-Unity version 2019.2.11 or higher.
+Unity version 2021.1.19f or higher.
 Before importing the package, please do the following in the project:
 
 SDK uses ARFoundation systems, so you have to install packages (Window -> Package manager):
-- ARFoundation 2.1.4
-- ARCore XR Plugin 2.1.1
-- ARKit XR Plugin 2.1.2
+- ARFoundation 4.1.9
+- ARCore XR Plugin 4.1.9
+- ARKit XR Plugin 4.1.9
 
 Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true
