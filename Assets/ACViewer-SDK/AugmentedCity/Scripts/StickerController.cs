@@ -80,7 +80,8 @@ public class StickerController : MonoBehaviour
         }
     }
 
-    void SetScaling(float distanceToCamera) {
+    void SetScaling(float distanceToCamera)
+    {
         pins.transform.localScale = startPinScale;
         /*
         float difScaling = koefPin * (distanceToCamera - distanceToPinScalingMin);
@@ -101,8 +102,8 @@ public class StickerController : MonoBehaviour
 
     public void buttonPressed()
     {
-        activate(true);
         uim.SetStickerPanel(stickerInfo, activate);
+        activate(true);
     }
 
     IEnumerator setScale()
