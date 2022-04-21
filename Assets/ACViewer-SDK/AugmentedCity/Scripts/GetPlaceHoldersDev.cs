@@ -173,13 +173,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
     void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers)
     {
         Debug.Log("Enterd showplaceholders");
-        //TODO:Remove need for id paramater
-        //If id is null objects is not created
-        //Added this check so objects dosent get created if there are no stickers
-        if (stickers != null)
-        {
-            id = "0";
-        }
 
         if (id != null)
         {

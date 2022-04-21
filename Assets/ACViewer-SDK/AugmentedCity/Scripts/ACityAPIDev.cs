@@ -194,7 +194,7 @@ public class ACityAPIDev : MonoBehaviour
             spatialContentManager = FindObjectOfType<SCRManager>();
         }
 
-        defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
+       // defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
 
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
         // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.
@@ -1212,10 +1212,7 @@ public class ACityAPIDev : MonoBehaviour
 
         getStickersAction = getStickers;
 
-        if (!hasGpsLocation)
-        StartCoroutine(Locate(firstLocalization));
-
-        /*if (!GPSlocation) //FixMe: ???
+        if (!hasGpsLocation) //FixMe: ???
         {
             // determine the coarse (GPS) location first, and then query the VPS
             System.Action onFinishedAction = new System.Action(() => {
@@ -1229,9 +1226,7 @@ public class ACityAPIDev : MonoBehaviour
             // go directly to VPS
             firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
         }
-        else {
-            firstLocalization(latitude, longitude, hdop, null, null);
-        }*/
+
     }
 
     // This method might be called publicly, for example from a Debug localizer or a separate GpsLocationService
@@ -1310,7 +1305,7 @@ public class ACityAPIDev : MonoBehaviour
            // Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
            // File.WriteAllBytes(debugCameraImagePath, bjpg);
             Debug.Log($"ACityAPIDev::firstLocalization has apiURL = {apiURL}");
-            uploadFrame(bjpg, apiURL, langitude, latitude, hdop, camLocalize);
+            uploadFrame(bjpg, apiURL, longitude, latitude, hdop, camLocalize);
         }
 
         // TODO: at this point, the apiURL must be set properly and we should not overwrite it again. So we can remove the lines below.
@@ -1623,11 +1618,12 @@ public class ACityAPIDev : MonoBehaviour
                                    + Input.location.lastData.altitude + " "
                                    + Input.location.lastData.horizontalAccuracy + " "
                                    + Input.location.lastData.timestamp);
-            getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
+
+           // getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
             GPSlocation = true;
-            longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
-            latitude   = Input.location.lastData.latitude;
-            hdop       = Input.location.lastData.horizontalAccuracy;
+           // longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
+           // latitude   = Input.location.lastData.latitude;
+           // hdop       = Input.location.lastData.horizontalAccuracy;
             uim.statusDebug("Located GPS");
         }
 
