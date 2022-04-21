@@ -5,7 +5,7 @@ from the Augmented City company.
 
 ## Requirements
 
-Unity version 2021.2.13f1
+Unity version 2021.3.0f1
 
 ### Packages
 - ARFoundation 4.2.2

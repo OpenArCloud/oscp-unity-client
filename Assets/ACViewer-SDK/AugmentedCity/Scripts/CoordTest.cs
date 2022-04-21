@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Outdated and not used anymore, candidate to delete at all
+/// </summary>
 public class CoordTest : MonoBehaviour
 {
     Transform camARTrans;
@@ -49,9 +52,9 @@ public class CoordTest : MonoBehaviour
         // we should get the https:// address from the PlayerPrefs instead
         if (tt.text.Length > 6) // TODO: why only written when the length of the address field is larger than 6 characters? Do we want the toggle index to be here instead?
         {
-            Debug.Log("Serv  = " + tt.text);
+            Debug.Log("New Server addr = " + tt.text);
             PlayerPrefs.SetString("ApiUrl", tt.text);
-            GetComponent<ACityAPIDev>().setApiURL(tt.text);
+            //GetComponent<ACityAPIDev>().setApiURL(tt.text);
         }
     }
 

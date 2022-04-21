@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Mover : MonoBehaviour
 {
-
     private Vector3 mOffset;
     private float mZCoord;
     Transform camTrans;
@@ -38,18 +37,24 @@ public class Mover : MonoBehaviour
         camMain = Camera.main;
         timer = 0;
         myGO = this.gameObject;
-        pm = GameObject.FindGameObjectWithTag("Manager").GetComponent<PlaneManager>();
+
+        
+        GameObject man = GameObject.FindGameObjectWithTag("Manager");
+        modelManager = man.GetComponent<ModelManager>();
+
+        pm = man.GetComponent<PlaneManager>();
+        
     }
 
     void Update()
     {
 
 // #if !UNITY_EDITOR
+// #endif
         if (!noGravity) {
             myGO.transform.eulerAngles = new Vector3(0, myGO.transform.eulerAngles.y, 0);
         }
-// #endif
-        if (landed && pm.yGround > -100 && locked) {
+        if (landed && locked && pm.yGround > -100) {
             myGO.transform.position = new Vector3(myGO.transform.position.x, pm.yGround, myGO.transform.position.z);
         }
     }
@@ -76,9 +81,11 @@ public class Mover : MonoBehaviour
     void OnMouseUp() {
     }
 
-    public void setLocked(bool loc) {
+    public void setLocked(bool loc)
+    {
         GameObject man = GameObject.FindGameObjectWithTag("Manager");
         modelManager = man.GetComponent<ModelManager>();
+
         locked = loc;
         modelManager.SetEditMode(!loc);
     }

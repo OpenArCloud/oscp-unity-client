@@ -124,10 +124,10 @@ public class ACityAPIDev : MonoBehaviour
         Ready
     }
 
-    string apiURL = "";
     public string defaultApiUrl = "https://developer.augmented.city";
 
     public bool editorTestMode;
+    public string ServerAPI = "https://developer.augmented.city";
     public GameObject devButton;
 
     public TextAsset bb; // TODO: this was some fake image in base64 format in the past? It is missing now.
@@ -139,10 +139,11 @@ public class ACityAPIDev : MonoBehaviour
 
     public float tempScale3d;
     public float globalTimer;
-    float serverTimer;
+    float serverTimer = 0;
     public bool useOSCP;
     public bool ecef;
     public bool useGeopose;
+    UnityPose oldUPose;
 
     public bool debugSaveCameraImages = false;
 
@@ -175,6 +176,8 @@ public class ACityAPIDev : MonoBehaviour
     H3Lib.H3Index lastH3Index = new H3Lib.H3Index(0);
     UInt64 geoposeRequestId = 0;
 
+    bool GPSlocation;
+    string apiURL;
     Action<string, Transform, StickerInfo[]> getStickersAction;
     List<RecoInfo> recoList = new List<RecoInfo>();
 
@@ -201,6 +204,8 @@ public class ACityAPIDev : MonoBehaviour
         PlayerPrefs.DeleteKey("LocLoaded");
 
         //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?  // TODO: ask AC about this line.
+        // PlayerPrefs.DeleteAll();
+        UnityWebRequest.ClearCookieCache(); //FixMe: ACV has commented this, why?
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
         m_CameraManager = Camera.main.GetComponent<ARCameraManager>();
@@ -227,7 +232,9 @@ public class ACityAPIDev : MonoBehaviour
 #if UNITY_EDITOR
         editorTestMode = true;
         devButton.SetActive(true);
-        AudioListener.volume = 0;
+        AudioListener.volume = 0.1f;  // app controls an audio
+#else
+    editorTestMode = false;
 #endif
         StartCoroutine(GetTimerC());
         Input.location.Start();
@@ -599,12 +606,10 @@ public class ACityAPIDev : MonoBehaviour
             if (jsonParse["geopose"] != null)
             {
 
-                // TODO: reconstruction_id has been removed from the reply!
-                // TODO: Remove functions that check for reconstruction_id, just added a dummy value for now so it isent null
-                sessionId = jsonParse["id"];
-                Debug.Log("sessionID: " + sessionId);
-
                 // Spatial Content Records (optional)
+                sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
+                string debugSessionId = jsonParse["geopose"]["reconstruction_id"];
+                Debug.Log("sessioID: " + debugSessionId);
                 do
                 {
                     objectsAmount++;
@@ -617,7 +622,8 @@ public class ACityAPIDev : MonoBehaviour
                 double px0 = 0, py0 = 0, pz0 = 0;
                 px = 0; py = 0; pz = 0; // reset position initially
                 EcefPose zeroEcefCam = new EcefPose();
-                GeoPose zeroGeoCam = new GeoPose();
+                GeoPose  zeroGeoCam  = new GeoPose();
+                bool newGeoPose = false;  // flag whether we use geopose standard 1.0 with fields lat/lon/h at the position section
 
                 RecoInfo currentRi = checkRecoID(sessionId);
 
@@ -641,14 +647,14 @@ public class ACityAPIDev : MonoBehaviour
                         zeroEcefCam.x = px0;
                         zeroEcefCam.y = py0;
                         zeroEcefCam.z = pz0;
-                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, debugSessionId);
                     }
                     else
                     {
                         px = (float)(px0 - zeroEcefCam.x);
                         py = (float)(py0 - zeroEcefCam.y);
                         pz = (float)(pz0 - zeroEcefCam.z);
-                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                     }
                     //Debug.Log("ecef.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
                 }
@@ -681,20 +687,34 @@ public class ACityAPIDev : MonoBehaviour
                         Debug.Log("  type:" + type);
                     }
 
-                    // TODO: the GeoPose structure changed in March 2022 so we have to update it here. The "position" node got introduced.
-                    // this code supports both
-                    if (jsonParse["geopose"].HasKey("position")) {
-                        camLat = jsonParse["geopose"]["position"]["latitude"].AsDouble;
-                        camLon = jsonParse["geopose"]["position"]["longitude"].AsDouble;
-                        camHei = jsonParse["geopose"]["position"]["ellipsoidHeight"].AsDouble;
-                    } else {
-                        // old format contained the location directly
-                        camLat = jsonParse["geopose"]["latitude"].AsDouble;
-                        camLon = jsonParse["geopose"]["longitude"].AsDouble;
-                        camHei = jsonParse["geopose"]["ellipsoidHeight"].AsDouble;
+                    string checkNewGeo = jsonParse["geopose"]["geopose"]["position"]["lat"];
+                    if (!string.IsNullOrEmpty(checkNewGeo)) { newGeoPose = true; }
+
+                    if (newGeoPose)
+                    {
+                        camLat = jsonParse["geopose"]["geopose"]["position"]["lat"].AsDouble;
+                        camLon = jsonParse["geopose"]["geopose"]["position"]["lon"].AsDouble;
+                        camHei = jsonParse["geopose"]["geopose"]["position"]["h"].AsDouble;
+                        Debug.Log("Cam GEO_v10 - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
+
+                        ox = jsonParse["geopose"]["geopose"]["quaternion"]["x"].AsFloat;
+                        oy = jsonParse["geopose"]["geopose"]["quaternion"]["y"].AsFloat;
+                        oz = jsonParse["geopose"]["geopose"]["quaternion"]["z"].AsFloat;
+                        ow = jsonParse["geopose"]["geopose"]["quaternion"]["w"].AsFloat;
+                    }
+                    else
+                    {
+                        camLat = jsonParse["geopose"]["pose"]["latitude"].AsDouble;
+                        camLon = jsonParse["geopose"]["pose"]["longitude"].AsDouble;
+                        camHei = jsonParse["geopose"]["pose"]["ellipsoidHeight"].AsDouble;
+                        Debug.Log("Cam GEO_v01 - lat = " + camLat + ", lon = " + camLon + ", ellH = " + camHei);
+
+                        ox = jsonParse["geopose"]["pose"]["quaternion"]["x"].AsFloat;
+                        oy = jsonParse["geopose"]["pose"]["quaternion"]["y"].AsFloat;
+                        oz = jsonParse["geopose"]["pose"]["quaternion"]["z"].AsFloat;
+                        ow = jsonParse["geopose"]["pose"]["quaternion"]["w"].AsFloat;
                     }
 
-                    Debug.Log("Cam GEO - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
                     if (currentRi == null)
                     {
                         zeroGeoCam.lat = camLat;
@@ -712,15 +732,11 @@ public class ACityAPIDev : MonoBehaviour
                     px = enupose.x;
                     py = enupose.y;
                     pz = enupose.z;
-                    ox = jsonParse["geopose"]["quaternion"]["x"].AsFloat;
-                    oy = jsonParse["geopose"]["quaternion"]["y"].AsFloat;
-                    oz = jsonParse["geopose"]["quaternion"]["z"].AsFloat;
-                    ow = jsonParse["geopose"]["quaternion"]["w"].AsFloat;
                     Debug.Log("geo.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
                     if (currentRi == null)
-                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, debugSessionId);
                     else
-                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                        uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                 }
                 else // local pose (AC)
                 {
@@ -731,11 +747,16 @@ public class ACityAPIDev : MonoBehaviour
                     oy = jsonParse["geopose"]["localPose"]["orientation"]["y"].AsFloat;
                     oz = jsonParse["geopose"]["localPose"]["orientation"]["z"].AsFloat;
                     ow = jsonParse["geopose"]["localPose"]["orientation"]["w"].AsFloat;
-                    uim.setDebugPose(px, py, pz, ox, oy, oz, ow, sessionId);
+                    uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
                 }
 
                 GameObject newCam = new GameObject("tempCam");
                 UnityPose uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
+                if (oldUPose != null) 
+                {
+                    Debug.Log("DbGL: " + (uPose.pos - oldUPose.pos).magnitude);
+                }
+                oldUPose = uPose;
                 newCam.transform.localPosition = uPose.pos;
                 newCam.transform.localRotation = uPose.ori;
 
@@ -747,7 +768,10 @@ public class ACityAPIDev : MonoBehaviour
                 {
                     uPose.SetCameraOriFromGeoPose(newCam);  // Add additional 2 rotations for camera
                 }
-                Debug.Log("newCam.transform.locPos pos= " + newCam.transform.localPosition.x + ", " + newCam.transform.localPosition.y + ", " + newCam.transform.localPosition.z);
+                Debug.Log("newCam.transform.locPos pos= "
+                    + newCam.transform.localPosition.x + ", "
+                    + newCam.transform.localPosition.y + ", "
+                    + newCam.transform.localPosition.z);
                 Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
 
 
@@ -959,9 +983,19 @@ public class ACityAPIDev : MonoBehaviour
                                 else if (useGeopose)
                                 {
                                     double tlat, tlon, thei;
-                                    tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
-                                    tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
-                                    thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                    if (newGeoPose)
+                                    {
+                                        tlat = jsonParse["scrs"][j]["content"]["geopose"]["position"]["lat"].AsDouble;
+                                        tlon = jsonParse["scrs"][j]["content"]["geopose"]["position"]["lon"].AsDouble;
+                                        thei = jsonParse["scrs"][j]["content"]["geopose"]["position"]["h"].AsDouble;
+                                    }
+                                    else
+                                    {
+                                        tlat = jsonParse["scrs"][j]["content"]["geopose"]["latitude"].AsDouble;
+                                        tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
+                                        thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
+                                    }
+                                    
                                     // calc the object position relatively the recently localized camera
                                     EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                     Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
@@ -1179,6 +1213,9 @@ public class ACityAPIDev : MonoBehaviour
         getStickersAction = getStickers;
 
         if (!hasGpsLocation)
+        StartCoroutine(Locate(firstLocalization));
+
+        /*if (!GPSlocation) //FixMe: ???
         {
             // determine the coarse (GPS) location first, and then query the VPS
             System.Action onFinishedAction = new System.Action(() => {
@@ -1192,6 +1229,9 @@ public class ACityAPIDev : MonoBehaviour
             // go directly to VPS
             firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
         }
+        else {
+            firstLocalization(latitude, longitude, hdop, null, null);
+        }*/
     }
 
     // This method might be called publicly, for example from a Debug localizer or a separate GpsLocationService
@@ -1265,9 +1305,12 @@ public class ACityAPIDev : MonoBehaviour
 
         if (debugSaveCameraImages)
         {
-            string debugCameraImagePath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss--fff") + ".jpg");
-            Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
-            File.WriteAllBytes(debugCameraImagePath, bjpg);
+            
+           // string debugCameraImagePath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss--fff") + ".jpg");
+           // Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
+           // File.WriteAllBytes(debugCameraImagePath, bjpg);
+            Debug.Log($"ACityAPIDev::firstLocalization has apiURL = {apiURL}");
+            uploadFrame(bjpg, apiURL, langitude, latitude, hdop, camLocalize);
         }
 
         // TODO: at this point, the apiURL must be set properly and we should not overwrite it again. So we can remove the lines below.
@@ -1318,7 +1361,7 @@ public class ACityAPIDev : MonoBehaviour
 
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         //  byte[] bytes = File.ReadAllBytes(filePath);
-        Debug.Log("bytes length = " + bytes.Length);
+        Debug.Log("nBytes: " + bytes.Length);
         rotationDevice = "90";
         if (!editorTestMode)
         {
@@ -1407,7 +1450,7 @@ public class ACityAPIDev : MonoBehaviour
         string sid = null;
         if (jsonParse["camera"] != null)
         {
-            sid = jsonParse["reconstruction_id"];
+            sid = jsonParse["reconstruction_id"];   //FixMe: can be null?
             Debug.Log("answer: rec-id:" + sid);
         }
         tempScale3d = 1;
@@ -1421,7 +1464,7 @@ public class ACityAPIDev : MonoBehaviour
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         Debug.Log("bytes length = " + bytes.Length);
         List<IMultipartFormSection> form = new List<IMultipartFormSection>();
-        rotationDevice = "90";
+        rotationDevice = "0";
         if (!editorTestMode)
         {
             rotationDevice = "270";  // Default value
@@ -1434,8 +1477,10 @@ public class ACityAPIDev : MonoBehaviour
         Debug.Log("" + jsona);
         form.Add(new MultipartFormFileSection("image", bytes, "test.jpg", "image/jpeg"));
         form.Add(new MultipartFormDataSection("description", jsona));
+
         byte[] boundary = UnityWebRequest.GenerateBoundary();
-        Debug.Log(apiURL + "/api/localizer/localize");
+        string targetURL = apiURL + "/api/localizer/localize";
+        Debug.Log(targetURL);
         var w = UnityWebRequest.Post(apiURL + "/api/localizer/localize", form, boundary);
         //w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");  //FixMe: commented in aco3d???
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
@@ -1447,7 +1492,8 @@ public class ACityAPIDev : MonoBehaviour
         yield return w.SendWebRequest();
         if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
         {
-            Debug.Log(w.error); localizationStatus = LocalizationStatus.ServerError;
+            Debug.Log($"UploadJPGwithGPS: error on connection to {targetURL} error:'{w.error}' "); 
+            localizationStatus = LocalizationStatus.ServerError;
         }
         else
         {
@@ -1492,22 +1538,20 @@ public class ACityAPIDev : MonoBehaviour
 
     IEnumerator prepareC(float longitude, float latitude, Action<bool, string> getServerAnswer)
     {
-        Debug.Log("prepareC...");
-        // Example: https://developer.augmented.city:5000/api/localizer/prepare?lat=59.907458f&lon=30.298400f
-        if (apiURL == "")
-        {
-            Debug.LogError("apiURL was not set yet!");
-        }
-        Debug.Log(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
-        var w = UnityWebRequest.Get(apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f");
+        // Example: https://developer.augmented.city/api/localizer/prepare?lat=59.907458f&lon=30.298400f
+        //
+        string req = apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f";
+        Debug.Log(req);
+        var w = UnityWebRequest.Get(req);
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
+
         yield return w.SendWebRequest();
-        if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
+        if (w.isNetworkError || w.isHttpError)
         {
-            Debug.Log("prepareC Error: " + w.error);
+            Debug.Log(w.error);
             localizationStatus = LocalizationStatus.ServerError;
-            getServerAnswer.Invoke(false, w.downloadHandler.text);
+            getServerAnswer(false, w.downloadHandler.text);
         }
         else
         {
@@ -1574,6 +1618,17 @@ public class ACityAPIDev : MonoBehaviour
                 Debug.Log("Locate invoking callback...");
                 onGpsLocationUpdatedCallback.Invoke();
             }
+            Debug.Log("Location: " + Input.location.lastData.latitude + " "
+                                   + Input.location.lastData.longitude + " "
+                                   + Input.location.lastData.altitude + " "
+                                   + Input.location.lastData.horizontalAccuracy + " "
+                                   + Input.location.lastData.timestamp);
+            getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
+            GPSlocation = true;
+            longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
+            latitude   = Input.location.lastData.latitude;
+            hdop       = Input.location.lastData.horizontalAccuracy;
+            uim.statusDebug("Located GPS");
         }
 
         // Stop service if there is no need to query location updates continuously
