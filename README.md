@@ -15,14 +15,14 @@ Unity version 2021.3.0f1
 - TextMeshPro 3.0.6
 - Draco 3D Data Compression 4.0.2
 - glTFast 4.6.0
-- KTX/Basis Texture 2.0.1
+- KTX/Basis Texture 2.1.2
 - meshoptimizer decompression for Unity(experimental) 0.1.0-preview.5
 - XR Interaction Toolkit Pre-Release 1.0.0-pre.8
 - Newtonsoft Json 2.0.2
 
 #### Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true
-- Minimum API Level: Android 10.0
+- Minimum API Level: Android 9.0
 - Target Architectures - ARM64
 - Delete VulcanAPI from Graphics API (ARCore doesn’t support).
 
