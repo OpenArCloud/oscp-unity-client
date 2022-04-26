@@ -687,20 +687,20 @@ public class ACityAPIDev : MonoBehaviour
                         Debug.Log("  type:" + type);
                     }
 
-                    string checkNewGeo = jsonParse["geopose"]["geopose"]["position"]["lat"];
+                    string checkNewGeo = jsonParse["geopose"]["position"]["lat"];
                     if (!string.IsNullOrEmpty(checkNewGeo)) { newGeoPose = true; }
 
                     if (newGeoPose)
                     {
-                        camLat = jsonParse["geopose"]["geopose"]["position"]["lat"].AsDouble;
-                        camLon = jsonParse["geopose"]["geopose"]["position"]["lon"].AsDouble;
-                        camHei = jsonParse["geopose"]["geopose"]["position"]["h"].AsDouble;
+                        camLat = jsonParse["geopose"]["position"]["lat"].AsDouble;
+                        camLon = jsonParse["geopose"]["position"]["lon"].AsDouble;
+                        camHei = jsonParse["geopose"]["position"]["h"].AsDouble;
                         Debug.Log("Cam GEO_v10 - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
 
-                        ox = jsonParse["geopose"]["geopose"]["quaternion"]["x"].AsFloat;
-                        oy = jsonParse["geopose"]["geopose"]["quaternion"]["y"].AsFloat;
-                        oz = jsonParse["geopose"]["geopose"]["quaternion"]["z"].AsFloat;
-                        ow = jsonParse["geopose"]["geopose"]["quaternion"]["w"].AsFloat;
+                        ox = jsonParse["geopose"]["quaternion"]["x"].AsFloat;
+                        oy = jsonParse["geopose"]["quaternion"]["y"].AsFloat;
+                        oz = jsonParse["geopose"]["quaternion"]["z"].AsFloat;
+                        ow = jsonParse["geopose"]["quaternion"]["w"].AsFloat;
                     }
                     else
                     {
