@@ -58,7 +58,11 @@ public class OAuth2Authentication : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+#if UNITY_IOS
+//Adding this workaround so iOS is able to atleast view the content. iOS is not able to create, update or delete any content
+//TODO: Add authentication for iOS
+IsAuthenticated?.Invoke(true);
+#endif
     }
 
     public void DoAuthenticate()
