@@ -280,7 +280,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
                                 vidos.source = VideoSource.Url;
                                 vidos.url = stickers[j].sPath;
-
                                 videoURLs.Add(urlVid);
                             }
                             else if (stickers[j].spatialServiceRecord != null)

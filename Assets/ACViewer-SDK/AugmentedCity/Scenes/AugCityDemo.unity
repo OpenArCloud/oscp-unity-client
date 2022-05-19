@@ -8283,7 +8283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editorTestMode: 0
-  ServerAPI: http://192.168.50.72:3000
+  ServerAPI: https://developer.augmented.city
   devButton: {fileID: 36101549}
   bb: {fileID: 4900000, guid: 2bd7849d09e77cf4db8111ff700fbc8a, type: 3}
   rotationDevice: 90

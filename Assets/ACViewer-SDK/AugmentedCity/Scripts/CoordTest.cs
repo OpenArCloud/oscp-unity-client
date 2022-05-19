@@ -30,9 +30,10 @@ public class CoordTest : MonoBehaviour
                 textInputServerPlaceholder.text = PlayerPrefs.GetString("ApiUrl");
             }
         }
-        else {
-            // The first entry is taken as default
-            toggles[0].isOn = true;
+        else 
+        {
+            if(toggles[0] != null)
+                toggles[0].isOn = true;
         }
     }
 
