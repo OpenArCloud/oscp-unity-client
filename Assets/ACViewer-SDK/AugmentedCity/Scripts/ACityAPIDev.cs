@@ -204,7 +204,7 @@ public class ACityAPIDev : MonoBehaviour
         PlayerPrefs.DeleteKey("LocLoaded");
 
         //UnityWebRequest.ClearCookieCache(); //FixMe: aco3d has it?  // TODO: ask AC about this line.
-        // PlayerPrefs.DeleteAll();
+        //PlayerPrefs.DeleteAll();
         UnityWebRequest.ClearCookieCache(); //FixMe: ACV has commented this, why?
         globalTimer = -1;
         ARCamera = Camera.main.gameObject;
@@ -1214,7 +1214,8 @@ public class ACityAPIDev : MonoBehaviour
     {
         if (!configurationSetted)
         {
-            SetCameraConfiguration();
+            
+           // SetCameraConfiguration();
         }
 
         getStickersAction = getStickers;
