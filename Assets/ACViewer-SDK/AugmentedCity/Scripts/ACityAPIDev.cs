@@ -189,12 +189,12 @@ public class ACityAPIDev : MonoBehaviour
 
     void Start()
     {
-        if(spatialContentManager == null)
+        if (spatialContentManager == null)
         {
             spatialContentManager = FindObjectOfType<SCRManager>();
         }
 
-       // defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
+        // defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
 
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
         // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.
@@ -622,7 +622,7 @@ public class ACityAPIDev : MonoBehaviour
                 double px0 = 0, py0 = 0, pz0 = 0;
                 px = 0; py = 0; pz = 0; // reset position initially
                 EcefPose zeroEcefCam = new EcefPose();
-                GeoPose  zeroGeoCam  = new GeoPose();
+                GeoPose zeroGeoCam = new GeoPose();
                 bool newGeoPose = false;  // flag whether we use geopose standard 1.0 with fields lat/lon/h at the position section
 
                 RecoInfo currentRi = checkRecoID(sessionId);
@@ -662,18 +662,21 @@ public class ACityAPIDev : MonoBehaviour
                 {
 
                     UInt64 timestamp = 0;
-                    if (jsonParse.HasKey("timestamp")) {
+                    if (jsonParse.HasKey("timestamp"))
+                    {
                         timestamp = UInt64.Parse(jsonParse["timestamp"]);
                         Debug.Log("  timestamp:" + timestamp);
                     }
                     UInt64 id = 0;
-                    if (jsonParse.HasKey("id")) {
+                    if (jsonParse.HasKey("id"))
+                    {
                         id = UInt64.Parse(jsonParse["id"]);
                         Debug.Log("  id:" + id);
                     }
                     double positionAccuracy = 0.0;
                     double orientationAccuracy = 0.0;
-                    if (jsonParse.HasKey("accuracy")) {
+                    if (jsonParse.HasKey("accuracy"))
+                    {
                         JSONNode jsonAccuracy = jsonParse["accuracy"];
                         positionAccuracy = jsonAccuracy["position"].AsDouble;
                         orientationAccuracy = jsonAccuracy["orientation"].AsDouble;
@@ -752,7 +755,7 @@ public class ACityAPIDev : MonoBehaviour
 
                 GameObject newCam = new GameObject("tempCam");
                 UnityPose uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
-                if (oldUPose != null) 
+                if (oldUPose != null)
                 {
                     Debug.Log("DbGL: " + (uPose.pos - oldUPose.pos).magnitude);
                 }
@@ -800,11 +803,10 @@ public class ACityAPIDev : MonoBehaviour
 
                     if (useOrbitContent)
                     {
-                        Debug.Log("Number of objects from orbit: " + objectsAmount);
-
                         objectsAmount = spatialContentManager.spatialServiceRecord.Length;
 
-                        
+                        Debug.Log("Number of objects from orbit: " + objectsAmount);
+
                         if (objectsAmount > 0)
                         {
                             currentRi.scale3dcloud = tempScale3d;
@@ -820,15 +822,20 @@ public class ACityAPIDev : MonoBehaviour
                                 // Object's position using GeoPose
 
                                 double tlat, tlon, thei;
-                                tlat = spatialContentManager.spatialServiceRecord[j].content.geopose.latitude;
-                                tlon = spatialContentManager.spatialServiceRecord[j].content.geopose.longitude;
-                                thei = spatialContentManager.spatialServiceRecord[j].content.geopose.ellipsoidHeight;
+
+                                //New Geopose schema
+                                tlat = spatialContentManager.spatialServiceRecord[j].content.geopose.position.lat;
+                                tlon = spatialContentManager.spatialServiceRecord[j].content.geopose.position.lon;
+                                thei = spatialContentManager.spatialServiceRecord[j].content.geopose.position.h;
+
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                 Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
                                 px = enupose.x;
                                 py = enupose.y;
                                 pz = enupose.z;
+
+
                                 ox = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["x"];
                                 oy = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["y"];
                                 oz = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
@@ -995,7 +1002,7 @@ public class ACityAPIDev : MonoBehaviour
                                         tlon = jsonParse["scrs"][j]["content"]["geopose"]["longitude"].AsDouble;
                                         thei = jsonParse["scrs"][j]["content"]["geopose"]["ellipsoidHeight"].AsDouble;
                                     }
-                                    
+
                                     // calc the object position relatively the recently localized camera
                                     EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
                                     Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
@@ -1215,7 +1222,8 @@ public class ACityAPIDev : MonoBehaviour
         if (!hasGpsLocation) //FixMe: ???
         {
             // determine the coarse (GPS) location first, and then query the VPS
-            System.Action onFinishedAction = new System.Action(() => {
+            System.Action onFinishedAction = new System.Action(() =>
+            {
                 Debug.Log("ARLocation Locate callback...");
                 firstLocalization(lastGpsLocation.longitude, lastGpsLocation.latitude, lastGpsLocation.horizontalAccuracy, null, null);
             });
@@ -1300,10 +1308,10 @@ public class ACityAPIDev : MonoBehaviour
 
         if (debugSaveCameraImages)
         {
-            
-           // string debugCameraImagePath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss--fff") + ".jpg");
-           // Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
-           // File.WriteAllBytes(debugCameraImagePath, bjpg);
+
+            // string debugCameraImagePath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ss--fff") + ".jpg");
+            // Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
+            // File.WriteAllBytes(debugCameraImagePath, bjpg);
             Debug.Log($"ACityAPIDev::firstLocalization has apiURL = {apiURL}");
             uploadFrame(bjpg, apiURL, longitude, latitude, hdop, camLocalize);
         }
@@ -1343,9 +1351,12 @@ public class ACityAPIDev : MonoBehaviour
 
     public void uploadFrame(byte[] bytes, string apiURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
-        if (!useOSCP) {
+        if (!useOSCP)
+        {
             StartCoroutine(UploadJPGwithGPS(bytes, apiURL, longitude, latitude, hdop, getJsonCameraObjects));
-        } else {
+        }
+        else
+        {
             StartCoroutine(UploadJPGwithGPSOSCP(bytes, apiURL, longitude, latitude, hdop, getJsonCameraObjects));
         }
     }
@@ -1361,8 +1372,9 @@ public class ACityAPIDev : MonoBehaviour
         if (!editorTestMode)
         {
             rotationDevice = "270";  // Default value
-            if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) {
-               rotationDevice = "90";
+            if (Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown)
+            {
+                rotationDevice = "90";
             }
         }
 
@@ -1385,7 +1397,7 @@ public class ACityAPIDev : MonoBehaviour
         // TODO: sequenceNumber is harcoded to 0
         string finalJson = "{" +
             "\"id\":\"" + requestId + "\"," +
-            "\"timestamp\":\""+ timestamp + "\"," +
+            "\"timestamp\":\"" + timestamp + "\"," +
             "\"type\":\"geopose\"," +
             "\"sensors\":[" +
                 "{\"id\":\"0\",\"type\":\"camera\"}," +
@@ -1398,7 +1410,7 @@ public class ACityAPIDev : MonoBehaviour
                 "\"reading\":{" +
                     "\"sequenceNumber\":0," +
                     "\"imageFormat\":\"JPG\"," +
-                    "\"imageOrientation\":{\"mirrored\":false,\"rotation\":"+ rotationDevice +"}," +
+                    "\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "}," +
                     "\"imageBytes\":\"" + shot + "\"}" +
                 "}, {" +
                 "\"timestamp\":\"" + timestamp + "\"," +
@@ -1487,7 +1499,7 @@ public class ACityAPIDev : MonoBehaviour
         yield return w.SendWebRequest();
         if (w.result == UnityWebRequest.Result.ConnectionError || w.result == UnityWebRequest.Result.ProtocolError)
         {
-            Debug.Log($"UploadJPGwithGPS: error on connection to {targetURL} error:'{w.error}' "); 
+            Debug.Log($"UploadJPGwithGPS: error on connection to {targetURL} error:'{w.error}' ");
             localizationStatus = LocalizationStatus.ServerError;
         }
         else
@@ -1511,7 +1523,7 @@ public class ACityAPIDev : MonoBehaviour
     {
         Debug.Log("prepareSession...");
         if (editorTestMode)
-        { 
+        {
             // nothing to do when testing in editor
             return;
         }
@@ -1523,7 +1535,8 @@ public class ACityAPIDev : MonoBehaviour
         //Input.location.Start();
         // TODO: wait here until it really starts
         // --> Locate() initiates the GPS query and waits until a measurement is available
-        System.Action onFinishedAction = new System.Action(() => {
+        System.Action onFinishedAction = new System.Action(() =>
+        {
             Debug.Log("prepareSession Locate callback...");
             // NOTE: prepareC is a coroutine and must be called like this:
             StartCoroutine(prepareC(lastGpsLocation.longitude, lastGpsLocation.latitude, getServerAnswer));
@@ -1619,11 +1632,11 @@ public class ACityAPIDev : MonoBehaviour
                                    + Input.location.lastData.horizontalAccuracy + " "
                                    + Input.location.lastData.timestamp);
 
-           // getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
+            // getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
             GPSlocation = true;
-           // longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
-           // latitude   = Input.location.lastData.latitude;
-           // hdop       = Input.location.lastData.horizontalAccuracy;
+            // longitude  = Input.location.lastData.longitude;     //FixMe: mix them up twice
+            // latitude   = Input.location.lastData.latitude;
+            // hdop       = Input.location.lastData.horizontalAccuracy;
             uim.statusDebug("Located GPS");
         }
 

@@ -94,6 +94,7 @@ public class CreateARObject : MonoBehaviour
 
         sp.content = new Content();
         sp.content.geopose = new GeoPosition();
+        sp.content.geopose.position = new Position();
         sp.content.geopose.quaternion = new Dictionary<string, float>();
         sp.content.refs = new List<Dictionary<string, string>>();
         sp.content.definitions = new List<Dictionary<string, string>>();
@@ -107,13 +108,13 @@ public class CreateARObject : MonoBehaviour
         sp.content.type = "placeholder";
         sp.content.title = inputTitle.text;
         sp.content.description = inputDescription.text;
-
-        sp.content.geopose.latitude = OSCPDataHolder.Instance.latitude;
-        sp.content.geopose.longitude = OSCPDataHolder.Instance.longitude;
-
+      
+        //New geopose schema
+        sp.content.geopose.position.lat = OSCPDataHolder.Instance.latitude;
+        sp.content.geopose.position.lon = OSCPDataHolder.Instance.longitude;
         //TODO: Evil hack to get Webxr client to show models on the floor that is why we are adding - 1.5 height
         //If Landed = false in Mover.sc on ABLoaderNGI prefab item will use the height from server. 
-        sp.content.geopose.ellipsoidHeight = OSCPDataHolder.Instance.ellipsoidHeight - 1.5;
+        sp.content.geopose.position.h = OSCPDataHolder.Instance.ellipsoidHeight - 1.5;
 
         //Dont know what these two attributes handle
         sp.content.bbox = "0";

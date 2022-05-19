@@ -54,9 +54,11 @@ public class ObjectInformationGUI : MonoBehaviour
         Position.text = record.Position.ToString();
         Orientation.text = record.Orientation.ToString();
 
-        Longitude.text = record.content.geopose.longitude.ToString();
-        Latitude.text = record.content.geopose.latitude.ToString();
-        EllipsoidHeight.text = record.content.geopose.ellipsoidHeight.ToString();
+        //New geoppose schema
+        Latitude.text = record.content.geopose.position.lat.ToString();
+        Longitude.text = record.content.geopose.position.lon.ToString();
+        EllipsoidHeight.text = record.content.geopose.position.h.ToString();
+        
 
         CreateDictItems(record.content.refs, spawnPositionRefs);
         CreateDictItems(record.content.definitions, spawnPositionDefinitions);
@@ -73,8 +75,9 @@ public class ObjectInformationGUI : MonoBehaviour
         SCRItem record = new SCRItem();
         record.content = new Content();
         record.content.geopose = new GeoPosition();
+        record.content.geopose.position = new Position();
         record.content.geopose.quaternion = new Dictionary<string, float>();
-        Vector4 vector4 = new Vector4(); 
+        Vector4 vector4 = new Vector4();
 
         record.id = ID.text;
         record.type = Type.text;
@@ -88,13 +91,14 @@ public class ObjectInformationGUI : MonoBehaviour
 
         record.Position = StringToVector.StringToVector3(Position.text);
         record.Orientation = StringToVector.StringToVector4(Orientation.text);
-
-        record.content.geopose.longitude = double.Parse(Longitude.text);
-        record.content.geopose.latitude = double.Parse(Latitude.text);
-        record.content.geopose.ellipsoidHeight = float.Parse(EllipsoidHeight.text);
+     
+        //New geopose schema
+        record.content.geopose.position.lat = double.Parse(Longitude.text);
+        record.content.geopose.position.lon = double.Parse(Latitude.text);
+        record.content.geopose.position.h = float.Parse(EllipsoidHeight.text);
 
         vector4 = StringToVector.StringToVector4(Orientation.text);
-        
+
         record.content.geopose.quaternion.Add("x", vector4.x);
         record.content.geopose.quaternion.Add("y", vector4.y);
         record.content.geopose.quaternion.Add("z", vector4.z);

@@ -29,11 +29,9 @@ namespace NGI.Api
 
     public class GeoPosition
     {
-        public double latitude;
-        public double longitude;
-        public double ellipsoidHeight;
-  
+        public Position position;
         public Dictionary<string, float> quaternion;
+
     }
 
     public class Content
@@ -55,7 +53,14 @@ namespace NGI.Api
 
     }
 
-    
+    public class Position
+    {
+        public double lat;
+        public double lon;
+        public double h;
+
+
+    }
 
 
 

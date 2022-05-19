@@ -79,6 +79,7 @@ public class MockResponseLoad : MonoBehaviour
 
             sp.content = new Content();
             sp.content.geopose = new GeoPosition();
+            sp.content.geopose.position = new Position();
             sp.content.geopose.quaternion = new Dictionary<string, float>();
             sp.content.refs = new List<Dictionary<string, string>>();
             sp.content.definitions = new List<Dictionary<string, string>>();
@@ -89,9 +90,10 @@ public class MockResponseLoad : MonoBehaviour
             sp.content.title = jsonResponseNode[i]["content"]["title"];
             sp.content.description = jsonResponseNode[i]["content"]["description"];
 
-            sp.content.geopose.latitude = jsonResponseNode[i]["content"]["geopose"]["latitude"].AsDouble;
-            sp.content.geopose.longitude = jsonResponseNode[i]["content"]["geopose"]["longitude"].AsDouble;
-            sp.content.geopose.ellipsoidHeight = jsonResponseNode[i]["content"]["geopose"]["ellipsoidHeight"].AsFloat;
+            //New geopose schema
+            sp.content.geopose.position.lat = jsonResponseNode[i]["content"]["geopose"]["position"]["lat"].AsDouble;
+            sp.content.geopose.position.lon = jsonResponseNode[i]["content"]["geopose"]["position"]["lon"].AsDouble;
+            sp.content.geopose.position.h = jsonResponseNode[i]["content"]["geopose"]["position"]["h"].AsFloat;
 
             sp.id = jsonResponseNode[i]["id"];
             sp.type = jsonResponseNode[i]["type"];

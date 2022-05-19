@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -278,6 +279,7 @@ public class OrbitAPI : MonoBehaviour
         }
     }
 
+    //TODO fix server. It always returns a 504 timed out but record is still deleted
     async Task<bool> DeleteSpatialRecord(string access_token, string itemID, string topic)
     {
         output("Making API Call to delete item...");
@@ -286,12 +288,14 @@ public class OrbitAPI : MonoBehaviour
         HttpWebRequest deleteRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);
         deleteRequest.Method = "DELETE";
         deleteRequest.Headers.Add("Authorization", "Bearer " + access_token);
-
-        //TODO fix server. It always returns a 504 timed out but record is still deleted
+        //TODO fix server. As of 2022-19-05. Server always returns a 504 timed out but record is still deleted
+        //lowering timeout to 2000 seconds
+        deleteRequest.Timeout = 2000;
+    
         try
         {
             // gets the response
-            WebResponse deleteResponse = await deleteRequest.GetResponseAsync();          
+            WebResponse deleteResponse = await deleteRequest.GetResponseAsync();
             using (StreamReader reader = new StreamReader(deleteResponse.GetResponseStream()))
             {
                 // reads response body
@@ -303,7 +307,8 @@ public class OrbitAPI : MonoBehaviour
             }
         }
         catch (WebException ex)
-        {
+        {         
+
             if (ex.Status == WebExceptionStatus.ProtocolError)
             {
                 var response = ex.Response as HttpWebResponse;
@@ -315,12 +320,12 @@ public class OrbitAPI : MonoBehaviour
                         // reads response body
                         string responseText = await reader.ReadToEndAsync();
                         output(responseText);
-                        
+                        //TODO: inform the user about the failure
                     }
                 }
             }
             return false;
-        }
+        }       
     }
     #endregion
 
