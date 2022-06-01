@@ -622,7 +622,7 @@ public class ACityAPIDev : MonoBehaviour
                 double px0 = 0, py0 = 0, pz0 = 0;
                 px = 0; py = 0; pz = 0; // reset position initially
                 EcefPose zeroEcefCam = new EcefPose();
-                GeoPose zeroGeoCam = new GeoPose();
+                GeoPose  zeroGeoCam  = new GeoPose();
                 bool newGeoPose = false;  // flag whether we use geopose standard 1.0 with fields lat/lon/h at the position section
 
                 RecoInfo currentRi = checkRecoID(sessionId);
@@ -1678,8 +1678,10 @@ public class ACityAPIDev : MonoBehaviour
         else
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-            Debug.Log("GetTimerC success: " + sw.downloadHandler.text);
-            double timer = double.Parse(sw.downloadHandler.text);
+            double timer = 0;
+
+            double.TryParse((sw?.downloadHandler?.text)??"0",out timer);
+            Debug.Log("Timer = " + timer);
             SetTimer(timer);
         }
     }
