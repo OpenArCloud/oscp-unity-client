@@ -13,6 +13,9 @@ public class AssetLoader : MonoBehaviour
     ModelManager modelManager;
     Mover mover;
 
+    //Temporary variable for using external file service, needs a better solution
+    public string customUrl;
+
     void Start()
     {
         AssetName = "obj";

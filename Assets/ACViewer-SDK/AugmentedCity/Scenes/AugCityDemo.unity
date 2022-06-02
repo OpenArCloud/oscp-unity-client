@@ -1221,19 +1221,7 @@ MonoBehaviour:
   m_CharacterLimit: 100
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1396039693}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: setRelocationTimer
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 602476231}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Text, UnityEngine.UI
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -2945,8 +2933,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1970672151}
   m_HandleRect: {fileID: 1970672150}
   m_Direction: 2
-  m_Value: 1.0000004
-  m_Size: 0.80633974
+  m_Value: 1.0000002
+  m_Size: 0.39627352
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3007,7 +2995,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &524784153
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8265,7 +8253,7 @@ MonoBehaviour:
   stickerShop: {fileID: 398534618485552298, guid: aedd8cf299590b842b93aca8fc49588e,
     type: 3}
   devCamMat: {fileID: 2100000, guid: fa96db4abc91d294f97a681e6cf300ac, type: 2}
-  devImagePath: D:/camtemp/h1.jpg
+  devImagePath: 20211122_150553.jpg
   needScaling: 0
   timeForRelocation: 2
 --- !u!4 &1396039690
@@ -8295,13 +8283,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editorTestMode: 0
-  ServerAPI: http://developer.augmented.city
+  ServerAPI: https://developer.augmented.city
   devButton: {fileID: 36101549}
   bb: {fileID: 4900000, guid: 2bd7849d09e77cf4db8111ff700fbc8a, type: 3}
   rotationDevice: 90
   tempScale3d: 1
   globalTimer: 0
-  useOSCP: 0
+  useOSCP: 1
   ecef: 0
   useGeopose: 1
 --- !u!114 &1396039692
@@ -9512,7 +9500,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0.00016904, y: 169}
+  m_AnchoredPosition: {x: 0, y: 158}
   m_SizeDelta: {x: 50.044983, y: 50.045}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1520692466
@@ -10002,7 +9990,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1605445386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13347,7 +13335,7 @@ RectTransform:
   m_Father: {fileID: 367757123}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.19366026}
+  m_AnchorMin: {x: 0, y: 0.6037265}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -13562,19 +13550,7 @@ MonoBehaviour:
   m_CharacterLimit: 100
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1396039693}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: setRelocationTimer
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 633500485}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Text, UnityEngine.UI
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -14143,6 +14119,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Edit3dPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2869313399892381567, guid: 92cb042f5dfd8bf418a21a9a9474bc38,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 92cb042f5dfd8bf418a21a9a9474bc38, type: 3}
@@ -14787,7 +14768,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: https://developer.augmented.city
+  m_Text: http://developer.augmented.city
 --- !u!1 &3848903531283917533
 GameObject:
   m_ObjectHideFlags: 0
@@ -16623,7 +16604,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: http://developer.augmented.city
+  m_Text: https://developer.augmented.city
 --- !u!222 &3848903531882029075
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -17208,7 +17189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: http://developer.augmented.city:15000
+  m_Text: https://developer.testing.augmented.city
 --- !u!1 &3848903532025529423
 GameObject:
   m_ObjectHideFlags: 0
@@ -18185,19 +18166,7 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1396039692}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SetServ
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 3848903531936339706}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Text, UnityEngine.UI
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -19622,7 +19591,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: http://178.249.69.197:35000
+  m_Text: http://192.168.50.72:3000
 --- !u!1 &3848903532929581339
 GameObject:
   m_ObjectHideFlags: 0

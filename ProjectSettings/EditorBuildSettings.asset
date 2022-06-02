@@ -6,10 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/ACViewer-SDK/AugmentedCity/Scenes/AugCityDemo.unity
-    guid: 72376cf567213444cb1f3263260812ea
+    path: Assets/NGI/Scenes/MainScene.unity
+    guid: 98e88f80b85eca749919db8bcfaebca7
+  - enabled: 1
+    path: Assets/NGI/Scenes/AugCityToNGI_Dev_Interaction.unity
+    guid: 337dd58d4e2941c4f8b7e0232d8bb2d1
   m_configObjects:
-    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: ff449554225d2cd47b55c8d15e5d115f,
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6a24084d9f7e5df4ba2b709fd6559745,
+      type: 2}
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: fc390dfd2334c344ab5e8610a0ce14b5,
       type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 320a4f8263f37dd449b740e521b76de7,
       type: 2}

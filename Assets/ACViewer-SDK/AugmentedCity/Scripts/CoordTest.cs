@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Outdated and not used anymore, candidate to delete at all
+/// </summary>
 public class CoordTest : MonoBehaviour
 {
     Transform camARTrans;
 
 
     public Text t1, t2, t3, textInputServerPlaceholder, textInputServer;
-    public Toggle[] toggles;
+    public Toggle[] toggles; // toggling any of them triggers the CoordTest.SetServ() and SetToggle() methods
     // public Text[] servers;
-    // Start is called before the first frame update
+    // WARNING: Toggle Element 5 is missing from the GUI at the moment
 
+    // Start is called before the first frame update
     void Start()
     {
         camARTrans = Camera.main.gameObject.transform;
@@ -20,14 +24,16 @@ public class CoordTest : MonoBehaviour
         {
             //ToggleGroup a;
             toggles[PlayerPrefs.GetInt("Tnumber")].isOn = true;
-            if (PlayerPrefs.GetInt("Tnumber") == 6)
+            if (PlayerPrefs.GetInt("Tnumber") == 6) // WARNING: hardcoded that the custom URL must be at index 6! But in our OSCP client, there is no index 5.
             {
                 textInputServer.text = PlayerPrefs.GetString("ApiUrl");
                 textInputServerPlaceholder.text = PlayerPrefs.GetString("ApiUrl");
             }
         }
-        else {
-            toggles[0].isOn = true;
+        else 
+        {
+            if(toggles[0] != null)
+                toggles[0].isOn = true;
         }
     }
 
@@ -41,17 +47,28 @@ public class CoordTest : MonoBehaviour
 
     public void SetServ(Text tt)
     {
-        if (tt.text.Length > 6)
+        Debug.Log("CoordTest.SetServ: " + tt.text);
+        // TODO: this method received http:// address instead of https://
+        // it seems that the value came from the Settings Panels' ServerAddress Field
+        // we should get the https:// address from the PlayerPrefs instead
+        if (tt.text.Length > 6) // TODO: why only written when the length of the address field is larger than 6 characters? Do we want the toggle index to be here instead?
         {
-            Debug.Log("Serv  = " + tt.text);
+            Debug.Log("New Server addr = " + tt.text);
             PlayerPrefs.SetString("ApiUrl", tt.text);
-            GetComponent<ACityAPIDev>().setApiURL(tt.text);
+            //GetComponent<ACityAPIDev>().setApiURL(tt.text);
         }
     }
 
     public void SetToggle(int tog)
     {
+        Debug.Log("CoordTest.SetToggle: " + tog);
         Debug.Log("Tnumber wtf = " + tog);
         PlayerPrefs.SetInt("Tnumber", tog);
     }
+
+    public void SetUurl(string url)
+    {
+
+    }
+
 }

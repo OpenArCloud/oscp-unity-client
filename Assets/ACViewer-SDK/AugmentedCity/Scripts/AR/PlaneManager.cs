@@ -17,11 +17,6 @@ public class PlaneManager : MonoBehaviour
         yGround = -1000;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     private void FixedUpdate()
     {
         planetimer++;

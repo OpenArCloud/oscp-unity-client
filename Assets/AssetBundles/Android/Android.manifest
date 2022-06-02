@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 2100889940
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: cocacola
+      Dependencies: {}
+    Info_1:
+      Name: laboratory
+      Dependencies: {}

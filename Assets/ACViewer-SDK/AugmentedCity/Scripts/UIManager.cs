@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
     public GameObject addButton;
     public GameObject newObjButton;
     public GameObject newObject;
-
+   // public GameObject addButton;
 
     public float koefSticker;
     public float koefPin;
@@ -82,10 +82,6 @@ public class UIManager : MonoBehaviour
         aRcamera = Camera.main.gameObject;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
 
     void OnApplicationPause(bool pauseStatus)
     {
@@ -162,9 +158,10 @@ public class UIManager : MonoBehaviour
 
     public void Located()
     {
+        addButton.SetActive(true);
         setLowPanelButtons(true);
-        //setMenuButtons(true);
-        //setMapButtons(true);
+        setMenuButtons(true);
+        setMapButtons(true);
         setLocalizeProgress(false);
         setColorCenterImage();
     }
@@ -179,7 +176,7 @@ public class UIManager : MonoBehaviour
     }
     public void setMapButtons(bool act)
     {
-        
+
     }
     public void setMenuButtons(bool act)
     {
@@ -198,6 +195,7 @@ public class UIManager : MonoBehaviour
 
     public void SetServ(Text tt)
     {
+        Debug.Log("UIManager.SetServ: " +  tt.text);
         Debug.Log("Serv  = " + tt.text);
         PlayerPrefs.SetString("ApiUrl", tt.text);
     }

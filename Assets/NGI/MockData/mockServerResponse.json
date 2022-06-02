@@ -1,0 +1,41 @@
+[
+    {
+        "id": "c2162ebf6456c7a0",
+        "type": "scr",
+        "content": {
+            "id": "3",
+            "type": "placeholder",
+            "title": "laboratory",
+            "refs": [
+                {
+                    "contentType": "assetbundle",
+                    "url": "https://simplecloudstorageefded4746b7146beb038662f439a393602-staging.s3.eu-north-1.amazonaws.com/private/eu-north-1%3Af7c86f34-4d88-4140-8795-37e524ef076f/ngi/media/3d/laboratory/android/bundle/laboratory"
+                }
+            ],
+            "definitions": [
+                {
+                    "type": "testkey",
+                    "value": "testvalue"
+                }
+            ],
+            "geopose": {
+                "latitude": 59.16873565381659,
+                "longitude": 18.1744093191588,             
+                "ellipsoidHeight": 0,
+                "quaternion": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "w": 1
+                }
+            },
+            "description": "This should be an avocado",
+            "keywords": [
+                "laboratory",
+                "gltf"
+            ]
+        },
+        "tenant": "public",
+        "timestamp": 1639602506.035
+    }
+]

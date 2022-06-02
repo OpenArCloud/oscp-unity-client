@@ -8,6 +8,7 @@ public class ModelManager : MonoBehaviour
 
     string bundleName;
     public GameObject ABloader;
+    public GameObject ABloaderNGI;
     string modelPath;
     GameObject activeModel;
     GetPlaceHoldersDev gph;
