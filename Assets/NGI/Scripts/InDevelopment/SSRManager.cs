@@ -10,22 +10,18 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(H3Manager))]
 public class SSRManager : MonoBehaviour
 {
-    [SerializeField] string ssdServerURL = "https://ssd.orbit-lab.org/";
-
-    //[SerializeField] string h3Index = "ssrs?h3Index=882a13d23bfffff";
-    [SerializeField] string countryCode = "us";
+    const string kDefaultSsdServerUrl = "https://ssd.orbit-lab.org";
+    const string kDefaultCountryCode = "us";
+    [SerializeField] string ssdServerURL = kDefaultSsdServerUrl;
 
     [SerializeField] GameObject listItemPrefab;
 
     [SerializeField] RectTransform rectTransformSpawnSSR;
     [SerializeField] RectTransform rectTransformSpawnSCR;
 
-    [SerializeField] H3Manager h3Manager;
+    [SerializeField] H3Manager h3Manager; // TODO: rename to LocationManager?
 
-
-
-
-    public static event Action<string> ServerResponseGet;
+    public static event Action<string> ServerResponseGet = null;
 
     private void OnEnable()
     {
@@ -41,6 +37,7 @@ public class SSRManager : MonoBehaviour
 
     private void Start()
     {
+        Console.WriteLine("SSRManager.Start");
         if (h3Manager == null)
         {
             h3Manager = GetComponent<H3Manager>();
@@ -72,8 +69,9 @@ public class SSRManager : MonoBehaviour
 
     public void CreateListItems(JSONNode response)
     {
-        List<JSONNode> ssrList = new List<JSONNode>();
-        List<JSONNode> scrList = new List<JSONNode>();
+        Console.WriteLine("SSRManager.CreateListItems");
+        List<JSONNode> ssrList = new List<JSONNode>(); // TODO: rename to availableGeoPoseServices
+        List<JSONNode> scrList = new List<JSONNode>(); // TODO: rename to availableContentServices
 
         int length = response[0]["services"].Count;
         for (int i = 0; i < length; i++)
@@ -153,6 +151,7 @@ public class SSRManager : MonoBehaviour
 
     private void HandleAuthenticate(bool isAuthenticated)
     {
+        Console.WriteLine("SSRManager.HandleAuthenticate");
         if (isAuthenticated)
         {
             StartCoroutine(GetServersInCurrentH3());
@@ -185,12 +184,12 @@ public class SSRManager : MonoBehaviour
 
     public void LoadSceneAsync(string sceneName)
     {
-        // OSCPDataHolder.Instance.ClearData();
-
+        Console.WriteLine("SSRManager.LoadSceneAsync");
+        //OSCPDataHolder.Instance.ClearData();
         OSCPDataHolder.Instance.ContentUrls = GetSelectedSCDItems(rectTransformSpawnSCR);
         OSCPDataHolder.Instance.GeoPoseServieURL = GetSelectedSSRItems(rectTransformSpawnSSR);
 
-        //TODO: Infor the user that their selection has some errors
+        //TODO: Inform the user that their selection has some errors
         if (OSCPDataHolder.Instance.CheckSelectedServices())
         {
             SceneManager.LoadSceneAsync(sceneName);

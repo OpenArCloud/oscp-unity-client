@@ -10455,7 +10455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c07b482060f5c6c4f81c0b1993f236d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ssdServerURL: https://ssd.orbit-lab.org/
+  ssdServerURL: https://ssd.orbit-lab.org
   countryCode: us
   listItemPrefab: {fileID: 8332775679143077325, guid: a738e39a30c5cd2438dd60207cb5d201,
     type: 3}
