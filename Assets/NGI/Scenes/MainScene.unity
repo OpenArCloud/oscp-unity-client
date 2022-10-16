@@ -11277,7 +11277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470c0711da3c1a043aefac15115c0a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLoadingFromLocalStorage: 0
+  devLoadContentsFromFile: 0
   oAuth2Authentication: {fileID: 615552024}
   spatialRecordManager: {fileID: 615552026}
 --- !u!1 &1237074268

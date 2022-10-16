@@ -9,18 +9,13 @@ using UnityEngine;
 
 public class MockResponseLoad : MonoBehaviour
 {
-
-    public JSONNode jsonResponseNode;
-    public SCRItem[] spatialServiceRecord;
-
-    public Vector3 mockCameraPos;
-    public Vector4 mockCameraOri;
-
     [SerializeField] private OrbitAPI orbitAPI;
 
-
-    public static event Action<SCRItem[]> UpdatedSpatialServiceRecord;
-
+    public JSONNode jsonResponseNode; // TODO: is it necessary to store this?
+    public SCRItem[] spatialContentRecords;
+    public Vector3 mockCameraPos;
+    public Vector4 mockCameraOri;
+    public static event Action<SCRItem[]> contentsUpdatedAction;
 
     private void OnEnable()
     {
@@ -34,16 +29,12 @@ public class MockResponseLoad : MonoBehaviour
 
     private void HandleServerResponse(string jsonResponse)
     {
-        
         jsonResponseNode = JSON.Parse(jsonResponse);
-
         StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
-
     }
 
     public void LoadFromJsonFile()
     {
-
         MockResponse mockResponse = new MockResponse();
         SaveDataManager.LoadJsonData(mockResponse);
 
@@ -60,22 +51,19 @@ public class MockResponseLoad : MonoBehaviour
         orbitAPI.LoadItemsFromServer();
     }
 
-
     private IEnumerator CreateSpatialRecordList(JSONNode jsonNode)
     {
-
-        int objectAmount = jsonResponseNode.Count;
-
-        spatialServiceRecord = new SCRItem[objectAmount];
-
-        Debug.Log(jsonResponseNode);
-
+        int objectAmount = jsonNode.Count;
+        spatialContentRecords = new SCRItem[objectAmount];
         float px, py, pz, ox, oy, oz, ow;
-
         for (int i = 0; i < objectAmount; i++)
         {
-
             SCRItem sp = new SCRItem();
+
+            sp.id = jsonNode[i]["id"];
+            sp.type = jsonNode[i]["type"];
+            sp.tenant = jsonNode[i]["tenant"];
+            sp.timestamp = jsonNode[i]["timestamp"];
 
             sp.content = new Content();
             sp.content.geopose = new GeoPosition();
@@ -85,126 +73,102 @@ public class MockResponseLoad : MonoBehaviour
             sp.content.definitions = new List<Dictionary<string, string>>();
             sp.content.keywords = new List<string>();
 
-            sp.content.id = jsonResponseNode[i]["content"]["id"];
-            sp.content.type = jsonResponseNode[i]["content"]["type"];
-            sp.content.title = jsonResponseNode[i]["content"]["title"];
-            sp.content.description = jsonResponseNode[i]["content"]["description"];
+            sp.content.id = jsonNode[i]["content"]["id"];
+            sp.content.type = jsonNode[i]["content"]["type"];
+            sp.content.title = jsonNode[i]["content"]["title"];
+            sp.content.description = jsonNode[i]["content"]["description"];
 
-            //New geopose schema
-            sp.content.geopose.position.lat = jsonResponseNode[i]["content"]["geopose"]["position"]["lat"].AsDouble;
-            sp.content.geopose.position.lon = jsonResponseNode[i]["content"]["geopose"]["position"]["lon"].AsDouble;
-            sp.content.geopose.position.h = jsonResponseNode[i]["content"]["geopose"]["position"]["h"].AsFloat;
-
-            sp.id = jsonResponseNode[i]["id"];
-            sp.type = jsonResponseNode[i]["type"];
-            sp.tenant = jsonResponseNode[i]["tenant"];
-            sp.timestamp = jsonResponseNode[i]["timestamp"];
-
-            //Dont know what these two attributes handle
+            // TODO: Dont know what these two attributes handle
             sp.content.bbox = "";
             sp.content.size = 1f;
 
-
-            //Mock position Needs update when Visual Positioning System is working
-            ox = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
-            oy = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
-            oz = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
-            ow = jsonResponseNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
-
+            // New geopose schema
+            sp.content.geopose.position.lat = jsonNode[i]["content"]["geopose"]["position"]["lat"].AsDouble;
+            sp.content.geopose.position.lon = jsonNode[i]["content"]["geopose"]["position"]["lon"].AsDouble;
+            sp.content.geopose.position.h = jsonNode[i]["content"]["geopose"]["position"]["h"].AsFloat;
+            // TODO: Mock orientation Needs update when Visual Positioning System is working
+            ox = jsonNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
+            oy = jsonNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
+            oz = jsonNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
+            ow = jsonNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
             sp.content.geopose.quaternion.Add("x", ox);
             sp.content.geopose.quaternion.Add("y", oy);
             sp.content.geopose.quaternion.Add("z", oz);
             sp.content.geopose.quaternion.Add("w", ow);
 
-            int length = jsonResponseNode[i]["content"]["keywords"].Count;
+            int length = jsonNode[i]["content"]["keywords"].Count;
             for (int y = 0; y < length; y++)
             {
-                sp.content.keywords.Add(jsonResponseNode[i]["content"]["keywords"][y]);
+                sp.content.keywords.Add(jsonNode[i]["content"]["keywords"][y]);
             }
 
-            length = jsonResponseNode[i]["content"]["refs"].Count;
+            length = jsonNode[i]["content"]["refs"].Count;
             for (int y = 0; y < length; y++)
             {
-
                 Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
-
-                foreach (var item in jsonResponseNode[i]["content"]["refs"][y])
+                foreach (var item in jsonNode[i]["content"]["refs"][y])
                 {
                     keyValuePairs.Add(item.Key, item.Value);
                 }
-
                 sp.content.refs.Add(keyValuePairs);
             }
 
-            length = jsonResponseNode[i]["content"]["definitions"].Count;
+            length = jsonNode[i]["content"]["definitions"].Count;
             for (int y = 0; y < length; y++)
             {
                 Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
-
-                foreach (var item in jsonResponseNode[i]["content"]["definitions"][y])
+                foreach (var item in jsonNode[i]["content"]["definitions"][y])
                 {
                     keyValuePairs.Add(item.Key, item.Value);
                 }
-
                 sp.content.definitions.Add(keyValuePairs);
             }
-      
-            sp.isAssetBundle = CheckForAssetBundle(sp.content.refs[0]);
 
-            spatialServiceRecord[i] = sp;
+            sp.isAssetBundle = CheckForAssetBundle(sp.content.refs[0]);
+            
+            spatialContentRecords[i] = sp;
         }
 
-        UpdatedSpatialServiceRecord?.Invoke(spatialServiceRecord); 
+        contentsUpdatedAction?.Invoke(spatialContentRecords); 
         yield return null;
     }
 
     public void UpdateSpatialObject(SCRItem sp)
-     {
-
-        int length = spatialServiceRecord.Length;
+    {
+        int length = spatialContentRecords.Length;
         string objID = sp.id;
         for (int i = 0; i < length; i++)
         {
-            if (string.Equals(spatialServiceRecord[i].id, objID))
+            if (string.Equals(spatialContentRecords[i].id, objID))
             {
-                spatialServiceRecord[i] = sp;
-                Debug.Log(string.Format("Updated ObjectID: {0}", spatialServiceRecord[i].id));
+                spatialContentRecords[i] = sp;
+                Debug.Log(string.Format("Updated ObjectID: {0}", spatialContentRecords[i].id));
 
                 orbitAPI.UpdateRecord(sp);
 
                 return;
             }
         }
-
         Debug.Log(string.Format("Not found: ObjectID: {0} ", objID));
-
     }
-
 
     public void SaveSpatialRecordListToLocalStorage()
     {
-
-        string json = JsonConvert.SerializeObject(spatialServiceRecord,
-                new JsonSerializerSettings()
-                {
+        string json = JsonConvert.SerializeObject(spatialContentRecords,
+                new JsonSerializerSettings(){
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 
                 });
-
-        Debug.Log(json);
-
+        //Debug.Log(json);
     }
 
-   private bool CheckForAssetBundle(Dictionary<string, string> dict)
+    private bool CheckForAssetBundle(Dictionary<string, string> dict)
     {
-
         if(dict.ContainsKey("assetbundle"))
         {
             return true;
         }
-
         return false;
-
     }
 
 }

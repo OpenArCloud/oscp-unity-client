@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: rename to OSCPContext or similar but generally try to get rid of this class
 public class OSCPDataHolder : Singleton<OSCPDataHolder>
 {
 
     public List<string> ContentUrls = new List<string>();
 
-    public string GeoPoseServieURL = "";
+    public string GeoPoseServieURL = ""; // TODO: rename to GeoPoseServiceURL. But it should be in SSRManager
 
     public string H3CurrentZone = "";
 

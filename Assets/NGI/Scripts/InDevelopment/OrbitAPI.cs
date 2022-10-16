@@ -10,10 +10,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+// TODO: this class should be merged into SCRManager. 
+// Orbit is just one possible deployment of SpatialContentDiscovery.
 public class OrbitAPI : MonoBehaviour
 {
-    [SerializeField] private bool isLoadingFromLocalStorage;
-
+    [SerializeField] private bool devLoadContentsFromFile;
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
     [SerializeField] private SCRManager spatialRecordManager;
 
@@ -22,10 +23,11 @@ public class OrbitAPI : MonoBehaviour
 
     List<string> contentServerUrls = new List<string>();
 
+
     private void Start()
     {
+        // TODO: we should load the content server URL from SSD instead of hardcoding here
         contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
-
 #if UNITY_EDITOR
         if (contentServerUrls.Count == 0)
         {
@@ -33,30 +35,24 @@ public class OrbitAPI : MonoBehaviour
             contentServerUrls.Add("https://scd.orbit-lab.org");
         }
 #endif
-
+    // TODO: do not load at start. we don't even know which content services are available yet!
         LoadItemsFromServer();
     }
 
-
-
-
     public void LoadItemsFromServer()
     {
-        if (isLoadingFromLocalStorage)
+        if (devLoadContentsFromFile)
         {
-
             spatialRecordManager.LoadFromJsonFile();
         }
         else
         {
             string accessToken = GetAccesToken();
-
             if (string.IsNullOrEmpty(accessToken))
             {
-                //TODO: Inform the user 
+                //TODO: Inform the user
                 return;
             }
-
 
             //TODO: Give the possibility for users to change topic
             if (spatialRecordManager.spatialServiceRecord == null || spatialRecordManager.spatialServiceRecord.Length == 0)
@@ -67,110 +63,78 @@ public class OrbitAPI : MonoBehaviour
 
     }
 
-    public void UpdateRecord(SCRItem sp)
+    public void UpdateRecord(SCRItem scr)
     {
-
-        string recordID = sp.id;
-
-        string json = ConvertSCRtoString(sp);
-
+        string json = ConvertSCRtoString(scr);
         string accessToken = GetAccesToken();
-
         //TODO: Add ability to change topic. Currently hardcoded to history
-        UpdateSpatialRecord(accessToken, recordID, "history", json);
-
+        UpdateSpatialContentRecord(accessToken, scr.id, "history", json);
     }
 
-    public async Task<string> CreateRecord(SCRItem sp)
+    public async Task<string> CreateRecord(SCRItem scr)
     {
-
-        string json = ConvertSCRtoString(sp);
-
+        string json = ConvertSCRtoString(scr);
         string accessToken = GetAccesToken();
-
-        string id = await CreateSpatialRecord(accessToken, "history", json);
-
+        string id = await CreateSpatialContentRecord(accessToken, "history", json);
         return id;
-
     }
 
-    public async Task<bool> DeleteRecord(string itemID)
+    public async Task<bool> DeleteRecord(string recordID)
     {
-    
         string accessToken = GetAccesToken();
-
-        bool isDeleted = await DeleteSpatialRecord(accessToken, itemID, "history");
-
+        bool isDeleted = await DeleteSpatialContentRecord(accessToken, recordID, "history");
         return isDeleted;
-
     }
 
-    public string ConvertSCRtoString(SCRItem sp)
+    public string ConvertSCRtoString(SCRItem scr)
     {
-
-        string json = JsonConvert.SerializeObject(sp,
-                new JsonSerializerSettings()
-                {
+        string json = JsonConvert.SerializeObject(scr,
+                new JsonSerializerSettings(){
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-
                 });
-
-        Debug.Log(json);
-
         return json;
     }
-
 
     private string GetAccesToken()
     {
         UserSessionCache userSessionCache = new UserSessionCache();
         SaveDataManager.LoadJsonData(userSessionCache);
-
         if (!string.IsNullOrEmpty(userSessionCache.getAccessToken()))
         {
             return userSessionCache.getAccessToken();
         }
-
         return null;
     }
 
-
     #region Test Methods during development
-
 
     async void GetSpatialContentRecords(string accessToken, string topic, string H3Index)
     {
-
         // https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff
         output("Making API Call to read content...");
-        //TODO: Ability to query multiple content servers not just the first in the list
-        //sends the request
-        HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic + "?h3Index=" + H3Index);
+
+        //TODO: Ability to query multiple content servers, not just the first one in the list
+        string scdServerURL = contentServerUrls[0];
+        HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic + "?h3Index=" + H3Index);
         getRequest.Method = "GET";
         getRequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
         getRequest.ContentType = "application/x-www-form-urlencoded";
 
-        // gets the response
         WebResponse apiResponse = await getRequest.GetResponseAsync();
         using (StreamReader apiInforResponseReader = new StreamReader(apiResponse.GetResponseStream()))
         {
-            // reads response body
             string apiInfoResponseText = await apiInforResponseReader.ReadToEndAsync();
-            output("Response from scd-orbit read: " + apiInfoResponseText);
-
+            output("Response from Spatial Content Discovery: " + apiInfoResponseText);
             ServerResponseGet?.Invoke(apiInfoResponseText);
         }
     }
 
-    private async Task<string> CreateSpatialRecord(string access_token, string topic, string jsonBody)
+    // string testNewObjectJsonBody = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
+    private async Task<string> CreateSpatialContentRecord(string access_token, string topic, string jsonBody)
     {
         output("Making API Call to Post content...");
 
         // Create POST data and convert it to a byte array.
-        // string postData = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
-
-
-
         byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
         // sends the request
@@ -179,26 +143,19 @@ public class OrbitAPI : MonoBehaviour
         postRequest.Headers.Add("Authorization", "Bearer " + access_token);
         postRequest.ContentType = "application/json";
         //putRequest.Accept = "application/json";
-
         postRequest.ContentLength = byteArray.Length;
+
         Stream stream = postRequest.GetRequestStream();
         await stream.WriteAsync(byteArray, 0, byteArray.Length);
         stream.Close();
 
         try
         {
-            // gets the response
             WebResponse putResponse = await postRequest.GetResponseAsync();
             using (StreamReader reader = new StreamReader(putResponse.GetResponseStream()))
             {
-                // reads response body
                 string responseText = await reader.ReadToEndAsync();
-
-                Debug.Log(responseText);
-
                 return responseText;
-
-                //Debug.Log(access_token);
             }
         }
         catch (WebException ex)
@@ -219,14 +176,12 @@ public class OrbitAPI : MonoBehaviour
             }
         }
         return "";
-
     }
 
-    async void UpdateSpatialRecord(string access_token, string itemID, string topic, string jsonBody)
+    async void UpdateSpatialContentRecord(string access_token, string itemID, string topic, string jsonBody)
     {
-        Debug.Log(jsonBody);
+        //Debug.Log(jsonBody);
         output("Making API Call to update item with ID: " + itemID);
-
 
         byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
@@ -244,18 +199,12 @@ public class OrbitAPI : MonoBehaviour
 
         try
         {
-            // gets the response
             WebResponse putResponse = await putRequest.GetResponseAsync();
             using (StreamReader reader = new StreamReader(putResponse.GetResponseStream()))
             {
-                // reads response body
                 string responseText = await reader.ReadToEndAsync();
-
-                //inform the user about success
-
                 Console.WriteLine(responseText);
-                Debug.Log(responseText);
-
+                //Debug.Log(responseText);
             }
         }
         catch (WebException ex)
@@ -271,7 +220,6 @@ public class OrbitAPI : MonoBehaviour
                         // reads response body
                         string responseText = await reader.ReadToEndAsync();
                         output(responseText);
-
                         //inform the user about failure
                     }
                 }
@@ -280,35 +228,28 @@ public class OrbitAPI : MonoBehaviour
     }
 
     //TODO fix server. It always returns a 504 timed out but record is still deleted
-    async Task<bool> DeleteSpatialRecord(string access_token, string itemID, string topic)
+    async Task<bool> DeleteSpatialContentRecord(string access_token, string itemID, string topic)
     {
         output("Making API Call to delete item...");
 
-        // sends the request
         HttpWebRequest deleteRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);
         deleteRequest.Method = "DELETE";
         deleteRequest.Headers.Add("Authorization", "Bearer " + access_token);
-        //TODO fix server. As of 2022-19-05. Server always returns a 504 timed out but record is still deleted
+        //TODO fix server. As of 2022-05-19. Server always returns a 504 timed out but record is still deleted
         //lowering timeout to 2000 seconds
         deleteRequest.Timeout = 2000;
     
         try
         {
-            // gets the response
             WebResponse deleteResponse = await deleteRequest.GetResponseAsync();
             using (StreamReader reader = new StreamReader(deleteResponse.GetResponseStream()))
             {
-                // reads response body
                 string responseText = await reader.ReadToEndAsync();
-                Console.WriteLine(responseText);
-
-                Debug.Log(responseText);
                 return true;
             }
         }
         catch (WebException ex)
         {         
-
             if (ex.Status == WebExceptionStatus.ProtocolError)
             {
                 var response = ex.Response as HttpWebResponse;
@@ -317,18 +258,18 @@ public class OrbitAPI : MonoBehaviour
                     output("HTTP: " + response.StatusCode);
                     using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                     {
-                        // reads response body
                         string responseText = await reader.ReadToEndAsync();
                         output(responseText);
-                        //TODO: inform the user about the failure
                     }
                 }
             }
             return false;
         }       
     }
+
     #endregion
 
+    // TODO: make this logging method available as a Utility for all other classes
     /// <summary>
     /// Appends the given string to the on-screen log, and the debug console.
     /// </summary>
@@ -338,6 +279,5 @@ public class OrbitAPI : MonoBehaviour
         Console.WriteLine(output);
         Debug.Log(output);
     }
-
 
 }
