@@ -18,10 +18,11 @@ public class OrbitAPI : MonoBehaviour
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
     [SerializeField] private SCRManager scrManager;
 
-    public static event Action<string> ServerResponseGet;
-    public static event Action<bool, string> ServerResponse;
-
+    const string kDefaultScdServerUrl = "https://scd.orbit-lab.org";
     List<string> contentServerUrls = new List<string>();
+
+    public static event Action<string> ServerResponseGet;
+    //public static event Action<bool, string> ServerResponse; // unused
 
 
     private void Start()
@@ -32,7 +33,7 @@ public class OrbitAPI : MonoBehaviour
         if (contentServerUrls.Count == 0)
         {
             //hardcoded test server
-            contentServerUrls.Add("https://scd.orbit-lab.org");
+            contentServerUrls.Add(kDefaultScdServerUrl);
         }
 #endif
     // TODO: do not load at start. we don't even know which content services are available yet!

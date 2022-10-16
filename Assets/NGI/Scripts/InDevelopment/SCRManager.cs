@@ -14,10 +14,10 @@ public class SCRManager : MonoBehaviour
 {
     [SerializeField] private OrbitAPI orbitAPI;
 
-    public JSONNode jsonResponseNode;
-    public SCRItem[] spatialContentRecords;
+    public JSONNode jsonResponseNode = null;
+    public SCRItem[] spatialContentRecords = new SCRItem[0];
 
-    public static event Action<SCRItem[]> contentsUpdatedAction;
+    public static event Action<SCRItem[]> contentsUpdatedAction = null;
 
 
     private void OnEnable()
@@ -30,10 +30,15 @@ public class SCRManager : MonoBehaviour
         OrbitAPI.ServerResponseGet -= HandleServerResponse;
     }
 
+    private void Start()
+    {
+        Console.WriteLine("SCRManager.Start");
+    }
+
     private void HandleServerResponse(string jsonResponse)
     {
         jsonResponseNode = JSON.Parse(jsonResponse);
-        StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
+        StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
     public void LoadFromJsonFile()
@@ -46,7 +51,7 @@ public class SCRManager : MonoBehaviour
             jsonResponseNode = JSON.Parse(mockResponse.mockServerResponse);
         }
 
-        StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
+        StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
     public void GetSpatialRecords()
@@ -54,7 +59,8 @@ public class SCRManager : MonoBehaviour
         orbitAPI.LoadItemsFromServer();
     }
 
-    private IEnumerator CreateSpatialRecordList(JSONNode jsonNode)
+    // TODO: this is just parsing, does not need to run on a coroutine
+    private IEnumerator ParseSpatialContentRecords(JSONNode jsonNode)
     {
         //Debug.Log(jsonNode);
 

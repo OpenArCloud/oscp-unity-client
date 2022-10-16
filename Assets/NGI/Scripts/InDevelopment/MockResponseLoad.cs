@@ -29,7 +29,7 @@ public class MockResponseLoad : MonoBehaviour
     private void HandleServerResponse(string jsonResponse)
     {
         jsonResponseNode = JSON.Parse(jsonResponse);
-        StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
+        StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
     public void LoadFromJsonFile()
@@ -42,7 +42,7 @@ public class MockResponseLoad : MonoBehaviour
             jsonResponseNode = JSON.Parse(mockResponse.mockServerResponse);
         }
 
-        StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
+        StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
     public void GetSpatialRecords()
@@ -50,7 +50,8 @@ public class MockResponseLoad : MonoBehaviour
         orbitAPI.LoadItemsFromServer();
     }
 
-    private IEnumerator CreateSpatialRecordList(JSONNode jsonNode)
+    // TODO: this is just parsing, does not need to run on a coroutine
+    private IEnumerator ParseSpatialContentRecords(JSONNode jsonNode)
     {
         int objectAmount = jsonNode.Count;
         spatialContentRecords = new SCRItem[objectAmount];
