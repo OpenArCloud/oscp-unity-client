@@ -54,7 +54,6 @@ public class MockResponseLoad : MonoBehaviour
     {
         int objectAmount = jsonNode.Count;
         spatialContentRecords = new SCRItem[objectAmount];
-        float px, py, pz, ox, oy, oz, ow;
         for (int i = 0; i < objectAmount; i++)
         {
             SCRItem sp = new SCRItem();
@@ -86,10 +85,10 @@ public class MockResponseLoad : MonoBehaviour
             sp.content.geopose.position.lon = jsonNode[i]["content"]["geopose"]["position"]["lon"].AsDouble;
             sp.content.geopose.position.h = jsonNode[i]["content"]["geopose"]["position"]["h"].AsFloat;
             // TODO: Mock orientation Needs update when Visual Positioning System is working
-            ox = jsonNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
-            oy = jsonNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
-            oz = jsonNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
-            ow = jsonNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
+            float ox = jsonNode[i]["content"]["geopose"]["quaternion"]["x"].AsFloat;
+            float oy = jsonNode[i]["content"]["geopose"]["quaternion"]["y"].AsFloat;
+            float oz = jsonNode[i]["content"]["geopose"]["quaternion"]["z"].AsFloat;
+            float ow = jsonNode[i]["content"]["geopose"]["quaternion"]["w"].AsFloat;
             sp.content.geopose.quaternion.Add("x", ox);
             sp.content.geopose.quaternion.Add("y", oy);
             sp.content.geopose.quaternion.Add("z", oz);
@@ -142,7 +141,6 @@ public class MockResponseLoad : MonoBehaviour
             {
                 spatialContentRecords[i] = sp;
                 Debug.Log(string.Format("Updated ObjectID: {0}", spatialContentRecords[i].id));
-
                 orbitAPI.UpdateRecord(sp);
                 return;
             }
@@ -150,7 +148,7 @@ public class MockResponseLoad : MonoBehaviour
         Debug.Log(string.Format("Not found: ObjectID: {0} ", objID));
     }
 
-    public void SaveSpatialRecordListToLocalStorage()
+    public void SaveContentsToLocalStorage()
     {
         string json = JsonConvert.SerializeObject(spatialContentRecords,
                 new JsonSerializerSettings(){

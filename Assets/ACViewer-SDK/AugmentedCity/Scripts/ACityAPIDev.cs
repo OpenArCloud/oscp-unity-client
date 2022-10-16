@@ -92,10 +92,12 @@ public class ACityAPIDev : MonoBehaviour
         public string type;
         public string subType;
 
-        //Added for external unity assetbundle that is not hosted on augmented city servers.
+        // TODO: make this clean somewhere else separated from AC. We have nothing to do with stickers!
+        // It seems this class is used to represent contents in the local scene for the renderer
+        // NGI project: Added for external unity assetbundle that is not hosted on augmented city servers.
         public string anchorName;
         public string externalAssetUrl;
-        public SCRItem spatialServiceRecord;
+        public SCRItem spatialContentRecord; // TODO: why do we store the whole SCR in a stickerInfo?
     }
 
     public class EcefPose
@@ -185,6 +187,7 @@ public class ACityAPIDev : MonoBehaviour
 
     UIManager uim;
 
+    // TODO: spatial content manager should be outside AC-specific code
     [SerializeField] private SCRManager spatialContentManager;
     public bool useOrbitContent;
 
@@ -371,6 +374,7 @@ public class ACityAPIDev : MonoBehaviour
         return bb;
     }
 
+    // TODO: refactor this monster method. Get rid of AC and keep only the OSCP-compliant parts
     public void camLocalize(string jsonanswer, bool geopose)
     {
         Debug.Log("This is the string response from AC: " + jsonanswer);
@@ -804,7 +808,7 @@ public class ACityAPIDev : MonoBehaviour
 
                     if (useOrbitContent)
                     {
-                        objectsAmount = spatialContentManager.spatialServiceRecord.Length;
+                        objectsAmount = spatialContentManager.spatialContentRecords.Length;
 
                         Debug.Log("Number of objects from orbit: " + objectsAmount);
 
@@ -825,9 +829,9 @@ public class ACityAPIDev : MonoBehaviour
                                 double tlat, tlon, thei;
 
                                 //New Geopose schema
-                                tlat = spatialContentManager.spatialServiceRecord[j].content.geopose.position.lat;
-                                tlon = spatialContentManager.spatialServiceRecord[j].content.geopose.position.lon;
-                                thei = spatialContentManager.spatialServiceRecord[j].content.geopose.position.h;
+                                tlat = spatialContentManager.spatialContentRecords[j].content.geopose.position.lat;
+                                tlon = spatialContentManager.spatialContentRecords[j].content.geopose.position.lon;
+                                thei = spatialContentManager.spatialContentRecords[j].content.geopose.position.h;
 
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
@@ -837,10 +841,10 @@ public class ACityAPIDev : MonoBehaviour
                                 pz = enupose.z;
 
 
-                                ox = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["x"];
-                                oy = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["y"];
-                                oz = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["z"];
-                                ow = spatialContentManager.spatialServiceRecord[j].content.geopose.quaternion["w"];
+                                ox = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["x"];
+                                oy = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["y"];
+                                oz = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["z"];
+                                ow = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["w"];
 
                                 //TODO: Remove this check from client, server should only return visible objects
                                 //I think this means within +- 100M distance
@@ -851,7 +855,7 @@ public class ACityAPIDev : MonoBehaviour
 
                                 if (!(tlat > latMin && tlat < latMax && tlon > lonMin && tlon < lonMax))
                                 {
-                                    spatialContentManager.spatialServiceRecord[j].isToFarAway = true;
+                                    spatialContentManager.spatialContentRecords[j].isToFarAway = true;
                                 }
 
 
@@ -884,13 +888,13 @@ public class ACityAPIDev : MonoBehaviour
                                 }
 
                                 stickers[j].sPath = ""; //Add path to SpatialRecord
-                                stickers[j].sText = "" + spatialContentManager.spatialServiceRecord[j].content.title;
-                                stickers[j].sType = "" + spatialContentManager.spatialServiceRecord[j].content.type;
-                                stickers[j].sSubType = "" + spatialContentManager.spatialServiceRecord[j].content.type; //Atm not using subtype
-                                stickers[j].sDescription = "" + spatialContentManager.spatialServiceRecord[j].content.description;
-                                stickers[j].SModel_scale = "" + spatialContentManager.spatialServiceRecord[j].content.size; //is size correct variable for scale?
-                                stickers[j].sId = "" + spatialContentManager.spatialServiceRecord[j].content.id;
-                                stickers[j].objectId = "" + spatialContentManager.spatialServiceRecord[j].id;
+                                stickers[j].sText = "" + spatialContentManager.spatialContentRecords[j].content.title;
+                                stickers[j].sType = "" + spatialContentManager.spatialContentRecords[j].content.type;
+                                stickers[j].sSubType = "" + spatialContentManager.spatialContentRecords[j].content.type; //Atm not using subtype
+                                stickers[j].sDescription = "" + spatialContentManager.spatialContentRecords[j].content.description;
+                                stickers[j].SModel_scale = "" + spatialContentManager.spatialContentRecords[j].content.size; //is size correct variable for scale?
+                                stickers[j].sId = "" + spatialContentManager.spatialContentRecords[j].content.id;
+                                stickers[j].objectId = "" + spatialContentManager.spatialContentRecords[j].id;
                                 stickers[j].sImage = ""; //image not implemented on server side
                                 stickers[j].sAddress = ""; //not implemented
                                 stickers[j].sFeedbackAmount = ""; //Not implemented
@@ -900,7 +904,7 @@ public class ACityAPIDev : MonoBehaviour
                                 stickers[j].sTrajectoryOffset = ""; // Not implemented
                                 stickers[j].sTrajectoryPeriod = ""; // Not implemented
                                 stickers[j].subType = ""; // Not implemented
-                                stickers[j].type = "" + spatialContentManager.spatialServiceRecord[j].type;
+                                stickers[j].type = "" + spatialContentManager.spatialContentRecords[j].type;
                                 stickers[j].bundleName = ""; // Not used
                                 stickers[j].anchorName = ""; //+ jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
                                 stickers[j].externalAssetUrl = "";// + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
@@ -919,7 +923,9 @@ public class ACityAPIDev : MonoBehaviour
                                     if (verticals.Contains("1")) { stickers[j].vertical = true; }
                                 }
 
-                                stickers[j].spatialServiceRecord = spatialContentManager.spatialServiceRecord[j];
+                                // TODO: why do we store the whole SCR?
+                                // it seems it is used later in GetPlaceHoldersDev but this is very messy...
+                                stickers[j].spatialContentRecord = spatialContentManager.spatialContentRecords[j];
 
                                 currentRi.stickerArray[j].sPath = stickers[j].sPath;
                                 currentRi.stickerArray[j].sText = stickers[j].sText;

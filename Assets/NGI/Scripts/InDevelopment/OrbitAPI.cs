@@ -16,7 +16,7 @@ public class OrbitAPI : MonoBehaviour
 {
     [SerializeField] private bool devLoadContentsFromFile;
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
-    [SerializeField] private SCRManager spatialRecordManager;
+    [SerializeField] private SCRManager scrManager;
 
     public static event Action<string> ServerResponseGet;
     public static event Action<bool, string> ServerResponse;
@@ -43,7 +43,7 @@ public class OrbitAPI : MonoBehaviour
     {
         if (devLoadContentsFromFile)
         {
-            spatialRecordManager.LoadFromJsonFile();
+            scrManager.LoadFromJsonFile();
         }
         else
         {
@@ -55,7 +55,7 @@ public class OrbitAPI : MonoBehaviour
             }
 
             //TODO: Give the possibility for users to change topic
-            if (spatialRecordManager.spatialServiceRecord == null || spatialRecordManager.spatialServiceRecord.Length == 0)
+            if (scrManager.spatialContentRecords == null || scrManager.spatialContentRecords.Length == 0)
             {
                 GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
             }

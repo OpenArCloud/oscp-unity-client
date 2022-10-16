@@ -289,7 +289,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
-        m_MethodName: SaveSpatialRecordListToLocalStorage
+        m_MethodName: SaveContentsToLocalStorage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

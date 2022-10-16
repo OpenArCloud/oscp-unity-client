@@ -206,8 +206,8 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                     for (int j = 0; j < stickers.Length; j++)
                     {
-                        //skips current spatial item if its to far awey
-                        if (stickers[j].spatialServiceRecord.isToFarAway)
+                        //skips current spatial item if its to far away
+                        if (stickers[j].spatialContentRecord.isToFarAway)
                         {
                             continue;
                         }
@@ -282,28 +282,29 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 vidos.url = stickers[j].sPath;
                                 videoURLs.Add(urlVid);
                             }
-                            else if (stickers[j].spatialServiceRecord != null)
+                            else if (stickers[j].spatialContentRecord != null)
                             {
+                                // TODO: move the whole SCR placement out from this method, separate OSCP and AC objects!
                                 Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
 
                                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
 
                                 model.AddComponent<SCRItemTag>();
 
-                                model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialServiceRecord.id;
+                                model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialContentRecord.id;
                                 //TODO: Fix so it supports more than one refs entry
                                 string assetbundleName = "noAsset";
 
-                                string assetbundlUrl = stickers[j].spatialServiceRecord.content.refs[0]["url"];
-                                if (string.Equals(stickers[j].spatialServiceRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialServiceRecord.content.refs[0].ContainsKey("assetbundle"))
+                                string assetbundlUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                                if (string.Equals(stickers[j].spatialContentRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
                                 {
                                     Debug.Log("This is an assetbundle");
 
-                                    for (int i = 0; i < stickers[j].spatialServiceRecord.content.definitions.Count; i++)
+                                    for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
                                     {
-                                        if (string.Equals(stickers[j].spatialServiceRecord.content.definitions[0]["type"], "assetbundleName"))
+                                        if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
                                         {
-                                            assetbundleName = stickers[j].spatialServiceRecord.content.definitions[0]["value"];
+                                            assetbundleName = stickers[j].spatialContentRecord.content.definitions[0]["value"];
                                         }
                                     }
 
@@ -315,7 +316,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                                 {  
                                     model.GetComponent<AssetLoaderNGI>().enabled = false;
                                     var gltf = model.AddComponent<GLTFast.GltfAsset>();
-                                    gltf.url = stickers[j].spatialServiceRecord.content.refs[0]["url"];
+                                    gltf.url = stickers[j].spatialContentRecord.content.refs[0]["url"];
                                 }
 
 
