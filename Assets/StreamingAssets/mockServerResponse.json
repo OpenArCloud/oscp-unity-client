@@ -19,9 +19,11 @@
                 }
             ],
             "geopose": {
-                "longitude": 19.025045365021786,
-                "latitude": 47.467713307111815,
-                "ellipsoidHeight": 0,
+                "position": {
+                    "lat": 59.16873565381659,
+                    "lon": 18.1744093191588,
+                    "h": 0
+                 },
                 "quaternion": {
                     "x": 0,
                     "y": 0,
