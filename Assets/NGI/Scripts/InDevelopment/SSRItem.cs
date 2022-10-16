@@ -2,14 +2,12 @@ using SimpleJSON;
 using UnityEngine;
 using UnityEngine.UI;
 
-
+// TODO: separate SSR (data) from how it is shown (button, image, selection)
 //SSR = spatial service record
 public class SSRItem : MonoBehaviour
 {
-
     [SerializeField] private Text id;
     [SerializeField] private Text type;
-
     [SerializeField] private Text URL;
     [SerializeField] private Text title;
     [SerializeField] private Text description;
@@ -21,7 +19,7 @@ public class SSRItem : MonoBehaviour
 
     public void SetValues(JSONNode item)
     {
-        Debug.Log(item);
+        //Debug.Log(item);
         id.text = item["id"];
         type.text = item["type"];
         URL.text = item["url"];
