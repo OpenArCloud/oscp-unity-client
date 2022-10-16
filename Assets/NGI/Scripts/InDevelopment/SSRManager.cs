@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 [RequireComponent(typeof(H3Manager))]
 public class SSRManager : MonoBehaviour
@@ -47,24 +48,6 @@ public class SSRManager : MonoBehaviour
     private void HandleResponse(string response)
     {
         CreateListItems(JSON.Parse(response));
-    }
-
-    public IEnumerator GetServersInCurrentH3()
-    {
-#if !UNITY_EDITOR
-        if (Input.location.status == LocationServiceStatus.Stopped || Input.location.status == LocationServiceStatus.Failed)
-        {
-            FindObjectOfType<H3Manager>().StartLocationService();
-        }
-
-        yield return new WaitUntil(() => Input.location.status == LocationServiceStatus.Running);
-
-        GetSpatialContentRecords(countryCode, h3Manager.GetLastH3Index().ToString());
-#else
-
-        yield return null;
-        GetSpatialContentRecords(countryCode, h3Manager.GetLastH3Index().ToString());
-#endif
     }
 
     public void CreateListItems(JSONNode response)
@@ -149,38 +132,141 @@ public class SSRManager : MonoBehaviour
         return null;
     }
 
-    private void HandleAuthenticate(bool isAuthenticated)
+    private async void HandleAuthenticate(bool isAuthenticated)
     {
         Console.WriteLine("SSRManager.HandleAuthenticate");
-        if (isAuthenticated)
-        {
-            StartCoroutine(GetServersInCurrentH3());
+        if (!isAuthenticated) {
+            Console.WriteLine("Not authenticated. Aborting.");
+            return;
         }
+
+        string ssrs = await GetServicesInCurrentH3();
+        if (String.IsNullOrEmpty(ssrs)) {
+            // TODO: inform user
+            Console.WriteLine("It seems no services are available at your location");
+            return;
+        }
+
+        ServerResponseGet?.Invoke(ssrs);
     }
 
-    async void GetSpatialContentRecords(string countryCode, string h3Index)
+    public async Task<string> GetServicesInCurrentH3()
     {
-
-        //output("Making Call to read SSD services...");
-
-        //sends the request
-        HttpWebRequest apiInforequest = (HttpWebRequest)WebRequest.Create(ssdServerURL + countryCode + "/ssrs?h3Index=" + h3Index);
-        apiInforequest.Method = "GET";
-        // apiInforequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
-        apiInforequest.ContentType = "application/x-www-form-urlencoded";
-
-        // gets the response
-        WebResponse apiResponse = await apiInforequest.GetResponseAsync();
-        using (StreamReader apiInforResponseReader = new StreamReader(apiResponse.GetResponseStream()))
+        Console.WriteLine("SSRManager.GetServicesInCurrentH3");
+#if UNITY_EDITOR
+        // nothing to do
+#else
+        // wait until location is available
+        if (Input.location.status == LocationServiceStatus.Stopped || Input.location.status == LocationServiceStatus.Failed)
         {
-            // reads response body
-            string apiInfoResponseText = await apiInforResponseReader.ReadToEndAsync();
-            Debug.Log("Response from scd-orbit read: " + apiInfoResponseText);
-
-            ServerResponseGet?.Invoke(apiInfoResponseText);
+            h3Manager.StartLocationService();
         }
+
+        Console.WriteLine("waiting for location services to become available... ");
+        while (!h3Manager.IsLocationAvailable())
+        {
+            await Task.Delay(1);
+        }
+#endif
+        float latitude = h3Manager.GetLatitude();
+        float longitude = h3Manager.GetLongitude();
+        Console.WriteLine("Location is available! GPS coordinates (lat, lon): " + latitude.ToString() + ", " + longitude.ToString());
+
+        Console.WriteLine("Looking up country code...");
+        string countryCode = await GetCountryCode(latitude, longitude);
+        string h3Index = h3Manager.GetH3Index().ToString();
+
+        Console.WriteLine("Searching for available spatial services...");
+        string ssrs = await GetSpatialServiceRecords(countryCode, h3Index);
+        return ssrs;
     }
 
+    // Spatial Service Discovery
+    public async Task<string> GetSpatialServiceRecords(string countryCode, string h3Index)
+    {
+        Console.WriteLine("SSRManager.GetSpatialServiceRecords");
+        try {
+            string requestUrl = ssdServerURL + "/" + countryCode + "/" + "ssrs?h3Index=" + h3Index;
+            Console.WriteLine("SSD Request URL: " + requestUrl);
+            HttpWebRequest ssdRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
+            ssdRequest.Method = "GET";
+            // ssdRequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
+            ssdRequest.ContentType = "application/x-www-form-urlencoded";
+
+            HttpWebResponse ssdResponse = (HttpWebResponse) (await ssdRequest.GetResponseAsync());
+            if (ssdResponse.StatusCode != HttpStatusCode.OK)
+            {
+                Console.WriteLine("Could not retrieve spatial services");
+                return ""; // TODO: return null instead
+            }
+
+            using (StreamReader ssdResponseReader = new StreamReader(ssdResponse.GetResponseStream()))
+            {
+                string ssdResponseText = await ssdResponseReader.ReadToEndAsync();
+                Debug.Log("Response from Spatial Service Discovery: " + ssdResponseText);
+                return ssdResponseText;
+            }
+        } catch(WebException e) {
+            // TODO: inform user
+            Debug.Log("Exception happened:" + e.Message);
+            if (e.Status == WebExceptionStatus.ProtocolError) {
+                Console.WriteLine("Status Code : {0}",  ((HttpWebResponse)e.Response).StatusCode);
+                Console.WriteLine("Status Description : {0}", ((HttpWebResponse)e.Response).StatusDescription);
+            }
+        }
+        return "";  // TODO: return null instead
+    }
+
+    // lookup from GPS to country code
+    // TODO: move into H3Manager which should be renamed LocationManager
+    #if UNITY_EDITOR
+    [SerializeField] bool useFakeCountryCode = false;
+    [SerializeField] string devCountryCode = "us";
+    #endif
+    public async Task<string> GetCountryCode(float latitude, float longitude) {
+        Console.WriteLine("GetCountryCode");
+        #if UNITY_EDITOR
+            if (useFakeCountryCode) {
+                return devCountryCode;
+            }
+        #endif
+        try {
+            string osmRequestUrl = "https://nominatim.openstreetmap.org/reverse?format=json"
+                    + "&lat=" + latitude.ToString() + "&lon=" + longitude.ToString()
+                    + "&zoom=1" + "&email=info%40michaelvogt.eu";
+            Console.WriteLine("osmRequestUrl: " + osmRequestUrl);
+            HttpWebRequest osmRequest = (HttpWebRequest)WebRequest.Create(osmRequestUrl);
+            osmRequest.Method = "GET";
+
+            HttpWebResponse osmResponse = (HttpWebResponse) (await osmRequest.GetResponseAsync());
+            if (osmResponse.StatusCode != HttpStatusCode.OK)
+            {
+                Console.WriteLine("Could not retrieve country code. Using default instead: " + kDefaultCountryCode);
+                return kDefaultCountryCode;
+            }
+
+            using (StreamReader osmResponseReader = new StreamReader(osmResponse.GetResponseStream()))
+            {
+                string osmResponseText = await osmResponseReader.ReadToEndAsync();
+                Console.WriteLine("Response from OpenStreetMap: " + osmResponseText);
+                JSONNode osmResponseJson = JSON.Parse(osmResponseText);
+                string countryCode = osmResponseJson["address"]["country_code"];
+                Console.WriteLine("  countryCode: " + countryCode);
+                return countryCode;
+            }
+        }
+        catch(WebException e) {
+            // TODO: inform user
+            Debug.Log("Exception happened:" + e.Message);
+            if (e.Status == WebExceptionStatus.ProtocolError) {
+                Console.WriteLine("Status Code : {0}",  ((HttpWebResponse)e.Response).StatusCode);
+                Console.WriteLine("Status Description : {0}", ((HttpWebResponse)e.Response).StatusDescription);
+            }
+        }
+
+        Console.WriteLine("Could not retrieve country code. Using default instead: " + kDefaultCountryCode);
+        return kDefaultCountryCode;
+    }
 
     public void LoadSceneAsync(string sceneName)
     {
