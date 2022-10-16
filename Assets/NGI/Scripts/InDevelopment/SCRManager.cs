@@ -6,13 +6,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: This class should be merged with OrbitAPI 
+// because Orbit is the name of just one spatial content discovery server
+// TODO: MockResponseLoad seems to be redundant with this too.
 public class SCRManager : MonoBehaviour
 {
     public JSONNode jsonResponseNode;
     public SCRItem[] spatialServiceRecord;
-
-    public Vector3 mockCameraPos;
-    public Vector4 mockCameraOri;
 
     [SerializeField] private OrbitAPI orbitAPI;
 
@@ -31,16 +31,12 @@ public class SCRManager : MonoBehaviour
 
     private void HandleServerResponse(string jsonResponse)
     {
-
         jsonResponseNode = JSON.Parse(jsonResponse);
-
         StartCoroutine(CreateSpatialRecordList(jsonResponseNode));
-
     }
 
     public void LoadFromJsonFile()
     {
-
         MockResponse mockResponse = new MockResponse();
         SaveDataManager.LoadJsonData(mockResponse);
 
@@ -63,14 +59,9 @@ public class SCRManager : MonoBehaviour
         int objectAmount = jsonResponseNode.Count;
 
         spatialServiceRecord = new SCRItem[objectAmount];
-
-        Debug.Log(jsonResponseNode);
-
         float px, py, pz, ox, oy, oz, ow;
-
         for (int i = 0; i < objectAmount; i++)
         {
-
             SCRItem sp = new SCRItem();
 
             sp.content = new Content();
@@ -97,7 +88,7 @@ public class SCRManager : MonoBehaviour
             sp.tenant = jsonResponseNode[i]["tenant"];
             sp.timestamp = jsonResponseNode[i]["timestamp"];
 
-            //Dont know what these two attributes handle
+            //TODO: Dont know what these two attributes handle
             sp.content.bbox = "";
             sp.content.size = 1f;
 
@@ -183,10 +174,8 @@ public class SCRManager : MonoBehaviour
                 new JsonSerializerSettings()
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-
                 });
-
-        Debug.Log(json);
-
+        //Debug.Log(json);
+        //TODO: where is the actual saving to file?
     }
 }

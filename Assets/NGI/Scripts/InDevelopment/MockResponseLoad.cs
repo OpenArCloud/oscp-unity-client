@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using NGI.Api;
 using SimpleJSON;
 using System;
 using System.Collections;
@@ -7,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+using NGI.Api; // TODO: rename to Oscp.Api
+
 public class MockResponseLoad : MonoBehaviour
 {
     [SerializeField] private OrbitAPI orbitAPI;
 
     public JSONNode jsonResponseNode; // TODO: is it necessary to store this?
     public SCRItem[] spatialContentRecords;
-    public Vector3 mockCameraPos;
-    public Vector4 mockCameraOri;
     public static event Action<SCRItem[]> contentsUpdatedAction;
 
     private void OnEnable()
@@ -66,9 +65,6 @@ public class MockResponseLoad : MonoBehaviour
             sp.timestamp = jsonNode[i]["timestamp"];
 
             sp.content = new Content();
-            sp.content.geopose = new GeoPosition();
-            sp.content.geopose.position = new Position();
-            sp.content.geopose.quaternion = new Dictionary<string, float>();
             sp.content.refs = new List<Dictionary<string, string>>();
             sp.content.definitions = new List<Dictionary<string, string>>();
             sp.content.keywords = new List<string>();
@@ -83,6 +79,9 @@ public class MockResponseLoad : MonoBehaviour
             sp.content.size = 1f;
 
             // New geopose schema
+            sp.content.geopose = new GeoPosition(); // TODO: rename class to GeoPose
+            sp.content.geopose.position = new Position();
+            sp.content.geopose.quaternion = new Dictionary<string, float>();
             sp.content.geopose.position.lat = jsonNode[i]["content"]["geopose"]["position"]["lat"].AsDouble;
             sp.content.geopose.position.lon = jsonNode[i]["content"]["geopose"]["position"]["lon"].AsDouble;
             sp.content.geopose.position.h = jsonNode[i]["content"]["geopose"]["position"]["h"].AsFloat;
@@ -145,7 +144,6 @@ public class MockResponseLoad : MonoBehaviour
                 Debug.Log(string.Format("Updated ObjectID: {0}", spatialContentRecords[i].id));
 
                 orbitAPI.UpdateRecord(sp);
-
                 return;
             }
         }
@@ -157,9 +155,9 @@ public class MockResponseLoad : MonoBehaviour
         string json = JsonConvert.SerializeObject(spatialContentRecords,
                 new JsonSerializerSettings(){
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-
                 });
         //Debug.Log(json);
+        //TODO: where is the actual saving to file?
     }
 
     private bool CheckForAssetBundle(Dictionary<string, string> dict)

@@ -105,6 +105,7 @@ public class ACityAPIDev : MonoBehaviour
         public double z;
     }
 
+    // TODO: this is not GeoPose, this is just the position part of it!
     public class GeoPose
     {
         public double lat;

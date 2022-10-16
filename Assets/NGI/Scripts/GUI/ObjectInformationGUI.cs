@@ -37,10 +37,8 @@ public class ObjectInformationGUI : MonoBehaviour
     [SerializeReference] Transform spawnPositionKeywords;
 
 
-
     public void SetValues(SCRItem record)
     {
-
         ID.text = record.id;
         Type.text = record.type;
         TimeStamp.text = record.timestamp.ToString();
@@ -54,30 +52,24 @@ public class ObjectInformationGUI : MonoBehaviour
         Position.text = record.Position.ToString();
         Orientation.text = record.Orientation.ToString();
 
-        //New geoppose schema
+        //New geopose schema
         Latitude.text = record.content.geopose.position.lat.ToString();
         Longitude.text = record.content.geopose.position.lon.ToString();
         EllipsoidHeight.text = record.content.geopose.position.h.ToString();
         
-
         CreateDictItems(record.content.refs, spawnPositionRefs);
         CreateDictItems(record.content.definitions, spawnPositionDefinitions);
         CreateKeywordItems(record.content.keywords, spawnPositionKeywords);
-
     }
 
 
     private SCRItem GetSpatialObject()
     {
-        // TODO
-        // Add validation for input 
-
         SCRItem record = new SCRItem();
         record.content = new Content();
-        record.content.geopose = new GeoPosition();
+        record.content.geopose = new GeoPosition(); // TODO: rename GeoPosition to GeoPose
         record.content.geopose.position = new Position();
         record.content.geopose.quaternion = new Dictionary<string, float>();
-        Vector4 vector4 = new Vector4();
 
         record.id = ID.text;
         record.type = Type.text;
@@ -89,16 +81,16 @@ public class ObjectInformationGUI : MonoBehaviour
         record.content.type = ContentType.text;
         record.content.description = ContentDescription.text;
 
+        // TODO: what are these non-standards fields for?
         record.Position = StringToVector.StringToVector3(Position.text);
         record.Orientation = StringToVector.StringToVector4(Orientation.text);
      
-        //New geopose schema
         record.content.geopose.position.lat = double.Parse(Longitude.text);
         record.content.geopose.position.lon = double.Parse(Latitude.text);
         record.content.geopose.position.h = float.Parse(EllipsoidHeight.text);
-
+        // TODO: can we avoid conversion to and from string?
+        Vector4 vector4 = new Vector4();
         vector4 = StringToVector.StringToVector4(Orientation.text);
-
         record.content.geopose.quaternion.Add("x", vector4.x);
         record.content.geopose.quaternion.Add("y", vector4.y);
         record.content.geopose.quaternion.Add("z", vector4.z);
@@ -113,24 +105,19 @@ public class ObjectInformationGUI : MonoBehaviour
         record.content.size = 1f;
         record.content.placeKey = "";
 
-
         return record;
     }
 
     public void UpdateSpatialObject()
     {
         SCRManager spatialRecordManager = FindObjectOfType<SCRManager>();
-
         spatialRecordManager.UpdateSpatialObject(GetSpatialObject());
-
     }
 
     public void CloseInformationPanel()
     {
         ClearTextValues();
-
         gameObject.SetActive(false);
-
     }
 
     private void CreateDictItems(IList<Dictionary<string, string>> listObjects, Transform spawnPoint)
@@ -150,7 +137,6 @@ public class ObjectInformationGUI : MonoBehaviour
             GameObject temp = Instantiate(keywordItemPrefab, spawnPoint);
             temp.GetComponent<KeywordItemGUI>().SetValues(item);
         }
-
     }
 
     private IList<Dictionary<string, string>> GetListObjects(Transform parentObject)
@@ -158,18 +144,14 @@ public class ObjectInformationGUI : MonoBehaviour
 
         DictionaryItemGUI[] dictionaryItemGUIs = parentObject.GetComponentsInChildren<DictionaryItemGUI>();
         IList<Dictionary<string, string>> keyValuePairs = new List<Dictionary<string, string>>();
-
         foreach (var item in dictionaryItemGUIs)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-
             string[] temp = item.GetKeyValuePairs();
             dict.Add(temp[0], temp[1]);
             dict.Add(temp[2], temp[3]);
-
             keyValuePairs.Add(dict);
         }
-
         return keyValuePairs;
     }
 
@@ -177,18 +159,15 @@ public class ObjectInformationGUI : MonoBehaviour
     {
         KeywordItemGUI[] keywordItems = parentObject.GetComponentsInChildren<KeywordItemGUI>();
         IList<string> stringList = new List<string>();
-
         foreach (var item in keywordItems)
         {
             stringList.Add(item.GetFieldInputText());
         }
-
         return stringList;
     }
 
     private void ClearTextValues()
     {
-
         ID.text = "";
         Type.text = "";
         TimeStamp.text = "";
@@ -209,7 +188,6 @@ public class ObjectInformationGUI : MonoBehaviour
         DestroyChildren(spawnPositionRefs);
         DestroyChildren(spawnPositionDefinitions);
         DestroyChildren(spawnPositionKeywords);
-
     }
 
     private void DestroyChildren(Transform parentTransform)
@@ -221,9 +199,6 @@ public class ObjectInformationGUI : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-
     }
-
-
 
 }

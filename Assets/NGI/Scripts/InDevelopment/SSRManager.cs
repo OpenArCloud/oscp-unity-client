@@ -76,24 +76,19 @@ public class SSRManager : MonoBehaviour
         List<JSONNode> scrList = new List<JSONNode>();
 
         int length = response[0]["services"].Count;
-
         for (int i = 0; i < length; i++)
         {
-
             if (string.Equals(response[0]["services"][i]["type"], "geopose"))
             {
                 ssrList.Add(response[0]["services"][i]);
-
                 // Debug.Log(response[0]["services"][i]);
             }
 
             if (string.Equals(response[0]["services"][i]["type"], "content-discovery"))
             {
                 scrList.Add(response[0]["services"][i]);
-
                 // Debug.Log(response[0]["services"][i]);
             }
-
         }
 
         if (ssrList.Count > 0)
@@ -115,6 +110,7 @@ public class SSRManager : MonoBehaviour
         }
     }
 
+    // TODO: rename to getSelectedGeoPoseService(s)
     public string GetSelectedSSRItems(Transform parent)
     {
         //TODO: Only able to choose one
@@ -131,9 +127,10 @@ public class SSRManager : MonoBehaviour
         return String.Empty;
     }
 
+    // TODO: rename to getSelectedContentService(s)
     public List<string> GetSelectedSCDItems(Transform parent)
     {
-        //TODO: Ability to selecte multiple SCD items
+        //TODO: Ability to select multiple SCD items
         SSRItem[] scd = parent.GetComponentsInChildren<SSRItem>();
 
         List<string> scdURLs = new List<string>();
@@ -202,7 +199,5 @@ public class SSRManager : MonoBehaviour
         {
             Debug.Log("Needed values missing in OSCPDataHolder, aborting scene change");
         }
-
     }
-
 }
