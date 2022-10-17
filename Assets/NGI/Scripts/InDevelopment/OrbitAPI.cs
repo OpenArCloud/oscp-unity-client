@@ -12,6 +12,7 @@ using UnityEngine;
 
 // TODO: this class should be merged into SCRManager. 
 // Orbit is just one possible deployment of SpatialContentDiscovery.
+// TODO: currently the contents are queried at startup which is wrong. They should be queried after localization.
 public class OrbitAPI : MonoBehaviour
 {
     [SerializeField] private bool devLoadContentsFromFile;
@@ -27,6 +28,7 @@ public class OrbitAPI : MonoBehaviour
 
     private void Start()
     {
+        Console.WriteLine("OrbitAPI.Start");
         // TODO: we should load the content server URL from SSD instead of hardcoding here
         contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
 #if UNITY_EDITOR
@@ -42,32 +44,42 @@ public class OrbitAPI : MonoBehaviour
 
     public void LoadItemsFromServer()
     {
+        Console.WriteLine("OrbitAPI.LoadItemsFromServer");
         if (devLoadContentsFromFile)
         {
             scrManager.LoadFromJsonFile();
+            return;
         }
-        else
+        
+        string accessToken = GetAccesToken();
+        if (string.IsNullOrEmpty(accessToken))
         {
-            string accessToken = GetAccesToken();
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                //TODO: Inform the user
-                return;
-            }
-
-            //TODO: Give the possibility for users to change topic
-            if (scrManager.spatialContentRecords == null || scrManager.spatialContentRecords.Length == 0)
-            {
-                GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
-            }
+            Debug.Log("no access token! but querying contents is still possible");
+            //TODO: Inform the user
+            //return;
         }
 
+        //TODO: Give the possibility for users to change topic
+        // TODO: this only loads when they were not loaded before. 
+        // This is OK only as long as we don't expect the user to move to another H3 cell,
+        // or we assume the contents won't change.
+        if (scrManager.spatialContentRecords == null || scrManager.spatialContentRecords.Length == 0)
+        {
+            GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
+        }
     }
 
     public void UpdateRecord(SCRItem scr)
     {
         string json = ConvertSCRtoString(scr);
         string accessToken = GetAccesToken();
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Debug.Log("no access token! cannot update record");
+            //TODO: Inform the user
+            return;
+        }
+
         //TODO: Add ability to change topic. Currently hardcoded to history
         UpdateSpatialContentRecord(accessToken, scr.id, "history", json);
     }
@@ -76,6 +88,13 @@ public class OrbitAPI : MonoBehaviour
     {
         string json = ConvertSCRtoString(scr);
         string accessToken = GetAccesToken();
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Debug.Log("no access token! cannot create record");
+            //TODO: Inform the user
+            return null;
+        }
+
         string id = await CreateSpatialContentRecord(accessToken, "history", json);
         return id;
     }
@@ -83,6 +102,13 @@ public class OrbitAPI : MonoBehaviour
     public async Task<bool> DeleteRecord(string recordID)
     {
         string accessToken = GetAccesToken();
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            Debug.Log("no access token! cannot delete record");
+            //TODO: Inform the user
+            return false;
+        }
+
         bool isDeleted = await DeleteSpatialContentRecord(accessToken, recordID, "history");
         return isDeleted;
     }
@@ -98,6 +124,7 @@ public class OrbitAPI : MonoBehaviour
 
     private string GetAccesToken()
     {
+        Console.WriteLine("OrbitAPI.GetAccesToken");
         UserSessionCache userSessionCache = new UserSessionCache();
         SaveDataManager.LoadJsonData(userSessionCache);
         if (!string.IsNullOrEmpty(userSessionCache.getAccessToken()))
@@ -111,6 +138,8 @@ public class OrbitAPI : MonoBehaviour
 
     async void GetSpatialContentRecords(string accessToken, string topic, string H3Index)
     {
+        Console.WriteLine("OrbitAPI.GetSpatialContentRecords");
+
         // https://scd.orbit-lab.org/scrs/history?h3Index=8808866927fffff
         output("Making API Call to read content...");
 
@@ -118,7 +147,10 @@ public class OrbitAPI : MonoBehaviour
         string scdServerURL = contentServerUrls[0];
         HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic + "?h3Index=" + H3Index);
         getRequest.Method = "GET";
-        getRequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
+        if (accessToken != null) {
+            // accessToken is not necessary for GET, but can be submitted optionally
+            getRequest.Headers.Add(string.Format("Authorization: Bearer " + accessToken));
+        }
         getRequest.ContentType = "application/x-www-form-urlencoded";
 
         WebResponse apiResponse = await getRequest.GetResponseAsync();
@@ -133,6 +165,7 @@ public class OrbitAPI : MonoBehaviour
     // string testNewObjectJsonBody = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
     private async Task<string> CreateSpatialContentRecord(string access_token, string topic, string jsonBody)
     {
+        Console.WriteLine("OrbitAPI.CreateSpatialContentRecord");
         output("Making API Call to Post content...");
 
         // Create POST data and convert it to a byte array.
@@ -181,6 +214,7 @@ public class OrbitAPI : MonoBehaviour
 
     async void UpdateSpatialContentRecord(string access_token, string itemID, string topic, string jsonBody)
     {
+        Console.WriteLine("OrbitAPI.UpdateSpatialContentRecord");
         //Debug.Log(jsonBody);
         output("Making API Call to update item with ID: " + itemID);
 
@@ -231,6 +265,7 @@ public class OrbitAPI : MonoBehaviour
     //TODO fix server. It always returns a 504 timed out but record is still deleted
     async Task<bool> DeleteSpatialContentRecord(string access_token, string itemID, string topic)
     {
+        Console.WriteLine("OrbitAPI.DeleteSpatialContentRecord");
         output("Making API Call to delete item...");
 
         HttpWebRequest deleteRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);

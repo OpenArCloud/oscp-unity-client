@@ -6,6 +6,7 @@ using UnityEngine.Android;
 
 public class H3Manager : MonoBehaviour
 {
+    // This is from AugmentedCity API. do we need it?
     public enum LocalizationStatus
     {
         NotStarted,

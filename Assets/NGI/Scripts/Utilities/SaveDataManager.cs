@@ -13,6 +13,7 @@ public static class SaveDataManager
         }
     }
 
+    // TODO: why is there no IO error handling here at all?
     public static void LoadJsonData(ISaveable saveable)
     {
         if (FileManager.LoadFromFile(saveable.FileNameToUseForData(), out var json))
