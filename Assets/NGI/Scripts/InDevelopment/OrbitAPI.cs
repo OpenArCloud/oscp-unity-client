@@ -124,6 +124,9 @@ public class OrbitAPI : MonoBehaviour
 
     private string GetAccesToken()
     {
+        // TODO: this assumes that the accessToken is already stored in the cache.
+        // Why don't we query it from the OAuth module?
+        // Can we just ask the user here again for authentication?
         Console.WriteLine("OrbitAPI.GetAccesToken");
         UserSessionCache userSessionCache = new UserSessionCache();
         SaveDataManager.LoadJsonData(userSessionCache);

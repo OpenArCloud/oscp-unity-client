@@ -1,25 +1,36 @@
-
 // Used to save scripts to json that implement ISaveable
 // based on https://github.com/UnityTechnologies/UniteNow20-Persistent-Data
 using UnityEngine;
+using System;
 
 public static class SaveDataManager
 {
-    public static void SaveJsonData(ISaveable saveable)
+    public static bool SaveJsonData(ISaveable saveable)
     {
-        if (FileManager.WriteToFile(saveable.FileNameToUseForData(), saveable.ToJson()))
-        {
-            Debug.Log("Save successful");
+        string fullPath = saveable.FileNameToUseForData();
+        try {
+            if (FileManager.WriteToFile(fullPath, saveable.ToJson())) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            Debug.LogError($"Failed to write to {fullPath} with exception {e}");
+            return false;
         }
     }
 
-    // TODO: why is there no IO error handling here at all?
-    public static void LoadJsonData(ISaveable saveable)
+    public static bool LoadJsonData(ISaveable saveable)
     {
-        if (FileManager.LoadFromFile(saveable.FileNameToUseForData(), out var json))
-        {
-            saveable.LoadFromJson(json);
-            Debug.Log("Load complete");
+        string fullPath = saveable.FileNameToUseForData();
+        try {
+            if (FileManager.LoadFromFile(fullPath, out var json)) {
+                saveable.LoadFromJson(json);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            Debug.LogError($"Failed to read from {fullPath} with exception {e}");
+            return false;
         }
     }
 }
