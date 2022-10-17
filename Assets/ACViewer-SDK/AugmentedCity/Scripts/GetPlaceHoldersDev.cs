@@ -483,7 +483,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
                     relocationCompleted = true;
                 }
-                else
+                else // stickers == null
                 {
                     Debug.Log("No stickers");
                     CantLocalize();
@@ -510,7 +510,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
             lastLocalizedRecoId = id;
         }
-        else // if (id != null)
+        else // id == null
         {
             CantLocalize();
         }

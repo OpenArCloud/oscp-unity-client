@@ -188,14 +188,14 @@ public class ACityAPIDev : MonoBehaviour
     UIManager uim;
 
     // TODO: spatial content manager should be outside AC-specific code
-    [SerializeField] private SCRManager spatialContentManager;
+    [SerializeField] private SCRManager scrManager;
     public bool useOrbitContent;
 
     void Start()
     {
-        if (spatialContentManager == null)
+        if (scrManager == null)
         {
-            spatialContentManager = FindObjectOfType<SCRManager>();
+            scrManager = FindObjectOfType<SCRManager>();
         }
 
         // defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
@@ -375,6 +375,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     // TODO: refactor this monster method. Get rid of AC and keep only the OSCP-compliant parts
+    // This should be called onCameraLocalized or parseLocalizationResponse or similar...
     public void camLocalize(string jsonanswer, bool geopose)
     {
         Debug.Log("This is the string response from AC: " + jsonanswer);
@@ -614,7 +615,8 @@ public class ACityAPIDev : MonoBehaviour
                 // Spatial Content Records (optional)
                 sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
                 string debugSessionId = jsonParse["geopose"]["reconstruction_id"];
-                Debug.Log("sessioID: " + debugSessionId);
+                Debug.Log("sessionID: " + sessionId);
+                Debug.Log("debugSessionID: " + debugSessionId);
                 do
                 {
                     objectsAmount++;
@@ -734,6 +736,8 @@ public class ACityAPIDev : MonoBehaviour
                         zeroGeoCam = currentRi.zeroCamGeoPose;
                     }
                     Vector3 enupose = EcefToEnu(GeodeticToEcef(camLat, camLon, camHei), zeroGeoCam.lat, zeroGeoCam.lon, zeroGeoCam.h);
+                    
+                    // NGI
                     OSCPDataHolder.Instance.lastPositon = enupose;
                     Debug.Log("Cam GEO enupose x = " + enupose.x + ", y = " + enupose.y + ", z = " + enupose.z);
 
@@ -782,16 +786,14 @@ public class ACityAPIDev : MonoBehaviour
                     + newCam.transform.localPosition.z);
                 Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
 
-
+                // NGI
                 OSCPDataHolder.Instance.UpdateCoordinates(camLat, camLon, camHei);
                 OSCPDataHolder.Instance.UpdateLocation(newCam.transform.position, newCam.transform.rotation);
-
 
                 GameObject zeroCoord = new GameObject("Zero");
                 zeroCoord.transform.SetParent(newCam.transform);
                 StickerInfo[] stickers;
                 stickers = null;
-
 
                 if (currentRi == null)
                 {
@@ -799,6 +801,8 @@ public class ACityAPIDev : MonoBehaviour
                     currentRi.id = sessionId;
                     currentRi.zeroCamEcefPose = zeroEcefCam;
                     currentRi.zeroCamGeoPose = zeroGeoCam;
+
+                    // NGI START
 
                     //Add connection to oscp-spatial-content-discovery
 
@@ -808,8 +812,7 @@ public class ACityAPIDev : MonoBehaviour
 
                     if (useOrbitContent)
                     {
-                        objectsAmount = spatialContentManager.spatialContentRecords.Length;
-
+                        objectsAmount = scrManager.spatialContentRecords.Length;
                         Debug.Log("Number of objects from orbit: " + objectsAmount);
 
                         if (objectsAmount > 0)
@@ -829,9 +832,9 @@ public class ACityAPIDev : MonoBehaviour
                                 double tlat, tlon, thei;
 
                                 //New Geopose schema
-                                tlat = spatialContentManager.spatialContentRecords[j].content.geopose.position.lat;
-                                tlon = spatialContentManager.spatialContentRecords[j].content.geopose.position.lon;
-                                thei = spatialContentManager.spatialContentRecords[j].content.geopose.position.h;
+                                tlat = scrManager.spatialContentRecords[j].content.geopose.position.lat;
+                                tlon = scrManager.spatialContentRecords[j].content.geopose.position.lon;
+                                thei = scrManager.spatialContentRecords[j].content.geopose.position.h;
 
                                 // calc the object position relatively the recently localized camera
                                 EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
@@ -841,10 +844,10 @@ public class ACityAPIDev : MonoBehaviour
                                 pz = enupose.z;
 
 
-                                ox = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["x"];
-                                oy = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["y"];
-                                oz = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["z"];
-                                ow = spatialContentManager.spatialContentRecords[j].content.geopose.quaternion["w"];
+                                ox = scrManager.spatialContentRecords[j].content.geopose.quaternion["x"];
+                                oy = scrManager.spatialContentRecords[j].content.geopose.quaternion["y"];
+                                oz = scrManager.spatialContentRecords[j].content.geopose.quaternion["z"];
+                                ow = scrManager.spatialContentRecords[j].content.geopose.quaternion["w"];
 
                                 //TODO: Remove this check from client, server should only return visible objects
                                 //I think this means within +- 100M distance
@@ -855,7 +858,7 @@ public class ACityAPIDev : MonoBehaviour
 
                                 if (!(tlat > latMin && tlat < latMax && tlon > lonMin && tlon < lonMax))
                                 {
-                                    spatialContentManager.spatialContentRecords[j].isToFarAway = true;
+                                    scrManager.spatialContentRecords[j].isToFarAway = true;
                                 }
 
 
@@ -888,13 +891,13 @@ public class ACityAPIDev : MonoBehaviour
                                 }
 
                                 stickers[j].sPath = ""; //Add path to SpatialRecord
-                                stickers[j].sText = "" + spatialContentManager.spatialContentRecords[j].content.title;
-                                stickers[j].sType = "" + spatialContentManager.spatialContentRecords[j].content.type;
-                                stickers[j].sSubType = "" + spatialContentManager.spatialContentRecords[j].content.type; //Atm not using subtype
-                                stickers[j].sDescription = "" + spatialContentManager.spatialContentRecords[j].content.description;
-                                stickers[j].SModel_scale = "" + spatialContentManager.spatialContentRecords[j].content.size; //is size correct variable for scale?
-                                stickers[j].sId = "" + spatialContentManager.spatialContentRecords[j].content.id;
-                                stickers[j].objectId = "" + spatialContentManager.spatialContentRecords[j].id;
+                                stickers[j].sText = "" + scrManager.spatialContentRecords[j].content.title;
+                                stickers[j].sType = "" + scrManager.spatialContentRecords[j].content.type;
+                                stickers[j].sSubType = "" + scrManager.spatialContentRecords[j].content.type; //Atm not using subtype
+                                stickers[j].sDescription = "" + scrManager.spatialContentRecords[j].content.description;
+                                stickers[j].SModel_scale = "" + scrManager.spatialContentRecords[j].content.size; //is size correct variable for scale?
+                                stickers[j].sId = "" + scrManager.spatialContentRecords[j].content.id;
+                                stickers[j].objectId = "" + scrManager.spatialContentRecords[j].id;
                                 stickers[j].sImage = ""; //image not implemented on server side
                                 stickers[j].sAddress = ""; //not implemented
                                 stickers[j].sFeedbackAmount = ""; //Not implemented
@@ -904,7 +907,7 @@ public class ACityAPIDev : MonoBehaviour
                                 stickers[j].sTrajectoryOffset = ""; // Not implemented
                                 stickers[j].sTrajectoryPeriod = ""; // Not implemented
                                 stickers[j].subType = ""; // Not implemented
-                                stickers[j].type = "" + spatialContentManager.spatialContentRecords[j].type;
+                                stickers[j].type = "" + scrManager.spatialContentRecords[j].type;
                                 stickers[j].bundleName = ""; // Not used
                                 stickers[j].anchorName = ""; //+ jsonParse["srcs"][j]["content"]["custom_data"]["anchor"];
                                 stickers[j].externalAssetUrl = "";// + jsonParse["srcs"][j]["content"]["custom_data"]["externalAssetUrl"];
@@ -925,7 +928,7 @@ public class ACityAPIDev : MonoBehaviour
 
                                 // TODO: why do we store the whole SCR?
                                 // it seems it is used later in GetPlaceHoldersDev but this is very messy...
-                                stickers[j].spatialContentRecord = spatialContentManager.spatialContentRecords[j];
+                                stickers[j].spatialContentRecord = scrManager.spatialContentRecords[j];
 
                                 currentRi.stickerArray[j].sPath = stickers[j].sPath;
                                 currentRi.stickerArray[j].sText = stickers[j].sText;
@@ -964,8 +967,8 @@ public class ACityAPIDev : MonoBehaviour
                             }
                         }
 
-                    }
-                    else
+                    } // NGI END
+                    else // !useOrbitContent
                     {
                         if (objectsAmount > 0)
                         {
@@ -1206,7 +1209,7 @@ public class ACityAPIDev : MonoBehaviour
 
                 Destroy(newCam);
             }
-            else
+            else // jsonParse["geopose"] == null
             {
                 Debug.Log("Cant localize");
                 uim.statusDebug("Cant localize");
@@ -1371,11 +1374,11 @@ public class ACityAPIDev : MonoBehaviour
 
     IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, float longitude, float latitude, float hdop, Action<string, bool> getJsonCameraObjects)
     {
-        Debug.Log("UploadJPGwithGPSOSCP...");
+        Console.WriteLine("UploadJPGwithGPSOSCP...");
 
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
         //  byte[] bytes = File.ReadAllBytes(filePath);
-        Debug.Log("nBytes: " + bytes.Length);
+        //Debug.Log("nBytes: " + bytes.Length);
         rotationDevice = "90";
         if (!editorTestMode)
         {
@@ -1431,13 +1434,13 @@ public class ACityAPIDev : MonoBehaviour
                 "}" +
             "]" +
         "}";
-        Debug.Log("finalJson OSCP = " + finalJson);
+        //Debug.Log("finalJson OSCP = " + finalJson);
 
         // WARNING: there has been some changes in the URL ending over the past year:
         //string finalUrl = baseURL + "/scrs/geopose_objs_local";  // this returns camera pose and all objects in the neighborhood
         //string finalUrl = baseURL + "/scrs/geopose_objs"; // this is obsolete and should never be used
         string finalUrl = baseURL + "/scrs/geopose"; // this returns camera pose only
-        Debug.Log("finalUrl: " + finalUrl);
+        Console.WriteLine("finalUrl: " + finalUrl);
 
         // Debug.Log("Uploading Screenshot started...");
         var request = new UnityWebRequest(finalUrl, "POST");
@@ -1458,15 +1461,17 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            Debug.Log("Finished Uploading Screenshot");
+            Console.WriteLine("Finished Uploading Screenshot");
         }
-        Debug.Log(request.downloadHandler.text);
+        //Debug.Log(request.downloadHandler.text);
         var jsonParse = JSON.Parse(request.downloadHandler.text);
+
+        // session id
         string sid = null;
         if (jsonParse["camera"] != null)
         {
             sid = jsonParse["reconstruction_id"];   //FixMe: can be null?
-            Debug.Log("answer: rec-id:" + sid);
+            Console.WriteLine("answer: rec-id:" + sid);
         }
         tempScale3d = 1;
         getJsonCameraObjects(request.downloadHandler.text, true);
@@ -1516,6 +1521,8 @@ public class ACityAPIDev : MonoBehaviour
         }
         Debug.Log(w.downloadHandler.text);
         var jsonParse = JSON.Parse(w.downloadHandler.text);
+
+        // session id
         string sid = null;
         if (jsonParse["camera"] != null)
         {
