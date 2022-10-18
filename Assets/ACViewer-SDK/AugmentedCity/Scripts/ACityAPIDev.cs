@@ -1,4 +1,4 @@
-﻿using NGI.Api;
+﻿using NGI.Api; // TODO: rename to OSCP.Api and separate from AC-specific stuff
 using SimpleJSON;
 using System;
 using System.Collections;
@@ -618,15 +618,14 @@ public class ACityAPIDev : MonoBehaviour
             return;
         }
 
-        float px, py, pz, ox, oy, oz, ow;
-        int objectsAmount = -1;
-        string js, sessionId;
-
         // Spatial Content Records (optional)
-        sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
+        string sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
         string debugSessionId = jsonParse["geopose"]["reconstruction_id"];
         Debug.Log("sessionID: " + sessionId);
         Debug.Log("debugSessionID: " + debugSessionId);
+
+        int objectsAmount = -1;
+        string js = null;
         do
         {
             objectsAmount++;
@@ -635,15 +634,17 @@ public class ACityAPIDev : MonoBehaviour
         } while (js != null);
         Debug.Log("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
 
+        // reset position initially
         double camLat = 0, camLon = 0, camHei = 0;
-        double px0 = 0, py0 = 0, pz0 = 0;
-        px = 0; py = 0; pz = 0; // reset position initially
+        double px0 = 0; double py0 = 0; double pz0 = 0;
+        float px = 0; float py = 0; float pz = 0;
+        float ox = 0; float oy = 0; float oz = 0; float ow = 1;
         EcefPose zeroEcefCam = new EcefPose();
         GeoPose  zeroGeoCam  = new GeoPose();
         bool newGeoPose = false;  // flag whether we use geopose standard 1.0 with fields lat/lon/h at the position section
 
-        RecoInfo currentRi = checkRecoID(sessionId);
 
+        RecoInfo currentRi = checkRecoID(sessionId);
         if (currentRi != null)
         {
             zeroEcefCam = currentRi.zeroCamEcefPose;
@@ -790,11 +791,13 @@ public class ACityAPIDev : MonoBehaviour
         {
             uPose.SetCameraOriFromGeoPose(newCam);  // Add additional 2 rotations for camera
         }
+        /*
         Debug.Log("newCam.transform.locPos pos= "
             + newCam.transform.localPosition.x + ", "
             + newCam.transform.localPosition.y + ", "
             + newCam.transform.localPosition.z);
         Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
+        */
 
         // NGI
         OSCPDataHolder.Instance.UpdateCoordinates(camLat, camLon, camHei);
@@ -823,7 +826,7 @@ public class ACityAPIDev : MonoBehaviour
             if (useOrbitContent)
             {
                 objectsAmount = scrManager.spatialContentRecords.Length;
-                Debug.Log("Number of objects from orbit: " + objectsAmount);
+                Debug.Log("Number of objects received: " + objectsAmount);
 
                 if (objectsAmount > 0)
                 {
@@ -868,7 +871,7 @@ public class ACityAPIDev : MonoBehaviour
 
                         if (!(tlat > latMin && tlat < latMax && tlon > lonMin && tlon < lonMax))
                         {
-                            scrManager.spatialContentRecords[j].isToFarAway = true;
+                            scrManager.spatialContentRecords[j].isTooFarAway = true;
                         }
 
 
@@ -1156,10 +1159,8 @@ public class ACityAPIDev : MonoBehaviour
                 }
             }
         }
-        else if (currentRi != null)
+        else // currentRi != null
         {
-
-
             cameraDistance = Vector3.Magnitude(currentRi.lastCamCoordinate - new Vector3(px, py, pz));
             tempScale3d = currentRi.scale3dcloud;
             int savedNodeLentgh = currentRi.stickerArray.Length;
@@ -1186,11 +1187,8 @@ public class ACityAPIDev : MonoBehaviour
                 currentRi.stickerArray[j].sAddress = stickers[j].sAddress;
                 currentRi.stickerArray[j].sRating = stickers[j].sRating;
                 currentRi.stickerArray[j].sUrl_ta = stickers[j].sUrl_ta;
-
-
-
-
             }
+
             newCam.transform.position = cameraPositionInLocalization;
             newCam.transform.eulerAngles = cameraRotationInLocalization;
 

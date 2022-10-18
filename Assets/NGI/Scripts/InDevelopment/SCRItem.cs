@@ -22,7 +22,7 @@ namespace NGI.Api
         [System.NonSerialized]
         public Vector4 Orientation;
         [System.NonSerialized]
-        public bool isToFarAway; // TODO: fix typo
+        public bool isTooFarAway; // TODO: this should be determined only after VPS localization
         [System.NonSerialized]
         public bool isAssetBundle;
     }

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -223,7 +225,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
             return;
         }
 
-        Debug.Log("Retrieved " + stickers.Length + " stickers. Creating the scene...");
+        Console.WriteLine("Retrieved " + stickers.Length + " stickers. Creating the scene...");
 
 
         GameObject scaleParent = new GameObject("CamParent-" + id);  // add 'id' into the name
@@ -235,8 +237,15 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
         for (int j = 0; j < stickers.Length; j++)
         {
+            Console.WriteLine("*** Creating sticker #" + j);
+            if (stickers[j] == null) // invalid sticker
+            {
+                Debug.Log("Sticker #" + j + " was invalid!");
+                continue;
+            }
+
             //skips current spatial item if its to far away
-            if (stickers[j].spatialContentRecord.isToFarAway)
+            if (stickers[j].spatialContentRecord.isTooFarAway)
             {
                 continue;
             }
@@ -248,6 +257,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                 go.transform.position = stickers[j].positions[i];
                 placeHoldersDotsLines.Add(go);
             }
+
             // Lines
             GameObject lineHolder = Instantiate(linePrefab);
             LineRenderer lr = lineHolder.GetComponent<LineRenderer>();
@@ -285,220 +295,215 @@ public class GetPlaceHoldersDev : MonoBehaviour
                 vp.transform.localEulerAngles = new Vector3(0, vp.transform.localEulerAngles.y + 180, 0);
             }
             videoDemos.Add(vp);
-
-            if (stickers[j] != null)                        // if the sticker object is not failed
-            {
-                bool isVideoSticker =
-                    stickers[j].sPath != null &&
-                    stickers[j].sPath.Contains(".mp4");
-
-                bool is3dModel = !isVideoSticker &&
-                    (stickers[j].type.ToLower().Contains("3d") ||   // new 3d object format
-                        stickers[j].sSubType.Contains("3dobject") ||   // old 3d object format
-                        (stickers[j].sPath != null &&
-                        stickers[j].sPath.Contains("3dobject"))       // oldest 3d object format
-                    );
-
-                bool is3dModelTransfer =
-                    stickers[j].sDescription.ToLower().Contains("transfer") ||
-                    stickers[j].subType.ToLower().Contains("transfer");
-
-                if (isVideoSticker)                         // if it's a video-sticker
-                {
-                    GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
-                    VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
-                    vidos.source = VideoSource.Url;
-                    vidos.url = stickers[j].sPath;
-                    videoURLs.Add(urlVid);
-                }
-                else if (stickers[j].spatialContentRecord != null)
-                {
-                    // TODO: move the whole SCR placement out from this method, separate OSCP and AC objects!
-                    Debug.Log("This is an Orbit Spatial item--------------------------------------------------------------------------------------");
-
-                    GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
-
-                    model.AddComponent<SCRItemTag>();
-
-                    model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialContentRecord.id;
-                    //TODO: Fix so it supports more than one refs entry
-                    string assetbundleName = "noAsset";
-
-                    string assetbundlUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
-                    if (string.Equals(stickers[j].spatialContentRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
-                    {
-                        Debug.Log("This is an assetbundle");
-
-                        for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
-                        {
-                            if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
-                            {
-                                assetbundleName = stickers[j].spatialContentRecord.content.definitions[0]["value"];
-                            }
-                        }
-
-                        Debug.Log("Assetbundle name is: " + assetbundleName);
-                        model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
-                        model.GetComponent<AssetLoaderNGI>().customUrl = assetbundlUrl.ToLower();
-                    }
-                    else
-                    {  
-                        model.GetComponent<AssetLoaderNGI>().enabled = false;
-                        var gltf = model.AddComponent<GLTFast.GltfAsset>();
-                        gltf.url = stickers[j].spatialContentRecord.content.refs[0]["url"];
-                    }
-
-
-                    model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
-                    model.transform.localRotation = new Quaternion(
-                        stickers[j].orientations.x,
-                        stickers[j].orientations.y,
-                        stickers[j].orientations.z,
-                        stickers[j].orientations.w);
-
-                    if (stickers[j].sTrajectoryPath.Length > 1)
-                    {
-                        Trajectory tr = model.GetComponent<Trajectory>();
-                        tr.go = true;
-                        tr.acapi = acapi;
-                        tr.sTrajectory = stickers[j].sTrajectoryPath;
-                        tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
-                        tr.sOffset = stickers[j].sTrajectoryOffset;
-                    }
-
-                    //Debug.Log(stickers[j].sTrajectoryPath);
-
-                    //TODO: Fix: The mover scripts is always returning flying
-                    Mover mover = model.GetComponent<Mover>();
-                    mover.setLocked(true);
-                    mover.objectId = stickers[j].objectId;
-
-                    if (!stickers[j].vertical)
-                    {
-                        //mover.noGravity = true;
-
-                        //Always landed for now
-                        mover.noGravity = false;
-                    }
-
-                    if (stickers[j].grounded)
-                    {
-                        mover.landed = true;
-                    }
-
-
-                    /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
-                        + " = " + model.transform.localPosition
-                        + " model.rot = " + model.transform.localRotation
-                        + " stick.ori = " + stickers[j].orientations);*/
-
-                    if (stickers[j].SModel_scale.Length > 0)
-                    {
-                        float scale = float.Parse(stickers[j].SModel_scale);
-                        model.transform.localScale = new Vector3(scale, scale, scale);
-                    }
-
-                    models.Add(model);                      // store the new just created model
-                }
-                else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
-                {
-                    GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
-                    string bundleName = stickers[j].sText.ToLower();
-                    if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
-                    {
-                        bundleName = stickers[j].bundleName.ToLower();
-                        if (string.IsNullOrEmpty(bundleName))
-                        {
-                            bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
-                        }
-                    }
-                    model.GetComponent<AssetLoader>().ABName = bundleName;
-                    model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
-                    model.transform.localRotation = new Quaternion(
-                        stickers[j].orientations.x,
-                        stickers[j].orientations.y,
-                        stickers[j].orientations.z,
-                        stickers[j].orientations.w);
-
-                    if (stickers[j].sTrajectoryPath.Length > 1)
-                    {
-                        Trajectory tr = model.GetComponent<Trajectory>();
-                        tr.go = true;
-                        tr.acapi = acapi;
-                        tr.sTrajectory = stickers[j].sTrajectoryPath;
-                        tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
-                        tr.sOffset = stickers[j].sTrajectoryOffset;
-                    }
-
-                    Mover mover = model.GetComponent<Mover>();
-                    mover.setLocked(true);
-                    mover.objectId = stickers[j].objectId;
-
-                    if (!stickers[j].vertical ||
-                        bundleName.Contains("nograv"))
-                    {
-                        mover.noGravity = true;
-                    }
-
-                    if (stickers[j].grounded ||
-                        bundleName.Contains("quar") ||
-                        bundleName.Contains("santa") ||
-                        bundleName.Contains("pavel") ||
-                        bundleName.Contains("gard"))
-                    {
-                        mover.landed = true;
-                    }
-
-
-                    /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
-                        + " = " + model.transform.localPosition
-                        + " model.rot = " + model.transform.localRotation
-                        + " stick.ori = " + stickers[j].orientations);*/
-
-                    if (stickers[j].SModel_scale.Length > 0)
-                    {
-                        float scale = float.Parse(stickers[j].SModel_scale);
-                        model.transform.localScale = new Vector3(scale, scale, scale);
-                    }
-
-                    models.Add(model);                      // store the new just created model
-                }
-                else                                        // other types of objects - info-stickers
-                {
-                    GameObject newSticker = null;
-                    string checkType = stickers[j].sType.ToLower();
-                    if (checkType.Contains("food") || checkType.Contains("restaurant"))
-                    {
-                        newSticker = Instantiate(stickerFood, placeHolderParent.transform);
-                    }
-                    else if (checkType.Contains("place"))
-                    {
-                        newSticker = Instantiate(stickerPlace, placeHolderParent.transform);
-                    }
-                    else if (checkType.Contains("shop"))
-                    {
-                        newSticker = Instantiate(stickerShop, placeHolderParent.transform);
-                    }
-                    else
-                    {
-                        newSticker = Instantiate(stickerPref, placeHolderParent.transform);
-                    }
-                    if (newSticker != null)
-                    {
-                        newSticker.transform.position = stickers[j].positions[0] - raznp;
-                        StickerController sc = newSticker.GetComponent<StickerController>();
-                        sc.setStickerInfo(stickers[j]);
-
-                        stickerObjects.Add(newSticker);     // store the new just created info-sticker
-                    }
-
-                }
-
-            } // if (stickers[j] != null...)
-
             Destroy(temp1);
             Destroy(temp2);
             Destroy(temp3);
+
+
+            bool isVideoSticker =
+                stickers[j].sPath != null &&
+                stickers[j].sPath.Contains(".mp4");
+
+            bool is3dModel = !isVideoSticker &&
+                (stickers[j].type.ToLower().Contains("3d") ||   // new 3d object format
+                    stickers[j].sSubType.Contains("3dobject") ||   // old 3d object format
+                    (stickers[j].sPath != null &&
+                    stickers[j].sPath.Contains("3dobject"))       // oldest 3d object format
+                );
+
+            bool is3dModelTransfer =
+                stickers[j].sDescription.ToLower().Contains("transfer") ||
+                stickers[j].subType.ToLower().Contains("transfer");
+
+            // NGI:
+            bool isSpatialContentRecord = (stickers[j].spatialContentRecord != null);
+            if (isSpatialContentRecord)
+            {
+                // TODO: move the whole SCR placement out from this method, separate OSCP and AC objects!
+                Console.WriteLine("This is an Orbit Spatial item-----------------");
+
+                GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
+                model.AddComponent<SCRItemTag>();
+                model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialContentRecord.id;
+                Console.WriteLine(stickers[j].spatialContentRecord.content.refs);
+                
+                //TODO: Fix so it supports more than one refs entry
+                string assetbundleName = "noAsset";
+                string assetbundleUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                if (string.Equals(stickers[j].spatialContentRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
+                {
+                    Console.WriteLine("This is an assetbundle");
+                    for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
+                    {
+                        if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
+                        {
+                            assetbundleName = stickers[j].spatialContentRecord.content.definitions[0]["value"];
+                        }
+                    }
+
+                    Console.WriteLine("Assetbundle name is: " + assetbundleName);
+                    model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
+                    model.GetComponent<AssetLoaderNGI>().customUrl = assetbundleUrl.ToLower();
+                }
+                else // 3D model
+                {  
+                    model.GetComponent<AssetLoaderNGI>().enabled = false;
+                    var gltf = model.AddComponent<GLTFast.GltfAsset>();
+                    gltf.url = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                }
+
+
+                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
+                model.transform.localRotation = new Quaternion(
+                    stickers[j].orientations.x,
+                    stickers[j].orientations.y,
+                    stickers[j].orientations.z,
+                    stickers[j].orientations.w);
+
+                if (stickers[j].sTrajectoryPath.Length > 1)
+                {
+                    Trajectory tr = model.GetComponent<Trajectory>();
+                    tr.go = true;
+                    tr.acapi = acapi;
+                    tr.sTrajectory = stickers[j].sTrajectoryPath;
+                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
+                    tr.sOffset = stickers[j].sTrajectoryOffset;
+                }
+
+                //Debug.Log(stickers[j].sTrajectoryPath);
+
+                //TODO: Fix: The mover scripts is always returning flying
+                Mover mover = model.GetComponent<Mover>();
+                mover.setLocked(true);
+                mover.objectId = stickers[j].objectId;
+
+                if (!stickers[j].vertical)
+                {
+                    //mover.noGravity = true;
+                    mover.noGravity = false;
+                }
+
+                if (stickers[j].grounded)
+                {
+                    mover.landed = true;
+                }
+
+                /*
+                Debug.Log(j + ". 3dmodel " + stickers[j].sText
+                    + " = " + model.transform.localPosition
+                    + " model.rot = " + model.transform.localRotation
+                    + " stick.ori = " + stickers[j].orientations);
+                */
+
+                if (stickers[j].SModel_scale.Length > 0)
+                {
+                    float scale = float.Parse(stickers[j].SModel_scale);
+                    model.transform.localScale = new Vector3(scale, scale, scale);
+                }
+
+                models.Add(model);                      // store the new just created model
+            }
+            else if (isVideoSticker)                         // if it's a video-sticker
+            {
+                GameObject urlVid = Instantiate(vp, placeHolderParent.transform);
+                VideoPlayer vidos = urlVid.GetComponentInChildren<VideoPlayer>();
+                vidos.source = VideoSource.Url;
+                vidos.url = stickers[j].sPath;
+                videoURLs.Add(urlVid);
+            }
+            else if (is3dModel || is3dModelTransfer)    // 3d object or special navi object
+            {
+                GameObject model = Instantiate(GetComponent<ModelManager>().ABloader, placeHolderParent.transform);
+                string bundleName = stickers[j].sText.ToLower();
+                if (stickers[j].type.ToLower().Contains("3d"))      // is it new format
+                {
+                    bundleName = stickers[j].bundleName.ToLower();
+                    if (string.IsNullOrEmpty(bundleName))
+                    {
+                        bundleName = stickers[j].sText.ToLower();  // return back to default bundle name as the 'name'
+                    }
+                }
+                model.GetComponent<AssetLoader>().ABName = bundleName;
+                model.transform.localPosition = stickers[j].mainPositions; // * acapi.tempScale3d;
+                model.transform.localRotation = new Quaternion(
+                    stickers[j].orientations.x,
+                    stickers[j].orientations.y,
+                    stickers[j].orientations.z,
+                    stickers[j].orientations.w);
+
+                if (stickers[j].sTrajectoryPath.Length > 1)
+                {
+                    Trajectory tr = model.GetComponent<Trajectory>();
+                    tr.go = true;
+                    tr.acapi = acapi;
+                    tr.sTrajectory = stickers[j].sTrajectoryPath;
+                    tr.sTimePeriod = stickers[j].sTrajectoryPeriod;
+                    tr.sOffset = stickers[j].sTrajectoryOffset;
+                }
+
+                Mover mover = model.GetComponent<Mover>();
+                mover.setLocked(true);
+                mover.objectId = stickers[j].objectId;
+
+                if (!stickers[j].vertical ||
+                    bundleName.Contains("nograv"))
+                {
+                    mover.noGravity = true;
+                }
+
+                if (stickers[j].grounded ||
+                    bundleName.Contains("quar") ||
+                    bundleName.Contains("santa") ||
+                    bundleName.Contains("pavel") ||
+                    bundleName.Contains("gard"))
+                {
+                    mover.landed = true;
+                }
+
+
+                /*Debug.Log(j + ". 3dmodel " + stickers[j].sText
+                    + " = " + model.transform.localPosition
+                    + " model.rot = " + model.transform.localRotation
+                    + " stick.ori = " + stickers[j].orientations);*/
+
+                if (stickers[j].SModel_scale.Length > 0)
+                {
+                    float scale = float.Parse(stickers[j].SModel_scale);
+                    model.transform.localScale = new Vector3(scale, scale, scale);
+                }
+
+                models.Add(model);                      // store the new just created model
+            }
+            else                                        // other types of objects - info-stickers
+            {
+                GameObject newSticker = null;
+                string checkType = stickers[j].sType.ToLower();
+                if (checkType.Contains("food") || checkType.Contains("restaurant"))
+                {
+                    newSticker = Instantiate(stickerFood, placeHolderParent.transform);
+                }
+                else if (checkType.Contains("place"))
+                {
+                    newSticker = Instantiate(stickerPlace, placeHolderParent.transform);
+                }
+                else if (checkType.Contains("shop"))
+                {
+                    newSticker = Instantiate(stickerShop, placeHolderParent.transform);
+                }
+                else
+                {
+                    newSticker = Instantiate(stickerPref, placeHolderParent.transform);
+                }
+                if (newSticker != null)
+                {
+                    newSticker.transform.position = stickers[j].positions[0] - raznp;
+                    StickerController sc = newSticker.GetComponent<StickerController>();
+                    sc.setStickerInfo(stickers[j]);
+
+                    stickerObjects.Add(newSticker);     // store the new just created info-sticker
+                }
+
+            }
         } // foreach stickers
 
         turnOffVideoDemos(videoDemosTurn);
