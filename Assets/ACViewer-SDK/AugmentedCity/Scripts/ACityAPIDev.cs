@@ -350,7 +350,7 @@ public class ACityAPIDev : MonoBehaviour
         // Extract the image data
 
         image.Convert(conversionParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
-        Debug.Log("buffer.Length = " + buffer.Length);
+        //Debug.Log("buffer.Length = " + buffer.Length);
         // The image was converted to RGBA32 format and written into the provided buffer
         // so we can dispose of the CameraImage. We must do this or it will leak resources.
         image.Dispose();
@@ -1752,13 +1752,13 @@ public class ACityAPIDev : MonoBehaviour
         y0 = (h_ref + N) * cos_lambda * sin_phi;
         z0 = (h_ref + (1 - e_sq) * N) * sin_lambda;
 
-        Debug.Log("ep.x = " + ep.x + ", ep.y = " + ep.y + ",ep.z = " + ep.z);
+        //Debug.Log("ep.x = " + ep.x + ", ep.y = " + ep.y + ",ep.z = " + ep.z);
 
         double xd, yd, zd;
         xd = ep.x - x0;
         yd = ep.y - y0;
         zd = ep.z - z0;
-        Debug.Log("xd= " + xd + ", yd = " + yd + ",zd = " + zd);
+        //Debug.Log("xd= " + xd + ", yd = " + yd + ",zd = " + zd);
 
         double xEast, yNorth, zUp;
         xEast = -sin_phi * xd + cos_phi * yd;
