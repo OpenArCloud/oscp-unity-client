@@ -56,19 +56,25 @@ public class SSRManager : MonoBehaviour
         List<JSONNode> ssrList = new List<JSONNode>(); // TODO: rename to availableGeoPoseServices
         List<JSONNode> scrList = new List<JSONNode>(); // TODO: rename to availableContentServices
 
-        int length = response[0]["services"].Count;
-        for (int i = 0; i < length; i++)
-        {
-            if (string.Equals(response[0]["services"][i]["type"], "geopose"))
-            {
-                ssrList.Add(response[0]["services"][i]);
-                // Debug.Log(response[0]["services"][i]);
-            }
 
-            if (string.Equals(response[0]["services"][i]["type"], "content-discovery"))
-            {
-                scrList.Add(response[0]["services"][i]);
-                // Debug.Log(response[0]["services"][i]);
+        // NOTE: the SpatialServiceDiscovery returns an array of SpatialServiceRecords (SSRs),
+        // and each SSR can can contain multiple services.
+        int numSpatialServiceRecords = response.Count;
+        Console.WriteLine("Received " + numSpatialServiceRecords + " SSRs");
+        for (int ssr_idx = 0; ssr_idx < numSpatialServiceRecords; ssr_idx++) {
+            int numServicesInScr = response[ssr_idx]["services"].Count;
+            for (int service_idx = 0; service_idx < numServicesInScr; service_idx++) {
+                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "geopose"))
+                {
+                    ssrList.Add(response[ssr_idx]["services"][service_idx]);
+                    // Debug.Log(response[ssr_idx]["services"][service_idx]);
+                }
+
+                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "content-discovery"))
+                {
+                    scrList.Add(response[ssr_idx]["services"][service_idx]);
+                    // Debug.Log(response[ssr_idx]["services"][service_idx]);
+                }
             }
         }
 
