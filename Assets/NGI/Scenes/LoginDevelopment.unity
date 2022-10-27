@@ -7968,7 +7968,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contentUrls: []
-  geoPoseServiceURL: https://ssd.orbit-lab.org
+  geoPoseServiceURL: ""
   currentH3Zone: 
   lastPositon: {x: 0, y: 0, z: 0}
   lastOrientation: {x: 0, y: 0, z: 0, w: 0}

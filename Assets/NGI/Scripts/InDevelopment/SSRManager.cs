@@ -19,8 +19,8 @@ public class SSRManager : MonoBehaviour
 
     [SerializeField] GameObject listItemPrefab;
 
-    [SerializeField] RectTransform rectTransformSpawnSSR;
-    [SerializeField] RectTransform rectTransformSpawnSCR;
+    [SerializeField] RectTransform geoPoseServiceItemsGui;
+    [SerializeField] RectTransform contentDiscoveryServiceItemsGui;
 
     [SerializeField] H3Manager h3Manager; // TODO: rename to LocationManager?
 
@@ -55,89 +55,90 @@ public class SSRManager : MonoBehaviour
     public void CreateListItems(JSONNode response)
     {
         Console.WriteLine("SSRManager.CreateListItems");
-        List<JSONNode> ssrList = new List<JSONNode>(); // TODO: rename to availableGeoPoseServices
-        List<JSONNode> scrList = new List<JSONNode>(); // TODO: rename to availableContentServices
-
+        List<JSONNode> availableGeoPoseServices = new List<JSONNode>();
+        List<JSONNode> availableContentServices = new List<JSONNode>();
 
         // NOTE: the SpatialServiceDiscovery returns an array of SpatialServiceRecords (SSRs),
         // and each SSR can can contain multiple services.
         int numSpatialServiceRecords = response.Count;
-        Console.WriteLine("Received " + numSpatialServiceRecords + " SSRs");
+        Console.WriteLine("Received " + numSpatialServiceRecords.ToString() + " SSRs");
         for (int ssr_idx = 0; ssr_idx < numSpatialServiceRecords; ssr_idx++) {
-            int numServicesInScr = response[ssr_idx]["services"].Count;
-            for (int service_idx = 0; service_idx < numServicesInScr; service_idx++) {
-                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "geopose"))
-                {
-                    ssrList.Add(response[ssr_idx]["services"][service_idx]);
-                    // Debug.Log(response[ssr_idx]["services"][service_idx]);
+            int numServicesInSsr = response[ssr_idx]["services"].Count;
+            Console.WriteLine("SSR " + ssr_idx.ToString() + " contains " + numServicesInSsr.ToString() + " services");
+
+            for (int service_idx = 0; service_idx < numServicesInSsr; service_idx++) {
+                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "geopose")) {
+                    availableGeoPoseServices.Add(response[ssr_idx]["services"][service_idx]);
+                    //Debug.Log(response[ssr_idx]["services"][service_idx]);
                 }
 
-                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "content-discovery"))
-                {
-                    scrList.Add(response[ssr_idx]["services"][service_idx]);
-                    // Debug.Log(response[ssr_idx]["services"][service_idx]);
+                if (string.Equals(response[ssr_idx]["services"][service_idx]["type"], "content-discovery")) {
+                    availableContentServices.Add(response[ssr_idx]["services"][service_idx]);
+                    //Debug.Log(response[ssr_idx]["services"][service_idx]);
                 }
             }
         }
 
-        if (ssrList.Count > 0)
-        {
-            for (int i = 0; i < ssrList.Count; i++)
-            {
-                var tempObj = Instantiate(listItemPrefab, rectTransformSpawnSSR);
-                tempObj.GetComponent<SSRItem>().SetValues(ssrList[i]);
-            }
-        }
 
-        if (scrList.Count > 0)
+        for (int i = 0; i < availableGeoPoseServices.Count; i++)
         {
-            for (int i = 0; i < scrList.Count; i++)
-            {
-                var tempObj = Instantiate(listItemPrefab, rectTransformSpawnSCR);
-                tempObj.GetComponent<SSRItem>().SetValues(scrList[i]);
-            }
+            var tempObj = Instantiate(listItemPrefab, geoPoseServiceItemsGui);
+            tempObj.GetComponent<SSRItem>().SetValues(availableGeoPoseServices[i]);
         }
+        Console.WriteLine("availableGeoPoseServices: " + availableGeoPoseServices.Count.ToString());
+#if UNITY_EDITOR
+        if (availableContentServices.Count == 0)
+        {
+            Debug.Log("WARNING: no content services available at your location. Adding default server " + kDefaultScdServerUrl);
+            availableContentServices.Add(kDefaultScdServerUrl);
+        }
+#endif
+
+        for (int i = 0; i < availableContentServices.Count; i++)
+        {
+            var tempObj = Instantiate(listItemPrefab, contentDiscoveryServiceItemsGui);
+            tempObj.GetComponent<SSRItem>().SetValues(availableContentServices[i]);
+        }
+        Console.WriteLine("availableContentServices: " + availableContentServices.Count.ToString());
     }
 
-    // TODO: rename to getSelectedGeoPoseService(s)
-    public string GetSelectedSSRItems(Transform parent)
+    public string GetSelectedGeoPoseService()
     {
-        //TODO: Only able to choose one
-        SSRItem[] ssr = parent.GetComponentsInChildren<SSRItem>();
+        // Note: We have to choose one GeoPose server
+        SSRItem[] ssr = geoPoseServiceItemsGui.GetComponentsInChildren<SSRItem>();
 
         foreach (var item in ssr)
         {
+            // take the first selected for now. 
+            // later we can think about how to do localization with multiple providers
             if (item.IsSelected)
             {
-                return ssr[0].GetURL();
+                return item.GetURL();
             }
         }
 
         return String.Empty;
     }
 
-    // TODO: rename to getSelectedContentService(s)
-    public List<string> GetSelectedSCDItems(Transform parent)
+    public List<string> GetSelectedContentServices()
     {
-        //TODO: Ability to select multiple SCD items
-        SSRItem[] scd = parent.GetComponentsInChildren<SSRItem>();
-
         List<string> scdURLs = new List<string>();
 
-        if (scd.Length > 0)
+        // Note: We can select multiple SCD servers
+        SSRItem[] availableContentServices = contentDiscoveryServiceItemsGui.GetComponentsInChildren<SSRItem>();
+
+        if (availableContentServices.Length > 0)
         {
-            for (int i = 0; i < scd.Length; i++)
+            for (int i = 0; i < availableContentServices.Length; i++)
             {
-                if (scd[i].IsSelected)
+                if (availableContentServices[i].IsSelected)
                 {
-                    scdURLs.Add(scd[i].GetURL());
+                    scdURLs.Add(availableContentServices[i].GetURL());
                 }
             }
-
-            return scdURLs;
         }
 
-        return null;
+        return scdURLs;
     }
 
     private async void HandleAuthenticate(bool isAuthenticated)
@@ -280,8 +281,8 @@ public class SSRManager : MonoBehaviour
     {
         Console.WriteLine("SSRManager.LoadSceneAsync");
         //OSCPDataHolder.Instance.ClearData();
-        OSCPDataHolder.Instance.contentUrls = GetSelectedContentServices(rectTransformSpawnSCR);
-        OSCPDataHolder.Instance.geoPoseServiceURL = GetSelectedGeoPoseService(rectTransformSpawnSSR);
+        OSCPDataHolder.Instance.contentUrls = GetSelectedContentServices();
+        OSCPDataHolder.Instance.geoPoseServiceURL = GetSelectedGeoPoseService();
 
         //TODO: Inform the user that their selection has some errors
         if (OSCPDataHolder.Instance.CheckSelectedServices())

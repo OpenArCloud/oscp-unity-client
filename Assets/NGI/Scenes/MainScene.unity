@@ -10459,8 +10459,8 @@ MonoBehaviour:
   countryCode: us
   listItemPrefab: {fileID: 8332775679143077325, guid: a738e39a30c5cd2438dd60207cb5d201,
     type: 3}
-  rectTransformSpawnSSR: {fileID: 644661061}
-  rectTransformSpawnSCR: {fileID: 1923795352}
+  geoPoseServiceItemsGui: {fileID: 644661061}
+  contentDiscoveryServiceItemsGui: {fileID: 1923795352}
   h3Manager: {fileID: 0}
 --- !u!4 &1161593224
 Transform:
@@ -17646,7 +17646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contentUrls: []
-  geoPoseServiceURL: 
+  geoPoseServiceURL: ""
   currentH3Zone: 
   lastPositon: {x: 0, y: 0, z: 0}
   lastOrientation: {x: 0, y: 0, z: 0, w: 0}

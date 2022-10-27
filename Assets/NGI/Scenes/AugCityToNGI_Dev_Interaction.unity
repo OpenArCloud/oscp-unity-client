@@ -8093,8 +8093,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ssdServerURL: https://ssd.orbit-lab.org
   listItemPrefab: {fileID: 0}
-  rectTransformSpawnSSR: {fileID: 0}
-  rectTransformSpawnSCR: {fileID: 0}
+  geoPoseServiceItemsGui: {fileID: 0}
+  contentDiscoveryServiceItemsGui: {fileID: 0}
   h3Manager: {fileID: 619362010}
   useFakeCountryCode: 0
   devCountryCode: us
