@@ -6,11 +6,9 @@ using UnityEngine;
 public class OSCPDataHolder : Singleton<OSCPDataHolder>
 {
 
-    public List<string> ContentUrls = new List<string>();
-
-    public string GeoPoseServieURL = ""; // TODO: rename to GeoPoseServiceURL. But it should be in SSRManager
-
-    public string H3CurrentZone = "";
+    public List<string> contentUrls = new List<string>();
+    public string geoPoseServiceURL = ""; // TODO: this should be in SSRManager
+    public string currentH3Zone = "";
 
     public Vector3 lastPositon;
     public Quaternion lastOrientation;
@@ -28,7 +26,7 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public bool CheckSelectedServices()
     {
-        if (ContentUrls.Count == 0 || string.IsNullOrEmpty(GeoPoseServieURL) || string.IsNullOrEmpty(H3CurrentZone))
+        if (contentUrls.Count == 0 || string.IsNullOrEmpty(geoPoseServiceURL) || string.IsNullOrEmpty(currentH3Zone))
         {
             //TODO: Inform the user which is missing
             return false;
@@ -53,8 +51,8 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 
     public void ClearURLs()
     {
-        ContentUrls.Clear();
-        GeoPoseServieURL = string.Empty;
+        contentUrls.Clear();
+        geoPoseServiceURL = string.Empty;
     }
 
 }

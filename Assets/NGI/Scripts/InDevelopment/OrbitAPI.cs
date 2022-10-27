@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -18,10 +17,7 @@ public class OrbitAPI : MonoBehaviour
     [SerializeField] private bool devLoadContentsFromFile;
     [SerializeField] private OAuth2Authentication oAuth2Authentication;
     [SerializeField] private SCRManager scrManager;
-
-    const string kDefaultScdServerUrl = "https://scd.orbit-lab.org";
-    List<string> contentServerUrls = new List<string>();
-
+    
     public static event Action<string> ServerResponseGet;
     //public static event Action<bool, string> ServerResponse; // unused
 
@@ -29,17 +25,6 @@ public class OrbitAPI : MonoBehaviour
     private void Start()
     {
         Console.WriteLine("OrbitAPI.Start");
-        // TODO: we should load the content server URL from SSD instead of hardcoding here
-        contentServerUrls = OSCPDataHolder.Instance.ContentUrls;
-#if UNITY_EDITOR
-        if (contentServerUrls.Count == 0)
-        {
-            //hardcoded test server
-            contentServerUrls.Add(kDefaultScdServerUrl);
-        }
-#endif
-    // TODO: do not load at start. we don't even know which content services are available yet!
-        LoadItemsFromServer();
     }
 
     public void LoadItemsFromServer()
@@ -65,7 +50,7 @@ public class OrbitAPI : MonoBehaviour
         // or we assume the contents won't change.
         if (scrManager.spatialContentRecords == null || scrManager.spatialContentRecords.Length == 0)
         {
-            GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.H3CurrentZone);
+            GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.currentH3Zone);
         }
     }
 
@@ -147,7 +132,7 @@ public class OrbitAPI : MonoBehaviour
         output("Making API Call to read content...");
 
         //TODO: Ability to query multiple content servers, not just the first one in the list
-        string scdServerURL = contentServerUrls[0];
+        string scdServerURL = OSCPDataHolder.Instance.contentUrls[0];
         HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic + "?h3Index=" + H3Index);
         getRequest.Method = "GET";
         if (accessToken != null) {
@@ -175,7 +160,10 @@ public class OrbitAPI : MonoBehaviour
         byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
         // sends the request
-        HttpWebRequest postRequest = (HttpWebRequest)WebRequest.Create(contentServerUrls[0] + "/scrs/" + topic);
+        // TODO: this takes the first server URL, but there might be more selected!
+        // TODO: Make sure to write the object only into one as intended
+        string scdServerURL = OSCPDataHolder.Instance.contentUrls[0];
+        HttpWebRequest postRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic);
         postRequest.Method = "POST";
         postRequest.Headers.Add("Authorization", "Bearer " + access_token);
         postRequest.ContentType = "application/json";
@@ -224,6 +212,7 @@ public class OrbitAPI : MonoBehaviour
         byte[] byteArray = Encoding.UTF8.GetBytes(jsonBody);
 
         // sends the request
+        // TODO: do not hardcode the URL!
         HttpWebRequest putRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);
         putRequest.Method = "PUT";
         putRequest.Headers.Add("Authorization", "Bearer " + access_token);
@@ -271,6 +260,7 @@ public class OrbitAPI : MonoBehaviour
         Console.WriteLine("OrbitAPI.DeleteSpatialContentRecord");
         output("Making API Call to delete item...");
 
+        // TODO: do not hardcode the URL!
         HttpWebRequest deleteRequest = (HttpWebRequest)WebRequest.Create("https://scd.orbit-lab.org/scrs/" + topic + "/" + itemID);
         deleteRequest.Method = "DELETE";
         deleteRequest.Headers.Add("Authorization", "Bearer " + access_token);

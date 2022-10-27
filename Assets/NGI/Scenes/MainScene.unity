@@ -17645,9 +17645,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a96558bd266c9c143bba21f8be4db36e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContentUrls: []
-  GeoPoseServieURL: 
-  H3CurrentZone: 
+  contentUrls: []
+  geoPoseServiceURL: 
+  currentH3Zone: 
   lastPositon: {x: 0, y: 0, z: 0}
   lastOrientation: {x: 0, y: 0, z: 0, w: 0}
   latitude: 0

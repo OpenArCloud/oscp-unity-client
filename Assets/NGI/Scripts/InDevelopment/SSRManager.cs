@@ -15,6 +15,8 @@ public class SSRManager : MonoBehaviour
     const string kDefaultCountryCode = "us";
     [SerializeField] string ssdServerURL = kDefaultSsdServerUrl;
 
+    const string kDefaultScdServerUrl = "https://scd.orbit-lab.org";
+
     [SerializeField] GameObject listItemPrefab;
 
     [SerializeField] RectTransform rectTransformSpawnSSR;
@@ -209,7 +211,7 @@ public class SSRManager : MonoBehaviour
             using (StreamReader ssdResponseReader = new StreamReader(ssdResponse.GetResponseStream()))
             {
                 string ssdResponseText = await ssdResponseReader.ReadToEndAsync();
-                Debug.Log("Response from Spatial Service Discovery: " + ssdResponseText);
+                Console.WriteLine("Response from Spatial Service Discovery: " + ssdResponseText);
                 return ssdResponseText;
             }
         } catch(WebException e) {
@@ -278,12 +280,13 @@ public class SSRManager : MonoBehaviour
     {
         Console.WriteLine("SSRManager.LoadSceneAsync");
         //OSCPDataHolder.Instance.ClearData();
-        OSCPDataHolder.Instance.ContentUrls = GetSelectedSCDItems(rectTransformSpawnSCR);
-        OSCPDataHolder.Instance.GeoPoseServieURL = GetSelectedSSRItems(rectTransformSpawnSSR);
+        OSCPDataHolder.Instance.contentUrls = GetSelectedContentServices(rectTransformSpawnSCR);
+        OSCPDataHolder.Instance.geoPoseServiceURL = GetSelectedGeoPoseService(rectTransformSpawnSSR);
 
         //TODO: Inform the user that their selection has some errors
         if (OSCPDataHolder.Instance.CheckSelectedServices())
         {
+            Console.WriteLine("Loading scene...");
             SceneManager.LoadSceneAsync(sceneName);
         }
         else

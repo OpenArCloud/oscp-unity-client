@@ -134,7 +134,7 @@ public class H3Manager : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         //Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
-        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
+        OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
         hasH3Location = true;
     }
 
@@ -147,7 +147,7 @@ public class H3Manager : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         //Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
-        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
+        OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
 
         hasGpsLocation = true;
         hasH3Location = true;

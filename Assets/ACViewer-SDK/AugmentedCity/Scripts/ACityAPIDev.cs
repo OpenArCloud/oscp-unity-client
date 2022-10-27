@@ -1,5 +1,4 @@
-﻿using NGI.Api; // TODO: rename to OSCP.Api and separate from AC-specific stuff
-using SimpleJSON;
+﻿using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using UnityEngine.Android;
 using UnityEngine.Networking;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using NGI.Api; // TODO: rename to OSCP.Api and separate from AC-specific stuff
 
 public class ACityAPIDev : MonoBehaviour
 {
@@ -198,8 +198,6 @@ public class ACityAPIDev : MonoBehaviour
             scrManager = FindObjectOfType<SCRManager>();
         }
 
-        // defaultApiUrl = OSCPDataHolder.Instance.GeoPoseServieURL;
-
         //PlayerPrefs.DeleteAll(); // NOTE: PlayerPrefs remain stored across sessions, which we don't want.
         // TODO: But it seems the camera settings must be stored across sessions, otherwise the app cannot retrieve images from the ARCore camera.
         // this is weird but when we deleted all settings, then the CamGetImage always returned null. Even though the camera background was working.
@@ -220,6 +218,11 @@ public class ACityAPIDev : MonoBehaviour
             setApiURL(defaultApiUrl);
         else
             setApiURL(PlayerPrefs.GetString("ApiUrl"));
+
+        // if the user selected an OSCP localization service, use that one
+        if (!string.IsNullOrEmpty(OSCPDataHolder.Instance.geoPoseServiceURL)) {
+            setApiURL(OSCPDataHolder.Instance.geoPoseServiceURL);
+        }
 
 #if PLATFORM_ANDROID || UNITY_IOS
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
@@ -651,7 +654,7 @@ public class ACityAPIDev : MonoBehaviour
             zeroGeoCam = currentRi.zeroCamGeoPose;
         }
 
-        if (ecef)
+        if (ecef) // TODO: remove this section. only use geopose
         {
             px0 = jsonParse["geopose"]["ecefPose"]["position"]["x"].AsDouble;
             py0 = jsonParse["geopose"]["ecefPose"]["position"]["y"].AsDouble;
@@ -761,7 +764,7 @@ public class ACityAPIDev : MonoBehaviour
             else
                 uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
         }
-        else // local pose (AC)
+        else // local pose (AC) // TODO: remove this section. only use geopose
         {
             px = jsonParse["geopose"]["localPose"]["position"]["x"].AsFloat;
             py = jsonParse["geopose"]["localPose"]["position"]["y"].AsFloat;
@@ -1267,7 +1270,7 @@ public class ACityAPIDev : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
-        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
+        OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
     }
 
 #if UNITY_EDITOR
@@ -1280,13 +1283,19 @@ public class ACityAPIDev : MonoBehaviour
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
         Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
-        OSCPDataHolder.Instance.H3CurrentZone = lastH3Index.ToString();
+        OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
     }
 #endif
 
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
         Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
+        
+        if (apiURL == null) {
+            Debug.Log("apiURL is null! Aborting localization");
+            return;
+        }
+        
         byte[] bjpg;
         string framePath;
         if (editorTestMode)
@@ -1319,14 +1328,6 @@ public class ACityAPIDev : MonoBehaviour
             Debug.Log("DEBUG saving camera image to " + debugCameraImagePath);
             File.WriteAllBytes(debugCameraImagePath, bjpg);
         }
-
-        // TODO: at this point, the apiURL must be set properly and we should not overwrite it again. So we can remove the lines below.
-        // if there is no apiURL, then we should not try to uploadFrame() anyway.
-        //if (PlayerPrefs.HasKey("ApiUrl"))
-        //{
-        //    apiURL = PlayerPrefs.GetString("ApiUrl");
-        //}
-        Debug.Log($"ACityAPIDev::firstLocalization has apiURL = {apiURL}");
 
         if (!useOSCP)
         {
@@ -1363,7 +1364,9 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     // NGI
-    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, float longitude, float latitude, float hdop, Action<string> getJsonCameraObjects)
+    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, 
+            float longitude, float latitude, float hdop, 
+            Action<string> onLocalizedCallback)
     {
         Console.WriteLine("UploadJPGwithGPSOSCP...");
 
@@ -1469,10 +1472,12 @@ public class ACityAPIDev : MonoBehaviour
         tempScale3d = 1;
 
         // parse the response
-        getJsonCameraObjects(request.downloadHandler.text);
+        onLocalizedCallback(request.downloadHandler.text);
     }
 
-    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL, float longitude, float latitude, float hdop, Action<string> getJsonCameraObjects)
+    IEnumerator UploadJPGwithGPS(byte[] bytes, string apiURL,
+            float longitude, float latitude, float hdop,
+            Action<string> onLocalizedCallback)
     {
         Debug.Log("UploadJPGwithGPS...");
 
@@ -1525,7 +1530,7 @@ public class ACityAPIDev : MonoBehaviour
         }
         tempScale3d = 1;
 
-        getJsonCameraObjects(w.downloadHandler.text);
+        onLocalizedCallback(w.downloadHandler.text);
     }
 
 
