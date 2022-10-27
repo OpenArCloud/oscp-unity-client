@@ -1,9 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Video;
 
 public class GetPlaceHoldersDev : MonoBehaviour
@@ -94,7 +94,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startDevLocation()   // Test localization from Unity Editor
     {
-        // GetOrbitContent();
         Debug.Log("startDevLocalization");
         if (acapi.editorTestMode)
         {
@@ -125,7 +124,6 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startLocalization()
     {
-        //GetOrbitContent();
         Debug.Log("startLocalization");
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
@@ -137,11 +135,13 @@ public class GetPlaceHoldersDev : MonoBehaviour
     }
 
     //NGI addition
-    public void GetOrbitContent()
+    // TODO: unify with SCRManager.GetSpatialRecords
+    // TODO: apparently never used
+    public async Task GetOrbitContent()
     {
         if (acapi.useOrbitContent)
         {
-            orbitAPI.LoadItemsFromServer();
+            await orbitAPI.LoadItemsFromServer();
         }
     }
 

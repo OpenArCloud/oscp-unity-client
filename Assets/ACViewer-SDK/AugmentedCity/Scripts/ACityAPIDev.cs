@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -607,7 +608,7 @@ public class ACityAPIDev : MonoBehaviour
         Destroy(newCam);
     }
 
-    public void onLocalizationResponse_GeoPose(string jsonanswer) {
+    public async void onLocalizationResponse_GeoPose(string jsonanswer) {
         Debug.Log("This is the string response from AC: " + jsonanswer);
 
         var jsonParse = JSON.Parse(jsonanswer);
@@ -826,8 +827,12 @@ public class ACityAPIDev : MonoBehaviour
             //Translate SpatialRecords to StickerInfo
             //Use already created flow
 
+            // TODO: we should be able to handle mixed responses of OSCP and AC
+            // right now we need to know in advance and cannot handle mixed contents :(
             if (useOrbitContent)
             {
+                await scrManager.GetSpatialRecords();
+
                 objectsAmount = scrManager.spatialContentRecords.Length;
                 Debug.Log("Number of objects received: " + objectsAmount);
 

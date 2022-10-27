@@ -7,7 +7,7 @@ public class OSCPDataHolder : Singleton<OSCPDataHolder>
 {
 
     public List<string> contentUrls = new List<string>();
-    public string geoPoseServiceURL = ""; // TODO: this should be in SSRManager
+    public string geoPoseServiceURL = "";
     public string currentH3Zone = "";
 
     public Vector3 lastPositon;

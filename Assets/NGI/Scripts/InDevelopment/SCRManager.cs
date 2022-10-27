@@ -3,8 +3,8 @@ using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
-
 using NGI.Api; // TODO: rename to Oscp.Api
 
 // TODO: This class should be merged with OrbitAPI 
@@ -43,6 +43,7 @@ public class SCRManager : MonoBehaviour
 
     public void LoadFromJsonFile()
     {
+        Console.WriteLine("SCRManager.LoadFromJsonFile");
         MockResponse mockResponse = new MockResponse();
         SaveDataManager.LoadJsonData(mockResponse);
 
@@ -54,9 +55,10 @@ public class SCRManager : MonoBehaviour
         StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
-    public void GetSpatialRecords()
+    public async Task GetSpatialRecords()
     {
-        orbitAPI.LoadItemsFromServer();
+        Console.WriteLine("SCRManager.GetSpatialRecords");
+        await orbitAPI.LoadItemsFromServer();
     }
 
     // TODO: this is just parsing, does not need to run on a coroutine

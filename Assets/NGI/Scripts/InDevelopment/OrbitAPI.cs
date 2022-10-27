@@ -27,7 +27,9 @@ public class OrbitAPI : MonoBehaviour
         Console.WriteLine("OrbitAPI.Start");
     }
 
-    public void LoadItemsFromServer()
+    // TODO: names of methods. this should be GetRecords or similar. 
+    // But, ideally, GetSpatialContentRecords should be used directly
+    public async Task LoadItemsFromServer()
     {
         Console.WriteLine("OrbitAPI.LoadItemsFromServer");
         if (devLoadContentsFromFile)
@@ -50,11 +52,11 @@ public class OrbitAPI : MonoBehaviour
         // or we assume the contents won't change.
         if (scrManager.spatialContentRecords == null || scrManager.spatialContentRecords.Length == 0)
         {
-            GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.currentH3Zone);
+            await GetSpatialContentRecords(accessToken, "history", OSCPDataHolder.Instance.currentH3Zone);
         }
     }
 
-    public void UpdateRecord(SCRItem scr)
+    public async Task UpdateRecord(SCRItem scr)
     {
         string json = ConvertSCRtoString(scr);
         string accessToken = GetAccesToken();
@@ -66,7 +68,7 @@ public class OrbitAPI : MonoBehaviour
         }
 
         //TODO: Add ability to change topic. Currently hardcoded to history
-        UpdateSpatialContentRecord(accessToken, scr.id, "history", json);
+        await UpdateSpatialContentRecord(accessToken, scr.id, "history", json);
     }
 
     public async Task<string> CreateRecord(SCRItem scr)
@@ -124,7 +126,7 @@ public class OrbitAPI : MonoBehaviour
 
     #region Test Methods during development
 
-    async void GetSpatialContentRecords(string accessToken, string topic, string H3Index)
+    public async Task GetSpatialContentRecords(string accessToken, string topic, string h3Index)
     {
         Console.WriteLine("OrbitAPI.GetSpatialContentRecords");
 
@@ -133,7 +135,7 @@ public class OrbitAPI : MonoBehaviour
 
         //TODO: Ability to query multiple content servers, not just the first one in the list
         string scdServerURL = OSCPDataHolder.Instance.contentUrls[0];
-        HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic + "?h3Index=" + H3Index);
+        HttpWebRequest getRequest = (HttpWebRequest)WebRequest.Create(scdServerURL + "/scrs/" + topic + "?h3Index=" + h3Index);
         getRequest.Method = "GET";
         if (accessToken != null) {
             // accessToken is not necessary for GET, but can be submitted optionally
@@ -151,7 +153,7 @@ public class OrbitAPI : MonoBehaviour
     }
 
     // string testNewObjectJsonBody = "[{\"type\":\"scr\",\"content\":{\"id\":\"666\",\"type\":\"placeholder\",\"title\":\"testmodel\",\"description\":\"Thisiscratedfromtheunityapp\",\"keywords\":[\"model\",\"gltf\"],\"refs\":[{\"contentType\":\"model/gltf+json\",\"url\":\"https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb\"}],\"geopose\":{\"longitude\":18.17439310285225,\"latitude\":59.16870133340334,\"ellipsoidHeight\":0,\"quaternion\":{\"x\":0,\"y\":0,\"z\":0,\"w\":1}},\"size\":0,\"bbox\":\"\",\"definitions\":[{\"type\":\"unity\",\"value\":\"thisisatest\"}]}}]";
-    private async Task<string> CreateSpatialContentRecord(string access_token, string topic, string jsonBody)
+    async Task<string> CreateSpatialContentRecord(string access_token, string topic, string jsonBody)
     {
         Console.WriteLine("OrbitAPI.CreateSpatialContentRecord");
         output("Making API Call to Post content...");
@@ -203,7 +205,7 @@ public class OrbitAPI : MonoBehaviour
         return "";
     }
 
-    async void UpdateSpatialContentRecord(string access_token, string itemID, string topic, string jsonBody)
+    async Task UpdateSpatialContentRecord(string access_token, string itemID, string topic, string jsonBody)
     {
         Console.WriteLine("OrbitAPI.UpdateSpatialContentRecord");
         //Debug.Log(jsonBody);
