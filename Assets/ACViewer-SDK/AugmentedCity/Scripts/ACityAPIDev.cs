@@ -1438,7 +1438,9 @@ public class ACityAPIDev : MonoBehaviour
         // WARNING: there has been some changes in the URL ending over the past year:
         //string finalUrl = baseURL + "/scrs/geopose_objs_local";  // this returns camera pose and all objects in the neighborhood
         //string finalUrl = baseURL + "/scrs/geopose_objs"; // this is obsolete and should never be used
-        string finalUrl = baseURL + "/scrs/geopose"; // this returns camera pose only
+        //string finalUrl = baseURL + "/scrs/geopose"; // this returns camera pose only
+        string finalUrl = baseURL; // do not fiddle with the original URL of the record
+        // TODO: update AC GeoPose SSR to be https://developer.augmented.city/geopose everywhere
         Console.WriteLine("finalUrl: " + finalUrl);
 
         // Debug.Log("Uploading Screenshot started...");
