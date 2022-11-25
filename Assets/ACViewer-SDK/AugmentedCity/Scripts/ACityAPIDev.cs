@@ -319,16 +319,30 @@ public class ACityAPIDev : MonoBehaviour
         configurationSetted = true;
     }
 
-    public unsafe byte[] CamGetFrame()
+    public unsafe byte[] CamGetFrame(out XRCameraIntrinsics xrCameraIntrinsics)
     {
         uim.statusDebug("Get cam frame");
-        XRCpuImage image;
 
+        xrCameraIntrinsics = new XRCameraIntrinsics();
+
+        XRCpuImage image;
         if (!m_CameraManager.TryAcquireLatestCpuImage(out image))
         {
-            Debug.Log($"{Time.realtimeSinceStartup} Could not acquire cpu image.");
+            Console.WriteLine($"{Time.realtimeSinceStartup} Could not acquire cpu image.");
             return null; // unsuccessful
         }
+
+        if (!m_CameraManager.TryGetIntrinsics(out xrCameraIntrinsics))
+        {
+            Console.WriteLine($"{Time.realtimeSinceStartup} Could not retrieve camera intrinsics.");
+            return null; // unsuccessful
+        }
+
+        Debug.Log("Camera intrinsics:\n" +
+            "  focalLength: " + xrCameraIntrinsics.focalLength + "\n" + //Vector2
+            "  principalPoint: " + xrCameraIntrinsics.principalPoint + "\n" + // Vector2
+            "  resolution" + xrCameraIntrinsics.resolution + "\n" + // Vector2Int
+            "  grabbed image size: " + image.width + "x" + image.height);
 
         var conversionParams = new XRCpuImage.ConversionParams
         {
@@ -751,7 +765,7 @@ public class ACityAPIDev : MonoBehaviour
                 zeroGeoCam = currentRi.zeroCamGeoPose;
             }
             Vector3 enupose = EcefToEnu(GeodeticToEcef(camLat, camLon, camHei), zeroGeoCam.lat, zeroGeoCam.lon, zeroGeoCam.h);
-            
+
             // NGI
             OSCPDataHolder.Instance.lastPositon = enupose;
             Debug.Log("Cam GEO enupose x = " + enupose.x + ", y = " + enupose.y + ", z = " + enupose.z);
@@ -1295,23 +1309,26 @@ public class ACityAPIDev : MonoBehaviour
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
         Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
-        
+
         if (apiURL == null) {
             Debug.Log("apiURL is null! Aborting localization");
             return;
         }
-        
+
         byte[] bjpg;
         string framePath;
+        XRCameraIntrinsics xrCameraIntrinsics = new XRCameraIntrinsics();
         if (editorTestMode)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
             framePath = path;
             bjpg = File.ReadAllBytes(framePath);
+
+            // TODO: read camera intrinsics from JSON file or debug panel
         }
         else
         {
-            bjpg = CamGetFrame();
+            bjpg = CamGetFrame(out xrCameraIntrinsics);
         }
 
         if (bjpg == null)
@@ -1340,7 +1357,7 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            StartCoroutine(UploadJPGwithGPSOSCP(bjpg, apiURL, longitude, latitude, hdop, onLocalizationResponse_GeoPose));
+            StartCoroutine(UploadJPGwithGPSOSCP(bjpg, apiURL, longitude, latitude, hdop, xrCameraIntrinsics, onLocalizationResponse_GeoPose));
         }
     }
 
@@ -1369,8 +1386,9 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     // NGI
-    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL, 
-            float longitude, float latitude, float hdop, 
+    IEnumerator UploadJPGwithGPSOSCP(byte[] bytes, string baseURL,
+            float longitude, float latitude, float hdop,
+            XRCameraIntrinsics cameraIntrinsics,
             Action<string> onLocalizedCallback)
     {
         Console.WriteLine("UploadJPGwithGPSOSCP...");
@@ -1410,26 +1428,47 @@ public class ACityAPIDev : MonoBehaviour
             "\"timestamp\":\"" + timestamp + "\"," +
             "\"type\":\"geopose\"," +
             "\"sensors\":[" +
-                "{\"id\":\"0\",\"type\":\"camera\"}," +
-                "{\"id\":\"1\",\"type\":\"geolocation\"}" +
+                "{" +
+                    "\"id\":\"0\"," +
+                    "\"type\":\"camera\"," +
+                    "\"params\":{"+
+                        "\"model\":\"PINHOLE\"," +
+                        "\"modelParams\":[" +
+                            cameraIntrinsics.focalLength.x + ", " +
+                            cameraIntrinsics.focalLength.y + ", " +
+                            cameraIntrinsics.principalPoint.x + ", " +
+                            cameraIntrinsics.principalPoint.y + "]" +
+                    "}" +
+                "}," +
+                "{" +
+                    "\"id\":\"1\"," +
+                    "\"type\":\"geolocation\"" +
+                "}" +
             "]," +
             "\"sensorReadings\":[" +
                 "{" +
-                "\"timestamp\":\"" + timestamp + "\"," +
-                "\"sensorId\":\"0\"," +
-                "\"reading\":{" +
-                    "\"sequenceNumber\":0," +
-                    "\"imageFormat\":\"JPG\"," +
-                    "\"imageOrientation\":{\"mirrored\":false,\"rotation\":" + rotationDevice + "}," +
-                    "\"imageBytes\":\"" + shot + "\"}" +
-                "}, {" +
-                "\"timestamp\":\"" + timestamp + "\"," +
-                "\"sensorId\":\"1\"," +
-                "\"reading\":{" +
-                    "\"latitude\":" + latitude + "," +
-                    "\"longitude\":" + longitude + "," +
-                    "\"altitude\":0" + "," +
-                    "\"accuracy\":" + hdop + "}" +
+                    "\"timestamp\":\"" + timestamp + "\"," +
+                    "\"sensorId\":\"0\"," +
+                    "\"reading\":{" +
+                        "\"sequenceNumber\":0," +
+                        "\"imageFormat\":\"JPG\"," +
+                        "\"size\":[" + cameraIntrinsics.resolution.x + "," + cameraIntrinsics.resolution.y + "]," +
+                        "\"imageOrientation\":{" +
+                            "\"mirrored\":false," +
+                            "\"rotation\":" + rotationDevice +
+                        "}," +
+                        "\"imageBytes\":\"" + shot + "\"" +
+                    "}" +
+                "}," +
+                "{" +
+                    "\"timestamp\":\"" + timestamp + "\"," +
+                    "\"sensorId\":\"1\"," +
+                    "\"reading\":{" +
+                        "\"latitude\":" + latitude + "," +
+                        "\"longitude\":" + longitude + "," +
+                        "\"altitude\":0" + "," +
+                        "\"accuracy\":" + hdop +
+                    "}" +
                 "}" +
             "]" +
         "}";
