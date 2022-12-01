@@ -225,14 +225,14 @@ public class ACityAPIDev : MonoBehaviour
 #if UNITY_IOS
             using (var configurations = m_CameraManager.GetConfigurations(Allocator.Temp))
             {
-                Debug.Log("configurations.Length = " + configurations.Length);
+                Console.WriteLine("configurations.Length = " + configurations.Length);
                 needConfigurationNumber = 0;  // iOS's list has high resolutions first coming, get first in fail case
                 for (int i = 0; i < configurations.Length; i++)
                 {
-                    Debug.Log("Conf: h=" + configurations[i].height + " w=" + configurations[i].width + " fr:" + configurations[i].framerate);
+                    Console.WriteLine("Conf: h=" + configurations[i].height + " w=" + configurations[i].width + " fr:" + configurations[i].framerate);
                     if (configurations[i].height == 1080) { needConfigurationNumber = i; }  // store the minimal resolution with the required height
                 }
-                Debug.Log("Config number: " + needConfigurationNumber);
+                Console.WriteLine("Config number: " + needConfigurationNumber);
                 // Get that configuration by index
                 var configuration = configurations[needConfigurationNumber];
                 // Make it the active one
@@ -242,18 +242,18 @@ public class ACityAPIDev : MonoBehaviour
 #if PLATFORM_ANDROID
             using (var configurations = m_CameraManager.GetConfigurations(Allocator.Temp))
             {
-                Debug.Log("configurations.Length = " + configurations.Length);
+                Console.WriteLine("configurations.Length = " + configurations.Length);
                 bool needConfFound = false;
                 needConfigurationNumber = configurations.Length - 1;  // Android's list has high resolutions last coming, get last in fail case
                 for (int i = 0; i < configurations.Length; i++)
                 {
-                    Debug.Log("Conf: h=" + configurations[i].height + " w=" + configurations[i].width + " fr=" + configurations[i].framerate);
+                    Console.WriteLine("Conf: h=" + configurations[i].height + " w=" + configurations[i].width + " fr=" + configurations[i].framerate);
                     if ((configurations[i].height == 1080) && (!needConfFound))
                     {  // detect first low resolution with the required height
                         needConfigurationNumber = i; needConfFound = true;
                     }
                 }
-                Debug.Log("Config number: " + needConfigurationNumber);
+                Console.WriteLine("Config number: " + needConfigurationNumber);
                 // Get that configuration by index
                 var configuration = configurations[needConfigurationNumber];
                 // Make it the active one
@@ -284,7 +284,7 @@ public class ACityAPIDev : MonoBehaviour
             return null; // unsuccessful
         }
 
-        Debug.Log("Camera intrinsics:\n" +
+        Console.WriteLine("Camera intrinsics:\n" +
             "  focalLength: " + xrCameraIntrinsics.focalLength + "\n" + //Vector2
             "  principalPoint: " + xrCameraIntrinsics.principalPoint + "\n" + // Vector2
             "  resolution" + xrCameraIntrinsics.resolution + "\n" + // Vector2Int
@@ -314,7 +314,7 @@ public class ACityAPIDev : MonoBehaviour
         // Extract the image data
 
         image.Convert(conversionParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
-        //Debug.Log("buffer.Length = " + buffer.Length);
+        //Console.WriteLine("buffer.Length = " + buffer.Length);
         // The image was converted to RGBA32 format and written into the provided buffer
         // so we can dispose of the CameraImage. We must do this or it will leak resources.
         image.Dispose();
@@ -341,7 +341,7 @@ public class ACityAPIDev : MonoBehaviour
     // NGI TODO: Get rid of AC and keep only the OSCP-compliant parts
     // this method used to be called camLocalize(string jsonanswer)
     public void onLocalizationResponse_AC(string jsonanswer) {
-        Debug.Log("This is the string response from AC: " + jsonanswer);
+        Console.WriteLine("This is the string response from AC: " + jsonanswer);
 
         var jsonParse = JSON.Parse(jsonanswer);
 
@@ -360,15 +360,15 @@ public class ACityAPIDev : MonoBehaviour
         string js, sessionId;
 
         sessionId = jsonParse["reconstruction_id"];
-        // Debug.Log("sessioID: " + sessionId);
+        // Console.WriteLine("sessioID: " + sessionId);
         do
         {
             objectsAmount++;
             js = jsonParse["placeholders"][objectsAmount]["placeholder_id"];
-            // Debug.Log("js node [" + objectsAmount + "]  - " + js);
+            // Console.WriteLine("js node [" + objectsAmount + "]  - " + js);
         } while (js != null);
 
-        Debug.Log("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
+        Console.WriteLine("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
 
         px = jsonParse["camera"]["pose"]["position"]["x"].AsFloat;
         py = jsonParse["camera"]["pose"]["position"]["y"].AsFloat;
@@ -569,7 +569,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     public async void onLocalizationResponse_GeoPose(string jsonanswer) {
-        Debug.Log("This is the string response from AC: " + jsonanswer);
+        Console.WriteLine("This is the string response from AC: " + jsonanswer);
 
         var jsonParse = JSON.Parse(jsonanswer);
 
@@ -585,8 +585,8 @@ public class ACityAPIDev : MonoBehaviour
         // Spatial Content Records (optional)
         string sessionId = "1"; // jsonParse["geopose"]["reconstruction_id"];  // don't change the session as geopose SC is global
         string debugSessionId = jsonParse["geopose"]["reconstruction_id"];
-        Debug.Log("sessionID: " + sessionId);
-        Debug.Log("debugSessionID: " + debugSessionId);
+        Console.WriteLine("sessionID: " + sessionId);
+        Console.WriteLine("debugSessionID: " + debugSessionId);
 
         int objectsAmount = -1;
         string js = null;
@@ -596,7 +596,7 @@ public class ACityAPIDev : MonoBehaviour
             js = jsonParse["scrs"][objectsAmount]["type"];
             Debug.Log("js node [" + objectsAmount + "] - " + js);
         } while (js != null);
-        Debug.Log("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
+        Console.WriteLine("nodeAmount = " + objectsAmount + ", recoArray.Len = " + recoList.Count);
 
         // reset position initially
         double camLat = 0, camLon = 0, camHei = 0;
@@ -638,7 +638,7 @@ public class ACityAPIDev : MonoBehaviour
                 pz = (float)(pz0 - zeroEcefCam.z);
                 uim.setDebugPose(px, py, pz, ox, oy, oz, ow, debugSessionId);
             }
-            //Debug.Log("ecef.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
+            //Console.WriteLine("ecef.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
         }
         else if (useGeopose)
         {
@@ -647,13 +647,13 @@ public class ACityAPIDev : MonoBehaviour
             if (jsonParse.HasKey("timestamp"))
             {
                 timestamp = UInt64.Parse(jsonParse["timestamp"]);
-                Debug.Log("  timestamp:" + timestamp);
+                Console.WriteLine("  timestamp:" + timestamp);
             }
             UInt64 id = 0;
             if (jsonParse.HasKey("id"))
             {
                 id = UInt64.Parse(jsonParse["id"]);
-                Debug.Log("  id:" + id);
+                Console.WriteLine("  id:" + id);
             }
             double positionAccuracy = 0.0;
             double orientationAccuracy = 0.0;
@@ -662,14 +662,14 @@ public class ACityAPIDev : MonoBehaviour
                 JSONNode jsonAccuracy = jsonParse["accuracy"];
                 positionAccuracy = jsonAccuracy["position"].AsDouble;
                 orientationAccuracy = jsonAccuracy["orientation"].AsDouble;
-                Debug.Log("  positionAccuracy:" + positionAccuracy);
-                Debug.Log("  orientationAccuracy:" + orientationAccuracy);
+                Console.WriteLine("  positionAccuracy:" + positionAccuracy);
+                Console.WriteLine("  orientationAccuracy:" + orientationAccuracy);
             }
             string type = "";
             if (jsonParse.HasKey("type"))
             {
                 type = jsonParse["type"].ToString();
-                Debug.Log("  type:" + type);
+                Console.WriteLine("  type:" + type);
             }
 
             string checkNewGeo = jsonParse["geopose"]["position"]["lat"];
@@ -680,7 +680,7 @@ public class ACityAPIDev : MonoBehaviour
                 camLat = jsonParse["geopose"]["position"]["lat"].AsDouble;
                 camLon = jsonParse["geopose"]["position"]["lon"].AsDouble;
                 camHei = jsonParse["geopose"]["position"]["h"].AsDouble;
-                Debug.Log("Cam GEO_v10 - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
+                Console.WriteLine("Cam GEO_v10 - lat = " + camLat + ", lon = " + camLon + ", h = " + camHei);
 
                 ox = jsonParse["geopose"]["quaternion"]["x"].AsFloat;
                 oy = jsonParse["geopose"]["quaternion"]["y"].AsFloat;
@@ -692,7 +692,7 @@ public class ACityAPIDev : MonoBehaviour
                 camLat = jsonParse["geopose"]["pose"]["latitude"].AsDouble;
                 camLon = jsonParse["geopose"]["pose"]["longitude"].AsDouble;
                 camHei = jsonParse["geopose"]["pose"]["ellipsoidHeight"].AsDouble;
-                Debug.Log("Cam GEO_v01 - lat = " + camLat + ", lon = " + camLon + ", ellH = " + camHei);
+                Console.WriteLine("Cam GEO_v01 - lat = " + camLat + ", lon = " + camLon + ", ellH = " + camHei);
 
                 ox = jsonParse["geopose"]["pose"]["quaternion"]["x"].AsFloat;
                 oy = jsonParse["geopose"]["pose"]["quaternion"]["y"].AsFloat;
@@ -714,12 +714,12 @@ public class ACityAPIDev : MonoBehaviour
 
             // NGI
             OSCPDataHolder.Instance.lastPositon = enupose;
-            Debug.Log("Cam GEO enupose x = " + enupose.x + ", y = " + enupose.y + ", z = " + enupose.z);
+            Console.WriteLine("Cam GEO enupose x = " + enupose.x + ", y = " + enupose.y + ", z = " + enupose.z);
 
             px = enupose.x;
             py = enupose.y;
             pz = enupose.z;
-            Debug.Log("geo.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
+            Console.WriteLine("geo.quat = " + ox + "--" + oy + "--" + oz + "--" + ow);
             if (currentRi == null)
                 uim.setDebugPose(0.001f, py, pz, ox, oy, oz, ow, debugSessionId);
             else
@@ -741,7 +741,7 @@ public class ACityAPIDev : MonoBehaviour
         UnityPose uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
         if (oldUPose != null)
         {
-            Debug.Log("DbGL: " + (uPose.pos - oldUPose.pos).magnitude);
+            Console.WriteLine("DbGL: " + (uPose.pos - oldUPose.pos).magnitude);
         }
         oldUPose = uPose;
         newCam.transform.localPosition = uPose.pos;
@@ -756,11 +756,11 @@ public class ACityAPIDev : MonoBehaviour
             uPose.SetCameraOriFromGeoPose(newCam);  // Add additional 2 rotations for camera
         }
         /*
-        Debug.Log("newCam.transform.locPos pos= "
+        Console.WriteLine("newCam.transform.locPos pos= "
             + newCam.transform.localPosition.x + ", "
             + newCam.transform.localPosition.y + ", "
             + newCam.transform.localPosition.z);
-        Debug.Log("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
+        Console.WriteLine("newCam.transform.locRot ang= " + newCam.transform.localRotation.eulerAngles);
         */
 
         // NGI
@@ -794,7 +794,7 @@ public class ACityAPIDev : MonoBehaviour
                 await scrManager.GetSpatialRecords();
 
                 objectsAmount = scrManager.spatialContentRecords.Length;
-                Debug.Log("Number of objects received: " + objectsAmount);
+                Console.WriteLine("Number of objects received: " + objectsAmount);
 
                 if (objectsAmount > 0)
                 {
@@ -843,7 +843,7 @@ public class ACityAPIDev : MonoBehaviour
                         }
 
 
-                        //Debug.Log("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
+                        //Console.WriteLine("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
 
                         uPose = new UnityPose(new Vector3(px, py, pz), new Quaternion(ox, oy, oz, ow));
                         currentRi.stickerArray[j].mainPositions = uPose.pos;
@@ -854,10 +854,11 @@ public class ACityAPIDev : MonoBehaviour
                         stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
                         stickers[j].orientations = currentRi.stickerArray[j].orientations;
 
-                        /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+                        /* 
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
                         */
 
                         for (int i = 0; i < 4; i++)
@@ -1005,7 +1006,7 @@ public class ACityAPIDev : MonoBehaviour
                             oz = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["z"].AsFloat;
                             ow = jsonParse["scrs"][j]["content"]["geopose"]["quaternion"]["w"].AsFloat;
 
-                            //Debug.Log("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
+                            //Console.WriteLine("scr.ecef.quat = oxo:" + ox + "--" + oy + "--" + oz + "--" + ow);
                         }
                         else  // object local pose
                         {
@@ -1038,10 +1039,11 @@ public class ACityAPIDev : MonoBehaviour
                         stickers[j].mainPositions = currentRi.stickerArray[j].mainPositions;
                         stickers[j].orientations = currentRi.stickerArray[j].orientations;
 
-                        /* Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
-                            Debug.Log("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
+                        /*
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations x" + currentRi.stickerArray[j].orientations.x + "   " + stickers[j].orientations.x);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations y" + currentRi.stickerArray[j].orientations.y + "   " + stickers[j].orientations.y);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations z" + currentRi.stickerArray[j].orientations.z + "   " + stickers[j].orientations.z);
+                        Console.WriteLine("!!!!! currentRi.stickerArray[" + j + "].orientations w" + currentRi.stickerArray[j].orientations.w + "   " + stickers[j].orientations.w);
                         */
                         for (int i = 0; i < 4; i++)
                         {
@@ -1223,7 +1225,7 @@ public class ACityAPIDev : MonoBehaviour
         lastGpsLocation.verticalAccuracy = locationInfo.verticalAccuracy;
         hasGpsLocation = true;
         uim.statusDebug("Located GPS");
-        Debug.Log("Updated GPS Location: "
+        Console.WriteLine("Updated GPS Location: "
             + " lat: " + lastGpsLocation.latitude
             + " lon: " + lastGpsLocation.longitude
             + " alt: " + lastGpsLocation.altitude
@@ -1234,7 +1236,7 @@ public class ACityAPIDev : MonoBehaviour
         decimal radLon = H3Lib.Api.DegsToRads((decimal)lastGpsLocation.longitude);
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
-        Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        Console.WriteLine("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
         OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
     }
 
@@ -1247,14 +1249,14 @@ public class ACityAPIDev : MonoBehaviour
         decimal radLon = H3Lib.Api.DegsToRads((decimal)lon);
         H3Lib.GeoCoord geoCoord = new H3Lib.GeoCoord(radLat, radLon);
         lastH3Index = H3Lib.Extensions.GeoCoordExtensions.ToH3Index(geoCoord, kH3Resolution);
-        Debug.Log("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
+        Console.WriteLine("  H3 index (level " + kH3Resolution + "): " + lastH3Index.ToString());
         OSCPDataHolder.Instance.currentH3Zone = lastH3Index.ToString();
     }
 #endif
 
     public void firstLocalization(float longitude, float latitude, float hdop, string path, Action<string, Transform, StickerInfo[]> getStickers)
     {
-        Debug.Log("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
+        Console.WriteLine("firstLocalization: " + "lat: " + latitude + ", lon: " + longitude + ", hdop: " + hdop + ", path: " + path);
 
         if (apiURL == null) {
             Debug.Log("apiURL is null! Aborting localization");
@@ -1418,7 +1420,7 @@ public class ACityAPIDev : MonoBehaviour
                 "}" +
             "]" +
         "}";
-        //Debug.Log("finalJson OSCP = " + finalJson);
+        //Console.WriteLine("finalJson OSCP = " + finalJson);
 
         // WARNING: there has been some changes in the URL ending over the past year:
         //string finalUrl = baseURL + "/scrs/geopose_objs_local";  // this returns camera pose and all objects in the neighborhood
@@ -1428,7 +1430,7 @@ public class ACityAPIDev : MonoBehaviour
         // TODO: update AC GeoPose SSR to be https://developer.augmented.city/geopose everywhere
         Console.WriteLine("finalUrl: " + finalUrl);
 
-        // Debug.Log("Uploading Screenshot started...");
+        // Console.WriteLine("Uploading Screenshot started...");
         var request = new UnityWebRequest(finalUrl, "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(finalJson);
         request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
@@ -1471,10 +1473,10 @@ public class ACityAPIDev : MonoBehaviour
             float longitude, float latitude, float hdop,
             Action<string> onLocalizedCallback)
     {
-        Debug.Log("UploadJPGwithGPS...");
+        Console.WriteLine("UploadJPGwithGPS...");
 
         localizationStatus = LocalizationStatus.WaitForAPIAnswer;
-        Debug.Log("bytes length = " + bytes.Length);
+        Console.WriteLine("bytes length = " + bytes.Length);
         List<IMultipartFormSection> form = new List<IMultipartFormSection>();
         rotationDevice = "0";
         if (!editorTestMode)
@@ -1486,19 +1488,19 @@ public class ACityAPIDev : MonoBehaviour
         // TODO: do not hardcode 'mirrored'
         string jsona = "{\"gps\":{\"latitude\":" + latitude + ",\"longitude\":" + longitude + ",\"hdop\":" + hdop + "},\"rotation\": " + rotationDevice + ",\"mirrored\": false}";
         uim.gpsDebug(latitude, longitude, hdop);
-        Debug.Log("" + jsona);
+        Console.WriteLine("" + jsona);
         form.Add(new MultipartFormFileSection("image", bytes, "test.jpg", "image/jpeg"));
         form.Add(new MultipartFormDataSection("description", jsona));
 
         byte[] boundary = UnityWebRequest.GenerateBoundary();
         string targetURL = apiURL + "/api/localizer/localize";
-        Debug.Log(targetURL);
+        Console.WriteLine(targetURL);
         var w = UnityWebRequest.Post(apiURL + "/api/localizer/localize", form, boundary);
         //w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");  //FixMe: commented in aco3d???
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
         w.SetRequestHeader("user-agent", "Unity AC-Viewer based app, name: " + Application.productName + ", Device: " + SystemInfo.deviceModel);
 
-        Debug.Log("Uploading Screenshot started...");
+        Console.WriteLine("Uploading Screenshot started...");
         uim.statusDebug("Waiting response");
         w.timeout = 50;
         yield return w.SendWebRequest();
@@ -1509,9 +1511,9 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            Debug.Log("Finished Uploading Screenshot");
+            Console.WriteLine("Finished Uploading Screenshot");
         }
-        Debug.Log(w.downloadHandler.text);
+        Console.WriteLine(w.downloadHandler.text);
         var jsonParse = JSON.Parse(w.downloadHandler.text);
 
         // session id
@@ -1528,7 +1530,7 @@ public class ACityAPIDev : MonoBehaviour
 
     public void prepareSession(Action<bool, string> getServerAnswer)
     {
-        Debug.Log("prepareSession...");
+        Console.WriteLine("prepareSession...");
         if (editorTestMode)
         {
             // nothing to do when testing in editor
@@ -1537,14 +1539,14 @@ public class ACityAPIDev : MonoBehaviour
 
         //if (Input.location.status != LocationServiceStatus.Running)
         //{
-        //    Debug.Log("LocationService is not running yet! Cannot prepare AC API service.");
+        //    Console.WriteLine("LocationService is not running yet! Cannot prepare AC API service.");
         //}
         //Input.location.Start();
         // TODO: wait here until it really starts
         // --> Locate() initiates the GPS query and waits until a measurement is available
         System.Action onFinishedAction = new System.Action(() =>
         {
-            Debug.Log("prepareSession Locate callback...");
+            Console.WriteLine("prepareSession Locate callback...");
             // NOTE: prepareC is a coroutine and must be called like this:
             StartCoroutine(prepareC(lastGpsLocation.longitude, lastGpsLocation.latitude, getServerAnswer));
         });
@@ -1570,7 +1572,7 @@ public class ACityAPIDev : MonoBehaviour
         }
         else
         {
-            Debug.Log("prepareC Success: " + w.downloadHandler.text);
+            Console.WriteLine("prepareC Success: " + w.downloadHandler.text);
             getServerAnswer.Invoke(true, w.downloadHandler.text);
         }
     }
@@ -1579,7 +1581,7 @@ public class ACityAPIDev : MonoBehaviour
     //IEnumerator Locate(Action<float, float, float, string, Action<string, Transform, StickerInfo[]>> onGpsLocationUpdated)
     IEnumerator Locate(Action onGpsLocationUpdatedCallback = null)
     {
-        Debug.Log("Started Locate GPS");
+        Console.WriteLine("Started Locate GPS");
         if (uim == null)
         {
             Debug.LogError("uim is null at this point!"); // TODO: this is likely to happen when this is called during Start()
@@ -1593,7 +1595,8 @@ public class ACityAPIDev : MonoBehaviour
         // First, check if user has location service enabled
         if (!Input.location.isEnabledByUser)
         {
-            Debug.Log("geo not enabled"); PlayerPrefs.SetInt("LocLoaded", -1);
+            Debug.Log("geo not enabled");
+            PlayerPrefs.SetInt("LocLoaded", -1);
             yield break;
         }
         // Start service before querying location
@@ -1630,10 +1633,10 @@ public class ACityAPIDev : MonoBehaviour
 
             if (onGpsLocationUpdatedCallback != null)
             {
-                Debug.Log("Locate invoking callback...");
+                Console.WriteLine("Locate invoking callback...");
                 onGpsLocationUpdatedCallback.Invoke();
             }
-            Debug.Log("Location: " + Input.location.lastData.latitude + " "
+            Console.WriteLine("Location: " + Input.location.lastData.latitude + " "
                                    + Input.location.lastData.longitude + " "
                                    + Input.location.lastData.altitude + " "
                                    + Input.location.lastData.horizontalAccuracy + " "
@@ -1649,7 +1652,7 @@ public class ACityAPIDev : MonoBehaviour
 
         // Stop service if there is no need to query location updates continuously
         //Input.location.Stop();
-        Debug.Log("Finished Locate GPS");
+        Console.WriteLine("Finished Locate GPS");
     }
 
     public LocalizationStatus getLocalizationStatus() { return localizationStatus; }
@@ -1666,14 +1669,14 @@ public class ACityAPIDev : MonoBehaviour
 
     void SetTimer(double timer)
     {
-        Debug.Log("(float)timer  % 100000= " + (float)(timer % 100000));
+        Console.WriteLine("(float)timer  % 100000= " + (float)(timer % 100000));
         serverTimer = (float)(timer % 100000);
-        Debug.Log("serverTimer = " + serverTimer);
+        Console.WriteLine("serverTimer = " + serverTimer);
     }
 
     IEnumerator GetTimerC()
     {
-        Debug.Log("Getting server time...");
+        Console.WriteLine("Getting server time...");
         // TODO: do not use hardcoded API URL. But this method is currently called before setApiUrl()
         var sw = UnityWebRequest.Get("https://developer.augmented.city/api/v2/server_timestamp");
         yield return sw.SendWebRequest();
@@ -1687,7 +1690,7 @@ public class ACityAPIDev : MonoBehaviour
             double timer = 0;
 
             double.TryParse((sw?.downloadHandler?.text)??"0",out timer);
-            Debug.Log("Timer = " + timer);
+            Console.WriteLine("Timer = " + timer);
             SetTimer(timer);
         }
     }
@@ -1695,7 +1698,7 @@ public class ACityAPIDev : MonoBehaviour
     public void TimerShow()
     {
         StartCoroutine(GetTimerC());
-        Debug.Log("globalTimer = " + globalTimer);
+        Console.WriteLine("globalTimer = " + globalTimer);
     }
 
 }

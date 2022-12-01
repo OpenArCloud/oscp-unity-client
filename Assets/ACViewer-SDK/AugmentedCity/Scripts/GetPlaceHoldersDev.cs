@@ -124,10 +124,10 @@ public class GetPlaceHoldersDev : MonoBehaviour
 
     public void startLocalization()
     {
-        Debug.Log("startLocalization");
+        Console.WriteLine("startLocalization");
         pastArCamCoordinates = arCamCoordinates;
         arCamCoordinates = new Vector3(aRcamera.transform.position.x, aRcamera.transform.position.y, aRcamera.transform.position.z);
-        Debug.Log("ARcam x = " + aRcamera.transform.position.x);
+        Console.WriteLine("ARcam position\n  x = " + aRcamera.transform.position.x + "\n  y = " + aRcamera.transform.position.y + "\n  z = " + aRcamera.transform.position.z);
         acapi.ARLocation(showPlaceHolders);
         timerRelocation = timeForRelocation;
         ARStarted = true;
@@ -161,7 +161,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
         //1. Calculate vector product (1-2) and (2-3) that's the plane normal
         //2. Check the sign of Z normal component => if positive (parallel to Z axis), it's forward - it's reversed; otherwise - it's ok.
         Vector3 normal = GetNormal(point1, point2, point3);
-        Debug.Log("normal: x: " + normal.x + " y: " + normal.y + " z: " + normal.z);
+        Console.WriteLine("normal: x: " + normal.x + " y: " + normal.y + " z: " + normal.z);
         if (normal.z > 0) {
             isReversedVideo = true;
         }
@@ -171,7 +171,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
     // TODO: this method is specific to AugmentedCity. We should instead write an OSCP-standard method
     void showPlaceHolders(string id, Transform zeroP, ACityAPIDev.StickerInfo[] stickers)
     {
-        Debug.Log("Enterd showplaceholders");
+        Console.WriteLine("Enterd showplaceholders");
 
         if (id == null) {
             Debug.Log("AC reconstruction id is null!");
@@ -293,7 +293,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
             vp.transform.localScale = (vp.transform.localScale * Vector3.Magnitude(stickers[j].positions[0] - stickers[j].positions[1]));
             //fix the reversed video checking the plane orientation
             bool isReversedVideoSticker = checkVideoOrientation(temp1.transform.position, temp2.transform.position, temp3.transform.position);
-            Debug.Log("isReversedVideoSticker: " + isReversedVideoSticker);
+            //Debug.Log("isReversedVideoSticker: " + isReversedVideoSticker);
             if (isReversedVideoSticker)
             {
                 vp.transform.localEulerAngles = new Vector3(0, vp.transform.localEulerAngles.y + 180, 0);

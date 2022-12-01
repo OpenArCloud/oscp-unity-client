@@ -331,8 +331,8 @@ public class OAuth2Authentication : MonoBehaviour
     /// <param name="output">string to be appended</param>
     public void output(string output)
     {
-        //Console.WriteLine(output);
-        Debug.Log(output);
+        Console.WriteLine("OAuth2: " + output);
+        //Debug.Log(output);
     }
 
     /// <summary>
