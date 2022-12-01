@@ -135,7 +135,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
     }
 
     //NGI addition
-    // TODO: unify with SCRManager.GetSpatialRecords
+    // TODO: unify with SCRManager.GetSpatialContentRecords
     // TODO: apparently never used
     public async Task GetOrbitContent()
     {
@@ -243,7 +243,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
             Console.WriteLine("*** Creating sticker #" + j);
             if (stickers[j] == null) // invalid sticker
             {
-                Debug.Log("Sticker #" + j + " was invalid!");
+                Debug.LogError("Sticker #" + j + " was invalid!");
                 continue;
             }
 

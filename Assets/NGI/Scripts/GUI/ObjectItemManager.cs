@@ -47,7 +47,7 @@ public class ObjectItemManager : MonoBehaviour
         }
     }
 
-    public void GetObjects()
+    public async void GetObjects()
     {
         //Destroying all objects in GUI
         foreach (Transform child in contentHolder)
@@ -56,7 +56,7 @@ public class ObjectItemManager : MonoBehaviour
         }
 
         //CreateObjectItems(mockResponse.spatialServiceRecord);
-        spatialRecordManager.GetSpatialRecords();
+        await spatialRecordManager.GetSpatialContentRecords();
     }
 
 }

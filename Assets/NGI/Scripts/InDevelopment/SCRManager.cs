@@ -55,9 +55,9 @@ public class SCRManager : MonoBehaviour
         StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
-    public async Task GetSpatialRecords()
+    public async Task GetSpatialContentRecords()
     {
-        Console.WriteLine("SCRManager.GetSpatialRecords");
+        Console.WriteLine("SCRManager.GetSpatialContentRecords");
         await orbitAPI.LoadItemsFromServer();
     }
 
@@ -153,7 +153,7 @@ public class SCRManager : MonoBehaviour
             {
                 spatialContentRecords[i] = sp;
                 Debug.Log(string.Format("Updated ObjectID: {0}", spatialContentRecords[i].id));
-                orbitAPI.UpdateRecord(sp);
+                _ = orbitAPI.UpdateRecord(sp); // do not wait but ignore the result
                 return;
             }
         }

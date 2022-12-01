@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 using NGI.Api; // TODO: rename to Oscp.Api
@@ -45,9 +46,10 @@ public class MockResponseLoad : MonoBehaviour
         StartCoroutine(ParseSpatialContentRecords(jsonResponseNode));
     }
 
-    public void GetSpatialRecords()
+    public async Task GetSpatialContentRecords()
     {
-        orbitAPI.LoadItemsFromServer();
+        Console.WriteLine("MockResponseLoad.GetSpatialContentRecords");
+        await orbitAPI.LoadItemsFromServer();
     }
 
     // TODO: this is just parsing, does not need to run on a coroutine
@@ -142,7 +144,7 @@ public class MockResponseLoad : MonoBehaviour
             {
                 spatialContentRecords[i] = sp;
                 Debug.Log(string.Format("Updated ObjectID: {0}", spatialContentRecords[i].id));
-                orbitAPI.UpdateRecord(sp);
+                _ = orbitAPI.UpdateRecord(sp); // do not wait but ignore the result
                 return;
             }
         }

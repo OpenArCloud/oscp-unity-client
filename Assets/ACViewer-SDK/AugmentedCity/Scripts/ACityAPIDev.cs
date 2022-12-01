@@ -569,7 +569,7 @@ public class ACityAPIDev : MonoBehaviour
     }
 
     public async void onLocalizationResponse_GeoPose(string jsonanswer) {
-        Console.WriteLine("This is the string response from AC: " + jsonanswer);
+        Console.WriteLine("This is the string response from VPS: " + jsonanswer);
 
         var jsonParse = JSON.Parse(jsonanswer);
 
@@ -791,7 +791,7 @@ public class ACityAPIDev : MonoBehaviour
             // right now we need to know in advance and cannot handle mixed contents :(
             if (useOrbitContent)
             {
-                await scrManager.GetSpatialRecords();
+                await scrManager.GetSpatialContentRecords();
 
                 objectsAmount = scrManager.spatialContentRecords.Length;
                 Console.WriteLine("Number of objects received: " + objectsAmount);
@@ -1359,12 +1359,12 @@ public class ACityAPIDev : MonoBehaviour
 
         // TODO: we should not use hardcoded timestamp as before
         // we should use the real capture timestamp of the image, and of the last GPS measurements
-        const string timestampExample = "2020-11-11T11:56:21+00:00"; // we want this format based on the example:
+        //const string timestampExample = "2020-11-11T11:56:21+00:00"; // we want this format based on the example:
         string timestampLocal = System.DateTime.UtcNow.ToString(); // not good: 3/15/2022 7:45:50 PM
         string timestamp = System.DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture); // almost good 2022-03-15T19:45:50
 
         // TODO: we should not use hardcoded request_id as before
-        const string requestIdExample = "9089876676575754";
+        //const string requestIdExample = "9089876676575754";
         //geoposeRequestId++;
         string requestId = geoposeRequestId.ToString();
 
