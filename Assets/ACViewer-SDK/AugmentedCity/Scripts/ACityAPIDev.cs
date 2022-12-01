@@ -12,49 +12,11 @@ using UnityEngine.Android;
 using UnityEngine.Networking;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+
 using NGI.Api; // TODO: rename to OSCP.Api and separate from AC-specific stuff
 
 public class ACityAPIDev : MonoBehaviour
 {
-    public class UnityPose  // class to keep pose of the camera or objects for usage in Unity with left-handed system coords
-    {
-        public Vector3 pos;
-        public Quaternion ori;
-
-
-        public UnityPose(Vector3 acpos, Quaternion acori) // convert right-handed to left-handed, by redirecting axis Y
-        {
-            pos = GetPosition(acpos.x, acpos.y, acpos.z);
-            ori = Quaternion.Euler(-acori.eulerAngles.x, acori.eulerAngles.y, -acori.eulerAngles.z);
-        }
-
-        public static Vector3 GetPosition(float posx, float posy, float posz)
-        {
-            return new Vector3(posx, -posy, posz); // change the Y axis direction
-        }
-
-        public Vector4 GetOrientation()
-        {
-            return new Vector4(ori.x, ori.y, ori.z, ori.w);
-        }
-
-        public void SetCameraOriFromGeoPose(GameObject cam)
-        {
-            cam.transform.RotateAround(cam.transform.position, cam.transform.right, 90); // rotation around the X-axis to lift the Y-axis up
-            cam.transform.RotateAround(cam.transform.position, cam.transform.up, 90); // rotation around the Y-axis (it looks up) by 90 so that the camera is on the Z-axis instead of X
-        }
-
-        public Vector4 SetObjectOriFromGeoPose()
-        {
-            GameObject temp = new GameObject();
-            temp.transform.localRotation = this.ori;
-            temp.transform.RotateAround(temp.transform.position, temp.transform.right, 90); // rotation around the X-axis to lift the Y-axis up
-            Vector4 newori = new Vector4(temp.transform.localRotation.x, temp.transform.localRotation.y, temp.transform.localRotation.z, temp.transform.localRotation.w);
-            Destroy(temp);
-            return newori;
-        }
-    }
-
     public class RecoInfo
     {
         public string id;
@@ -100,22 +62,6 @@ public class ACityAPIDev : MonoBehaviour
         public string externalAssetUrl;
         public SCRItem spatialContentRecord; // TODO: why do we store the whole SCR in a stickerInfo?
     }
-
-    public class EcefPose
-    {
-        public double x;
-        public double y;
-        public double z;
-    }
-
-    // TODO: this is not GeoPose, this is just the position part of it!
-    public class GeoPose
-    {
-        public double lat;
-        public double lon;
-        public double h;
-    }
-
 
     public enum LocalizationStatus
     {
@@ -764,7 +710,7 @@ public class ACityAPIDev : MonoBehaviour
             {
                 zeroGeoCam = currentRi.zeroCamGeoPose;
             }
-            Vector3 enupose = EcefToEnu(GeodeticToEcef(camLat, camLon, camHei), zeroGeoCam.lat, zeroGeoCam.lon, zeroGeoCam.h);
+            Vector3 enupose = GeoMath.EcefToEnu(GeoMath.GeodeticToEcef(camLat, camLon, camHei), zeroGeoCam.lat, zeroGeoCam.lon, zeroGeoCam.h);
 
             // NGI
             OSCPDataHolder.Instance.lastPositon = enupose;
@@ -872,8 +818,8 @@ public class ACityAPIDev : MonoBehaviour
                         thei = scrManager.spatialContentRecords[j].content.geopose.position.h;
 
                         // calc the object position relatively the recently localized camera
-                        EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
-                        Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
+                        EcefPose epobj = GeoMath.GeodeticToEcef(tlat, tlon, thei);
+                        Vector3 enupose = GeoMath.EcefToEnu(epobj, camLat, camLon, camHei);
                         px = enupose.x;
                         py = enupose.y;
                         pz = enupose.z;
@@ -1049,8 +995,8 @@ public class ACityAPIDev : MonoBehaviour
                             }
 
                             // calc the object position relatively the recently localized camera
-                            EcefPose epobj = GeodeticToEcef(tlat, tlon, thei);
-                            Vector3 enupose = EcefToEnu(epobj, camLat, camLon, camHei);
+                            EcefPose epobj = GeoMath.GeodeticToEcef(tlat, tlon, thei);
+                            Vector3 enupose = GeoMath.EcefToEnu(epobj, camLat, camLon, camHei);
                             px = enupose.x;
                             py = enupose.y;
                             pz = enupose.z;
@@ -1750,70 +1696,6 @@ public class ACityAPIDev : MonoBehaviour
     {
         StartCoroutine(GetTimerC());
         Debug.Log("globalTimer = " + globalTimer);
-    }
-
-
-    public EcefPose GeodeticToEcef(double lat, double lon, double h)
-    {
-        double lamb, phi, s, N;
-        lamb = lat * Mathf.Deg2Rad;
-        phi = lon * Mathf.Deg2Rad;
-        s = Math.Sin(lamb);
-        N = a / Math.Sqrt(1 - e_sq * s * s);
-
-        double sin_lambda, cos_lambda, sin_phi, cos_phi;
-        sin_lambda = Math.Sin(lamb);
-        cos_lambda = Math.Cos(lamb);
-        sin_phi = Math.Sin(phi);
-        cos_phi = Math.Cos(phi);
-
-        double x, y, z;
-        x = (h + N) * cos_lambda * cos_phi;
-        y = (h + N) * cos_lambda * sin_phi;
-        z = (h + (1 - e_sq) * N) * sin_lambda;
-
-        EcefPose ep = new EcefPose();
-        ep.x = x;
-        ep.y = y;
-        ep.z = z;
-        return ep;
-    }
-
-    public Vector3 EcefToEnu(EcefPose ep, double lat_ref, double lon_ref, double h_ref)
-    {
-        double lamb, phi, s, N;
-        lamb = lat_ref * Mathf.Deg2Rad;
-        phi = lon_ref * Mathf.Deg2Rad;
-        s = Math.Sin(lamb);
-        N = a / Math.Sqrt(1 - e_sq * s * s);
-
-        double sin_lambda, cos_lambda, sin_phi, cos_phi;
-        sin_lambda = Math.Sin(lamb);
-        cos_lambda = Math.Cos(lamb);
-        sin_phi = Math.Sin(phi);
-        cos_phi = Math.Cos(phi);
-
-        double x0, y0, z0;
-        x0 = (h_ref + N) * cos_lambda * cos_phi;
-        y0 = (h_ref + N) * cos_lambda * sin_phi;
-        z0 = (h_ref + (1 - e_sq) * N) * sin_lambda;
-
-        //Debug.Log("ep.x = " + ep.x + ", ep.y = " + ep.y + ",ep.z = " + ep.z);
-
-        double xd, yd, zd;
-        xd = ep.x - x0;
-        yd = ep.y - y0;
-        zd = ep.z - z0;
-        //Debug.Log("xd= " + xd + ", yd = " + yd + ",zd = " + zd);
-
-        double xEast, yNorth, zUp;
-        xEast = -sin_phi * xd + cos_phi * yd;
-        yNorth = -cos_phi * sin_lambda * xd - sin_lambda * sin_phi * yd + cos_lambda * zd;
-        zUp = cos_lambda * cos_phi * xd + cos_lambda * sin_phi * yd + sin_lambda * zd;
-
-        //Debug.Log("xEast = "+ xEast + ",yNorth " + yNorth+ ",zUp" + zUp);
-
-        return new Vector3((float)xEast, (float)yNorth, (float)zUp);
     }
 
 }
