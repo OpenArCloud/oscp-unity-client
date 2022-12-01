@@ -324,24 +324,38 @@ public class GetPlaceHoldersDev : MonoBehaviour
             if (isSpatialContentRecord)
             {
                 // TODO: move the whole SCR placement out from this method, separate OSCP and AC objects!
+                // TODO: switch on the content.type and handle all OSCP-defined cases
+                Console.Out.Flush();
                 Console.WriteLine("--- This is a SpatialContentRecord ---");
-                Console.WriteLine(stickers[j].spatialContentRecord.content.title);
+                Console.WriteLine("  type: " + stickers[j].spatialContentRecord.type);
+                Console.WriteLine("  id: " + stickers[j].spatialContentRecord.id);
+                Console.WriteLine("  tenant: " + stickers[j].spatialContentRecord.tenant);
+                Console.WriteLine("  timestamp: " + stickers[j].spatialContentRecord.timestamp);
 
+                string contentType = stickers[j].spatialContentRecord.content.type;
+                string contentTitle = stickers[j].spatialContentRecord.content.title;
+                Console.WriteLine("  content type: " + contentType);
+                Console.WriteLine("  content title: " + contentTitle);
+                Console.WriteLine("  content id: " + stickers[j].spatialContentRecord.content.id);
+                Console.WriteLine("  content numRefs: " +  stickers[j].spatialContentRecord.content.refs.Count);
+                // TODO: AC objects do not have the refs field filled, but use "url" instead
+                // we handle this here but they should fix it on their server
+                
                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
                 model.AddComponent<SCRItemTag>();
                 model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialContentRecord.id;
 
-                Console.WriteLine("refs: " +  stickers[j].spatialContentRecord.content.refs.Count);
-                // TODO: AC objects do not have the refs field filled, but use "url" instead
-                // we handle this here but they should fix it on their server
-                
                 if (stickers[j].spatialContentRecord.content.refs.Count > 0) {
-                    if (string.Equals(stickers[j].spatialContentRecord.content.refs[0]["contentType"], "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
+                    // TODO: consider all refs, not only the first one!
+                    string refContentType = stickers[j].spatialContentRecord.content.refs[0]["contentType"];
+                    string refUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                    if (string.Equals(refContentType, "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
                     {
-                        //TODO: Fix so it supports more than one refs entry
-                        Console.WriteLine("This is an assetbundle");
+                        // Asset Bundle for Unity (as defined in the NGI project)
+                        // Note that AC-specific asset bundles are not handled here
+                        Console.WriteLine("  this is an assetbundle");
                         string assetbundleName = "noAsset";
-                        string assetbundleUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                        string assetbundleUrl = refUrl;
                         for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
                         {
                             if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
@@ -354,11 +368,16 @@ public class GetPlaceHoldersDev : MonoBehaviour
                         model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
                         model.GetComponent<AssetLoaderNGI>().customUrl = assetbundleUrl.ToLower();
                     }
-                    else // 3D model
+                    else if (refContentType.Contains("GLTF") || refContentType.Contains("gltf") )
                     {  
+                        // GLTF 3D model
+                        Console.WriteLine("  this is an 3D model with URL: " + refUrl);
                         model.GetComponent<AssetLoaderNGI>().enabled = false;
                         var gltf = model.AddComponent<GLTFast.GltfAsset>();
-                        gltf.url = stickers[j].spatialContentRecord.content.refs[0]["url"];
+                        gltf.url = refUrl;
+                    } else {
+                        Debug.LogError("Unknown reference contentType: " + refContentType
+                                + " of content titled " + contentTitle);
                     }
                 } else if (!string.IsNullOrEmpty(stickers[j].sPath)) { // stickers[j].spatialContentRecord.content.refs.Count == 0
                     // TODO: ideally this should not happen, but AC objects do not have their 'refs' filled (Oct 2022)
@@ -368,7 +387,7 @@ public class GetPlaceHoldersDev : MonoBehaviour
                     gltf.url = stickers[j].sPath;
                 } else {
                     // no refs and no url, ignore this object
-                    Debug.Log("Sticker #" + j + " had no Refs and no URL!");
+                    Debug.LogError("Sticker #" + j + " had no Refs and no URL!");
                     continue;
                 }
 
