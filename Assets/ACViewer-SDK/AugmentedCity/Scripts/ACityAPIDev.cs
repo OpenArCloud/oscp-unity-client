@@ -1556,14 +1556,13 @@ public class ACityAPIDev : MonoBehaviour
     IEnumerator prepareC(float longitude, float latitude, Action<bool, string> getServerAnswer)
     {
         // Example: https://developer.augmented.city/api/localizer/prepare?lat=59.907458f&lon=30.298400f
-        //
-        string req = apiURL + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f";
-        Debug.Log(req);
-        var w = UnityWebRequest.Get(req);
+        string prepareUrl = "https://developer.augmented.city" + "/api/localizer/prepare?lat=" + latitude + "f&lon=" + longitude + "f";
+        Console.WriteLine("prepareUrl: " + prepareUrl);
+        var w = UnityWebRequest.Get(prepareUrl);
         w.SetRequestHeader("Accept-Encoding", "gzip, deflate, br");
         w.SetRequestHeader("Accept", "application/vnd.myplace.v2+json");
-
         yield return w.SendWebRequest();
+
         if (w.isNetworkError || w.isHttpError)
         {
             Debug.Log(w.error);
@@ -1631,16 +1630,18 @@ public class ACityAPIDev : MonoBehaviour
             updateMyGpsLocation(Input.location.lastData);
             // TODO: should we set a value for localizationStatus here?
 
+            Console.WriteLine("Location: \n" 
+                    + "  " + Input.location.lastData.latitude + "\n"
+                    + "  " + Input.location.lastData.longitude + "\n"
+                    + "  " + Input.location.lastData.altitude + "\n"
+                    + "  " + Input.location.lastData.horizontalAccuracy + "\n"
+                    + "  " + Input.location.lastData.timestamp);
+
             if (onGpsLocationUpdatedCallback != null)
             {
                 Console.WriteLine("Locate invoking callback...");
                 onGpsLocationUpdatedCallback.Invoke();
             }
-            Console.WriteLine("Location: " + Input.location.lastData.latitude + " "
-                                   + Input.location.lastData.longitude + " "
-                                   + Input.location.lastData.altitude + " "
-                                   + Input.location.lastData.horizontalAccuracy + " "
-                                   + Input.location.lastData.timestamp);
 
             // getLocData(Input.location.lastData.latitude, Input.location.lastData.longitude, Input.location.lastData.horizontalAccuracy, null, null);
             GPSlocation = true;
