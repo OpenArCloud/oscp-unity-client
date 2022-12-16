@@ -338,56 +338,56 @@ public class GetPlaceHoldersDev : MonoBehaviour
                 Console.WriteLine("  content title: " + contentTitle);
                 Console.WriteLine("  content id: " + stickers[j].spatialContentRecord.content.id);
                 Console.WriteLine("  content numRefs: " +  stickers[j].spatialContentRecord.content.refs.Count);
-                // TODO: AC objects do not have the refs field filled, but use "url" instead
-                // we handle this here but they should fix it on their server
                 
                 GameObject model = Instantiate(GetComponent<ModelManager>().ABloaderNGI, placeHolderParent.transform);
                 model.AddComponent<SCRItemTag>();
                 model.GetComponent<SCRItemTag>().itemID = stickers[j].spatialContentRecord.id;
 
-                if (stickers[j].spatialContentRecord.content.refs.Count > 0) {
-                    // TODO: consider all refs, not only the first one!
-                    string refContentType = stickers[j].spatialContentRecord.content.refs[0]["contentType"];
-                    string refUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
-                    if (string.Equals(refContentType, "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
-                    {
-                        // Asset Bundle for Unity (as defined in the NGI project)
-                        // Note that AC-specific asset bundles are not handled here
-                        Console.WriteLine("  this is an assetbundle");
-                        string assetbundleName = "noAsset";
-                        string assetbundleUrl = refUrl;
-                        for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
-                        {
-                            if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
-                            {
-                                assetbundleName = stickers[j].spatialContentRecord.content.definitions[0]["value"];
-                            }
-                        }
+                if (stickers[j].spatialContentRecord.content.refs.Count == 0) {
+                    // no refs, ignore this object
+                    Debug.LogError("SCR #" + j + " had no Refs! We are skipping it.");
+                    continue;
+                }
 
-                        Console.WriteLine("Assetbundle name is: " + assetbundleName);
-                        model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
-                        model.GetComponent<AssetLoaderNGI>().customUrl = assetbundleUrl.ToLower();
+
+                // TODO: consider all refs, not only the first one!
+                // An SCR may contain different refs for iOS/Android/WebXR, etc.!
+                string refContentType = stickers[j].spatialContentRecord.content.refs[0]["contentType"];
+                string refUrl = stickers[j].spatialContentRecord.content.refs[0]["url"];
+
+                if (string.Equals(refContentType, "assetbundle"))  //(stickers[j].spatialContentRecord.content.refs[0].ContainsKey("assetbundle"))
+                {
+                    // Asset Bundle for Unity (as defined in the NGI project)
+                    // Note that AC-specific asset bundles are not handled here
+                    Console.WriteLine("  this is an assetbundle");
+                    string assetbundleName = "noAsset";
+                    string assetbundleUrl = refUrl;
+                    for (int i = 0; i < stickers[j].spatialContentRecord.content.definitions.Count; i++)
+                    {
+                        // TODO: do not assume the assetbundleName to be the first definition
+                        if (string.Equals(stickers[j].spatialContentRecord.content.definitions[0]["type"], "assetbundleName"))
+                        {
+                            assetbundleName = stickers[j].spatialContentRecord.content.definitions[0]["value"];
+                        }
                     }
-                    else if (refContentType.Contains("GLTF") || refContentType.Contains("gltf") )
-                    {  
-                        // GLTF 3D model
-                        Console.WriteLine("  this is an 3D model with URL: " + refUrl);
-                        model.GetComponent<AssetLoaderNGI>().enabled = false;
-                        var gltf = model.AddComponent<GLTFast.GltfAsset>();
-                        gltf.url = refUrl;
-                    } else {
-                        Debug.LogError("Unknown reference contentType: " + refContentType
-                                + " of content titled " + contentTitle);
-                    }
-                } else if (!string.IsNullOrEmpty(stickers[j].sPath)) { // stickers[j].spatialContentRecord.content.refs.Count == 0
-                    // TODO: ideally this should not happen, but AC objects do not have their 'refs' filled (Oct 2022)
-                    Debug.Log("Sticker #" + j + " had no Refs! Trying to use URL field: " + stickers[j].sPath);
+
+                    Console.WriteLine("Assetbundle name is: " + assetbundleName);
+                    model.GetComponent<AssetLoaderNGI>().ABName = assetbundleName.ToLower();
+                    model.GetComponent<AssetLoaderNGI>().customUrl = assetbundleUrl.ToLower();
+                }
+                else if (refContentType.Contains("GLTF") || refContentType.Contains("gltf") )
+                {  
+                    // GLTF 3D model
+                    Console.WriteLine("  this is an 3D model with URL: " + refUrl);
                     model.GetComponent<AssetLoaderNGI>().enabled = false;
                     var gltf = model.AddComponent<GLTFast.GltfAsset>();
-                    gltf.url = stickers[j].sPath;
+                    gltf.url = refUrl;
                 } else {
-                    // no refs and no url, ignore this object
-                    Debug.LogError("Sticker #" + j + " had no Refs and no URL!");
+                    Debug.LogWarning("Unknown reference contentType: " + refContentType
+                            + " of content titled " + contentTitle);
+                    // NOTE: since November 2022, AugmentedCity returns their own object AssetBundles with type
+                    // MODEL_3D/UNITY_ANDROID/augmented.city and MODEL_3D/UNITY_IOS/augmented.city
+                    // but we ignore these objects as they are proprietary
                     continue;
                 }
 

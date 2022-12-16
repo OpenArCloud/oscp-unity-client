@@ -284,15 +284,14 @@ public class SSRManager : MonoBehaviour
         OSCPDataHolder.Instance.contentUrls = GetSelectedContentServices();
         OSCPDataHolder.Instance.geoPoseServiceURL = GetSelectedGeoPoseService();
 
-        //TODO: Inform the user that their selection has some errors
-        if (OSCPDataHolder.Instance.CheckSelectedServices())
-        {
-            Console.WriteLine("Loading scene...");
-            SceneManager.LoadSceneAsync(sceneName);
-        }
-        else
+        if (!OSCPDataHolder.Instance.CheckSelectedServices())
         {
             Debug.Log("Needed values missing in OSCPDataHolder, aborting scene change");
+            //TODO: Inform the user that their selection has some errors
+            return;
         }
+
+        Console.WriteLine("Loading scene...");
+        SceneManager.LoadSceneAsync(sceneName);
     }
 }
