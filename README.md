@@ -1,10 +1,32 @@
-# AC Viewer Unity app for OSCP clients 
+# Unity client for Open Spatial Computing Platform
 
-This is the basic `AC Viewer` project for OSCP clients based on AC Viewer app
-from the Augmented City company.
+This is a Unity client for [Open AR Cloud](https://www.openarcloud.org/)'s Open Spatial Computing Platform, originally created by [Augmented City](https://augmented.city/) company based on their AC Viewer app. It was extended in a [project](https://medium.com/openarcloud/our-projects-and-achievements-in-2022-5baaa541cce1) funded by NGI Atlantic.
+
+References:
+```
+@INPROCEEDINGS{9974229,
+  author={Sörös, Gábor and Nilsson, John and Wu, Nan and Shane, Jennifer and Kadlubsky, Alina},
+  booktitle={2022 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)}, 
+  title={Demo: End-to-end open-source location-based augmented reality in 5G}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={897-898},
+  doi={10.1109/ISMAR-Adjunct57072.2022.00194}}
+```
+```
+@INPROCEEDINGS{9585798,
+  author={Jackson, James and Vogt, Michael and Sörös, Gábor and Salazar, Mikel and Fedorenko, Sergey},
+  booktitle={2021 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)}, 
+  title={Demo: The First Open AR Cloud Testbed}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={495-496},
+  doi={10.1109/ISMAR-Adjunct54149.2021.00117}}
+```
 
 ## Requirements
-
 Unity version 2021.3.0f1
 
 ### Packages
@@ -63,9 +85,15 @@ Follow the Unity Deep Link
 
 
 ## License
-
 [MIT License](Licence.md)
 
-This project uses the following open source libraries:
+For contributions by [soeroesg](https://github.com/soeroesg): 
+Copyright 2022 Nokia,
+Licensed under the MIT License,
+SPDX-License-Identifier: MIT
+
+
+This project also uses the following open source libraries:
 - H3Net, https://github.com/RichardVasquez/h3net, Apache License v2
 - DecimalMath, https://github.com/nathanpjones/DecimalMath, MIT license
+
