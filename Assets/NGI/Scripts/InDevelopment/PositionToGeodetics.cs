@@ -71,13 +71,13 @@ public class PositionToGeodetics : MonoBehaviour
         y0 = (h_ref + N) * cos_lambda * sin_phi;
         z0 = (h_ref + (1 - e_sq) * N) * sin_lambda;
 
-        Debug.Log("ep.x = " + ep.x + ", ep.y = " + ep.y + ",ep.z = " + ep.z);
+        //Debug.Log("ep.x = " + ep.x + ", ep.y = " + ep.y + ",ep.z = " + ep.z);
 
         double xd, yd, zd;
         xd = ep.x - x0;
         yd = ep.y - y0;
         zd = ep.z - z0;
-        Debug.Log("xd= " + xd + ", yd = " + yd + ",zd = " + zd);
+        //Debug.Log("xd= " + xd + ", yd = " + yd + ",zd = " + zd);
 
         double xEast, yNorth, zUp;
         xEast = -sin_phi * xd + cos_phi * yd;

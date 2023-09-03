@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44402242, g: 0.49316543, b: 0.5722324, a: 1}
+  m_IndirectSpecularColor: {r: 0.4439403, g: 0.4931519, b: 0.5722083, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -289,7 +289,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
-        m_MethodName: SaveSpatialRecordListToLocalStorage
+        m_MethodName: SaveContentsToLocalStorage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2274,7 +2274,6 @@ GameObject:
   - component: {fileID: 192479091}
   - component: {fileID: 192479093}
   - component: {fileID: 192479095}
-  - component: {fileID: 192479096}
   m_Layer: 0
   m_Name: '@OAuth2'
   m_TagString: Untagged
@@ -2331,21 +2330,6 @@ MonoBehaviour:
   _logoutButton: {fileID: 0}
   _authenticatedGUI: {fileID: 194593167}
   _unAuthenticatedGUI: {fileID: 235000719}
---- !u!114 &192479096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192479090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eee3c1566bdf24948bb5faa32b613575, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mockCameraPos: {x: 0, y: 0, z: 0}
-  mockCameraOri: {x: 0, y: 0, z: 0, w: 0}
-  orbitAPI: {fileID: 1355925109}
 --- !u!1 &194593167
 GameObject:
   m_ObjectHideFlags: 0
@@ -4242,7 +4226,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1207397244}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &351937003
 MonoBehaviour:
@@ -8062,6 +8046,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 617802075}
   m_CullTransparentMesh: 1
+--- !u!1 &619362007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 619362008}
+  - component: {fileID: 619362010}
+  - component: {fileID: 619362009}
+  m_Layer: 0
+  m_Name: '@SpatialServiceDiscovery'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &619362008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619362007}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1207397244}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &619362009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619362007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c07b482060f5c6c4f81c0b1993f236d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ssdServerURL: https://ssd.orbit-lab.org
+  listItemPrefab: {fileID: 0}
+  geoPoseServiceItemsGui: {fileID: 0}
+  contentDiscoveryServiceItemsGui: {fileID: 0}
+  h3Manager: {fileID: 619362010}
+  useFakeCountryCode: 0
+  devCountryCode: us
+--- !u!114 &619362010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619362007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18c03e17a968f0e4e86a6a9cdae1d6ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kMaxWaitTimeSecondsForLocationStart: 20
+  devLocationLatitude: 59.168705
+  devLocationLongitude: 18.174704
+  devLocationHDOP: 30
 --- !u!1 &621046311
 GameObject:
   m_ObjectHideFlags: 0
@@ -14376,6 +14428,9 @@ MonoBehaviour:
   m_InteractionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 1
+  m_SelectMode: 0
   m_CustomReticle: {fileID: 0}
   m_FirstHoverEntered:
     m_PersistentCalls:
@@ -14387,6 +14442,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectEntered:
@@ -14428,6 +14489,7 @@ MonoBehaviour:
   m_OnDeactivate:
     m_PersistentCalls:
       m_Calls: []
+  m_XROrigin: {fileID: 0}
   m_ARSessionOrigin: {fileID: 862278455}
   m_PlacementPrefab: {fileID: 0}
   m_FallbackLayerMask:
@@ -16402,6 +16464,7 @@ Transform:
   m_Children:
   - {fileID: 192479091}
   - {fileID: 1426107828}
+  - {fileID: 619362008}
   - {fileID: 1355925107}
   - {fileID: 351937002}
   - {fileID: 1549862677}
@@ -18288,9 +18351,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1355925107}
   - component: {fileID: 1355925109}
+  - component: {fileID: 1355925110}
   - component: {fileID: 1355925108}
   m_Layer: 0
-  m_Name: '@Orbit'
+  m_Name: '@SpatialContentDiscovery'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18309,7 +18373,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1207397244}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1355925108
 MonoBehaviour:
@@ -18337,9 +18401,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470c0711da3c1a043aefac15115c0a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLoadingFromLocalStorage: 0
+  devLoadContentsFromFile: 0
   oAuth2Authentication: {fileID: 192479093}
-  spatialRecordManager: {fileID: 192479096}
+  scrManager: {fileID: 1355925110}
+--- !u!114 &1355925110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355925106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee3c1566bdf24948bb5faa32b613575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  orbitAPI: {fileID: 1355925109}
 --- !u!1 &1367069287
 GameObject:
   m_ObjectHideFlags: 0
@@ -18503,6 +18580,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultApiUrl: https://developer.augmented.city
   editorTestMode: 0
+  ServerAPI: https://developer.augmented.city
   devButton: {fileID: 36101549}
   bb: {fileID: 4900000, guid: 2bd7849d09e77cf4db8111ff700fbc8a, type: 3}
   rotationDevice: 90
@@ -18512,7 +18590,7 @@ MonoBehaviour:
   ecef: 0
   useGeopose: 1
   debugSaveCameraImages: 0
-  spatialContentManager: {fileID: 192479096}
+  scrManager: {fileID: 0}
   useOrbitContent: 1
 --- !u!114 &1396039692
 MonoBehaviour:
@@ -20470,7 +20548,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1207397244}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1477437533
 MonoBehaviour:
@@ -21403,7 +21481,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1207397244}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1549862678
 MonoBehaviour:
@@ -35189,7 +35267,10 @@ MonoBehaviour:
   m_InteractionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 4294967295
   m_AttachTransform: {fileID: 0}
+  m_KeepSelectedTargetValid: 1
   m_StartingSelectedInteractable: {fileID: 0}
   m_HoverEntered:
     m_PersistentCalls:
@@ -35215,6 +35296,7 @@ MonoBehaviour:
   m_OnSelectExited:
     m_PersistentCalls:
       m_Calls: []
+  m_XROrigin: {fileID: 0}
   m_ARSessionOrigin: {fileID: 862278455}
 --- !u!1001 &7723965458522634732
 PrefabInstance:
@@ -35523,6 +35605,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
@@ -35550,3 +35633,4 @@ MonoBehaviour:
     type: 3}
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
+  m_CursorLockBehavior: 0

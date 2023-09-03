@@ -25,3 +25,17 @@ The following packages were updated:
   com.unity.purchasing from version 4.0.3 to 4.1.2
   com.unity.timeline from version 1.5.7 to 1.6.4
   com.unity.xr.management from version 4.1.0 to 4.2.0
+
+=== Mon Oct 10 15:55:34 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ide.rider from version 3.0.14 to 3.0.15
+  com.unity.ide.visualstudio from version 2.0.15 to 2.0.16
+  com.unity.nuget.newtonsoft-json from version 2.0.2 to 3.0.2
+  com.unity.xr.arcore from version 4.2.2 to 4.2.3
+  com.unity.xr.arfoundation from version 4.2.2 to 4.2.3
+  com.unity.xr.arkit from version 4.2.2 to 4.2.3
+  com.unity.xr.interaction.toolkit from version 1.0.0-pre.8 to 2.0.2

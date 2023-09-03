@@ -9889,7 +9889,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
-        m_MethodName: SaveSpatialRecordListToLocalStorage
+        m_MethodName: SaveContentsToLocalStorage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10455,12 +10455,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c07b482060f5c6c4f81c0b1993f236d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ssdServerURL: https://ssd.orbit-lab.org/
+  ssdServerURL: https://ssd.orbit-lab.org
   countryCode: us
   listItemPrefab: {fileID: 8332775679143077325, guid: a738e39a30c5cd2438dd60207cb5d201,
     type: 3}
-  rectTransformSpawnSSR: {fileID: 644661061}
-  rectTransformSpawnSCR: {fileID: 1923795352}
+  geoPoseServiceItemsGui: {fileID: 644661061}
+  contentDiscoveryServiceItemsGui: {fileID: 1923795352}
   h3Manager: {fileID: 0}
 --- !u!4 &1161593224
 Transform:
@@ -11277,7 +11277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 470c0711da3c1a043aefac15115c0a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLoadingFromLocalStorage: 0
+  devLoadContentsFromFile: 0
   oAuth2Authentication: {fileID: 615552024}
   spatialRecordManager: {fileID: 615552026}
 --- !u!1 &1237074268
@@ -14572,7 +14572,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SpatialRecordManager, Assembly-CSharp
-        m_MethodName: SaveSpatialRecordListToLocalStorage
+        m_MethodName: SaveContentsToLocalStorage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17645,9 +17645,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a96558bd266c9c143bba21f8be4db36e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ContentUrls: []
-  GeoPoseServieURL: 
-  H3CurrentZone: 
+  contentUrls: []
+  geoPoseServiceURL: ""
+  currentH3Zone: 
   lastPositon: {x: 0, y: 0, z: 0}
   lastOrientation: {x: 0, y: 0, z: 0, w: 0}
   latitude: 0

@@ -12,7 +12,7 @@ public class setactive : MonoBehaviour
     public GameObject Element2;
     public GameObject Element3;
     public GameObject Element4;
-    private bool active1 = true;
+    //private bool active1 = true; //unused
     private int value;
 
     // Start is called before the first frame update

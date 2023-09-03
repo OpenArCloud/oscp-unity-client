@@ -18,7 +18,7 @@ public class DeleteARObject : MonoBehaviour
 
     //wait for response and delete arobject
 
-    public static event Action<SCRItemTag> Handle;
+    //public static event Action<SCRItemTag> Handle;
 
 
     private void OnEnable()
