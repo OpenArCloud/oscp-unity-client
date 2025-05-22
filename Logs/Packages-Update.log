@@ -39,3 +39,22 @@ The following packages were updated:
   com.unity.xr.arfoundation from version 4.2.2 to 4.2.3
   com.unity.xr.arkit from version 4.2.2 to 4.2.3
   com.unity.xr.interaction.toolkit from version 1.0.0-pre.8 to 2.0.2
+
+=== Thu May 22 09:41:42 2025
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were added:
+  com.unity.ai.navigation@1.1.6
+The following packages were updated:
+  com.unity.ide.rider from version 3.0.15 to 3.0.36
+  com.unity.ide.visualstudio from version 2.0.16 to 2.0.22
+  com.unity.nuget.newtonsoft-json from version 3.0.2 to 3.2.1
+  com.unity.textmeshpro from version 3.0.6 to 3.0.7
+  com.unity.timeline from version 1.6.4 to 1.7.7
+  com.unity.xr.arcore from version 4.2.6 to 5.2.0
+  com.unity.xr.arfoundation from version 4.2.6 to 5.2.0
+  com.unity.xr.arkit from version 4.2.6 to 5.2.0
+  com.unity.xr.interaction.toolkit from version 2.0.3 to 2.6.4
+  com.unity.xr.management from version 4.2.1 to 4.4.0
