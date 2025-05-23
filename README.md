@@ -1,13 +1,31 @@
 # Unity client for Open Spatial Computing Platform
 
-This is a Unity client for [Open AR Cloud](https://www.openarcloud.org/)'s Open Spatial Computing Platform, originally created by [Augmented City](https://augmented.city/) company based on their AC Viewer app. It was extended in a [project](https://medium.com/openarcloud/our-projects-and-achievements-in-2022-5baaa541cce1) funded by NGI Atlantic.
+This is a Unity client for [Open AR Cloud](https://www.openarcloud.org/)'s Open Spatial Computing Platform.
+
+The app was originally created in 2021 by [Augmented City](https://augmented.city/) based on their AC Viewer app.
+It was extended by [3DInteractive](https://3dinteractive.se/en/) and [Nokia](https://www.nokia.com/) in 2022 in a [project](https://medium.com/openarcloud/our-projects-and-achievements-in-2022-5baaa541cce1) funded by [NGI Atlantic](https://ngiatlantic.eu/funded-experiments/deployment-and-evaluation-5g-open-spatial-computing-platform-dense-urban).
+In 2025, Unity upgrade and refactoring was done by [Nokia](https://www.nokia.com/) in a project funded by [NGI Search](https://www.ngisearch.eu/view/Events/OC5Searchers).
 
 References:
 ```
+@INPROCEEDINGS{10740111,
+  author={Sörös, Gábor and Jackson, James and Vogt, Michael and Salazar, Mikel and Kadlubsky, Alina and Vinje, Jan-Erik},
+  booktitle={2024 IEEE International Conference on Metaverse Computing, Networking, and Applications (MetaCom)},
+  title={An Open Spatial Computing Platform},
+  year={2024},
+  volume={},
+  number={},
+  pages={239-246},
+  keywords={Location awareness;Visualization;Cloud computing;Protocols;Metaverse;Collaboration;Cameras;User experience;Spatial computing;Web sites;Mixed/augmented reality;Ubiquitous and mobile computing systems and tools;Location based services},
+  doi={10.1109/MetaCom62920.2024.00046}
+}
+```
+
+```
 @INPROCEEDINGS{9974229,
   author={Sörös, Gábor and Nilsson, John and Wu, Nan and Shane, Jennifer and Kadlubsky, Alina},
-  booktitle={2022 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)}, 
-  title={Demo: End-to-end open-source location-based augmented reality in 5G}, 
+  booktitle={2022 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)},
+  title={Demo: End-to-end open-source location-based augmented reality in 5G},
   year={2022},
   volume={},
   number={},
@@ -17,8 +35,8 @@ References:
 ```
 @INPROCEEDINGS{9585798,
   author={Jackson, James and Vogt, Michael and Sörös, Gábor and Salazar, Mikel and Fedorenko, Sergey},
-  booktitle={2021 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)}, 
-  title={Demo: The First Open AR Cloud Testbed}, 
+  booktitle={2021 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct)},
+  title={Demo: The First Open AR Cloud Testbed},
   year={2021},
   volume={},
   number={},
@@ -27,26 +45,25 @@ References:
 ```
 
 ## Requirements
-Unity version 2021.3.0f1
+Unity version 2022.3
 
 ### Packages
-- ARFoundation 4.2.2
-- ARCore XR Plugin 4.2.2
-- ARKit XR Plugin 4.2.2
-- XR Plugin Managment 4.2.1
-- TextMeshPro 3.0.6
-- Draco 3D Data Compression 4.0.2
-- glTFast 4.6.0
-- KTX/Basis Texture 2.1.2
-- meshoptimizer decompression for Unity(experimental) 0.1.0-preview.5
-- XR Interaction Toolkit Pre-Release 1.0.0-pre.8
-- Newtonsoft Json 2.0.2
+- ARFoundation
+- ARCore XR Plugin
+- ARKit XR Plugin
+- XR Plugin Managment
+- TextMeshPro
+- Draco 3D Data Compression
+- glTFast
+- KTX/Basis Texture
+- meshoptimizer decompression for Unity(experimental)
+- XR Interaction Toolkit Pre-Release
+- Newtonsoft Json
 
 #### Set project settings for Android and ARcore:
 - Allow 'unsafe' Code - true
-- Minimum API Level: Android 9.0
+- Minimum API Level: Android 15.0
 - Target Architectures - ARM64
-- Delete VulcanAPI from Graphics API (ARCore doesn’t support).
 
 #### Set project settings for iOS and ARKit:
 - Allow 'unsafe' Code - true
@@ -54,7 +71,7 @@ Unity version 2021.3.0f1
 
 # Authentication
 To test the login you need to use the Scene Login and add requried url:s and secrets. On object "@Oauth2" in the scene heirarcy.
-I tested this using Auth0 but it should support anything that uses OAuth2.0. 
+I tested this using Auth0 but it should support anything that uses OAuth2.0.
 The authentication uses PKCE flow and deep linking
 
 ## Required information
@@ -69,7 +86,7 @@ The authentication uses PKCE flow and deep linking
 - https://docs.unity3d.com/2019.3/Documentation/Manual/enabling-deep-linking.html
 
 ### Enable Deep Link Android
-For deep link to work on Android you need to follow your login services. 
+For deep link to work on Android you need to follow your login services.
 The AndroidManifest.xml also need to add intent and the deep link url
 
 Custom android Manifest and Deep Link
@@ -87,8 +104,8 @@ Follow the Unity Deep Link
 ## License
 [MIT License](Licence.md)
 
-For contributions by [soeroesg](https://github.com/soeroesg): 
-Copyright 2022 Nokia,
+For contributions by [soeroesg](https://github.com/soeroesg) and [pnok](https://github.com/pnok):
+Copyright 2025 Nokia,
 Licensed under the MIT License,
 SPDX-License-Identifier: MIT
 
