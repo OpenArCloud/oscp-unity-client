@@ -58,19 +58,20 @@ public class OAuth2Authentication : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-#if UNITY_IOS
-//Adding this workaround so iOS is able to atleast view the content. iOS is not able to create, update or delete any content
-//TODO: Add authentication for iOS
-IsAuthenticated?.Invoke(true);
-#endif
+
     }
 
     public void DoAuthenticate()
     {
 #if UNITY_EDITOR
         //CheckLocalTokenChache();
-
         AuthenticationInEditor();
+#elif UNITY_IOS
+        // Skip authentication on iOS
+        // Adding this workaround so iOS is able to at least view the OSCP contents.
+        // iOS clients (without authetntication) are not able to create, update or delete contents
+        IsAuthenticated?.Invoke(true);
+        // TODO: Implement authentication for iOS
 #else
         //CheckLocalTokenChache();
         //Add logic to check current auth state and only doOAuth() when needed.
@@ -330,8 +331,8 @@ IsAuthenticated?.Invoke(true);
     /// <param name="output">string to be appended</param>
     public void output(string output)
     {
-        //Console.WriteLine(output);
-        Debug.Log(output);
+        Console.WriteLine("OAuth2: " + output);
+        //Debug.Log(output);
     }
 
     /// <summary>

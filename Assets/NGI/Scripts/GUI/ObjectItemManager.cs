@@ -4,30 +4,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO what is this class for?
 public class ObjectItemManager : MonoBehaviour
 {
-
     [SerializeField] Transform contentHolder;
-
     [SerializeField] GameObject prefabToSpawn;
-
     [SerializeField] SCRManager spatialRecordManager;
-
     [SerializeField] ObjectInformationGUI informationPanel;
-
 
     private void OnEnable()
     {
         ObjectListItem.listItemClicked += HandleClickedItem;
-        SCRManager.UpdatedSpatialServiceRecord += HandleUpdatedSpatialRecords;
-
+        SCRManager.contentsUpdatedAction += HandleUpdatedSpatialRecords;
     }
 
     private void OnDisable()
     {
         ObjectListItem.listItemClicked -= HandleClickedItem;
-        SCRManager.UpdatedSpatialServiceRecord -= HandleUpdatedSpatialRecords;
-       
+        SCRManager.contentsUpdatedAction -= HandleUpdatedSpatialRecords;
     }
 
     private void HandleUpdatedSpatialRecords(SCRItem[] spatialRecords)
@@ -37,11 +31,9 @@ public class ObjectItemManager : MonoBehaviour
 
     private void HandleClickedItem(SCRItem obj)
     {
-
         Debug.Log("Clicked item: " + obj.id);
         informationPanel.SetValues(obj);
         informationPanel.gameObject.SetActive(true);
-
     }
 
     public void CreateObjectItems(SCRItem[] spatialItems)
@@ -50,16 +42,13 @@ public class ObjectItemManager : MonoBehaviour
         for (int i = 0; i < itemCount; i++)
         {
             GameObject temp = Instantiate(prefabToSpawn);
-
             temp.GetComponent<ObjectListItem>().SetValues(spatialItems[i]);
-
             temp.transform.SetParent(contentHolder);
         }
     }
 
-    public void GetObjects()
+    public async void GetObjects()
     {
-
         //Destroying all objects in GUI
         foreach (Transform child in contentHolder)
         {
@@ -67,8 +56,7 @@ public class ObjectItemManager : MonoBehaviour
         }
 
         //CreateObjectItems(mockResponse.spatialServiceRecord);
-        spatialRecordManager.GetSpatialRecords();
-
+        await spatialRecordManager.GetSpatialContentRecords();
     }
 
 }
